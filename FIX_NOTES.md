@@ -1,3 +1,10 @@
+# WEB v5.6 — Help Button Idle Opacity
+
+- Floating `Need help?` Messenger button is now 50% opacity while idle.
+- It returns to 100% opacity when hovered, keyboard-focused, touched/active, or when the help panel is open.
+- Footer version updated to `WEB v5.6`.
+- Safe ZIP excludes all live `data/*.json` files.
+
 # WEB v5.5 — CTA Cleanup
 
 - Removed Messenger from the homepage hero.

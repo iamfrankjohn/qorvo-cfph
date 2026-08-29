@@ -1689,3 +1689,17 @@ footer p:last-child{text-align:right}
 @media(max-width:560px){
   .hero-actions-clean .btn{width:100%;min-width:0}
 }
+
+/* WEB v5.6 — Messenger help button idle opacity */
+.messenger-fab{
+  opacity:.5;
+  transition:opacity .22s ease, transform .18s ease, box-shadow .18s ease;
+}
+.messenger-fab:hover,
+.messenger-fab:focus-visible,
+.messenger-widget.is-open .messenger-fab{
+  opacity:1;
+}
+@media(hover:none){
+  .messenger-fab:active{opacity:1}
+}
