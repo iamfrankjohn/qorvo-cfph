@@ -587,7 +587,7 @@ loadFeaturedQorvoPost();
       watch.className = 'qorvo-live-modal-watch';
       watch.target = '_blank';
       watch.rel = 'noopener';
-      watch.innerHTML = '<span>WATCH LIVE</span><i class="qorvo-live-external-arrow" aria-hidden="true"></i>';
+      watch.innerHTML = '<span>WATCH LIVE</span><svg class="qorvo-live-external-icon" aria-hidden="true" viewBox="0 0 24 24" focusable="false"><path d="M14 5h5v5"/><path d="M19 5l-9 9"/><path d="M18 13v5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>';
 
       let liveUrl = '';
       try {

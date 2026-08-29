@@ -1734,34 +1734,16 @@ footer p:last-child{text-align:right}
   box-shadow:0 10px 28px rgba(51,255,91,.11);
   transition:transform .16s ease,filter .16s ease,box-shadow .16s ease;
 }
-.qorvo-live-external-arrow{
-  position:relative;
-  width:12px;
-  height:12px;
-  flex:0 0 12px;
-}
-.qorvo-live-external-arrow::before{
-  content:"";
-  position:absolute;
-  top:0;
-  right:0;
-  width:7px;
-  height:7px;
-  border-top:2px solid currentColor;
-  border-right:2px solid currentColor;
-  border-radius:1px;
-}
-.qorvo-live-external-arrow::after{
-  content:"";
-  position:absolute;
-  left:1px;
-  bottom:1px;
-  width:10px;
-  height:2px;
-  border-radius:2px;
-  background:currentColor;
-  transform:rotate(-45deg);
-  transform-origin:center;
+.qorvo-live-external-icon{
+  width:15px;
+  height:15px;
+  flex:0 0 15px;
+  overflow:visible;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:2.25;
+  stroke-linecap:round;
+  stroke-linejoin:round;
 }
 .qorvo-live-modal-watch:hover{
   transform:translateY(-2px);
@@ -1872,6 +1854,11 @@ footer p:last-child{text-align:right}
     padding:0 16px;
     border-radius:10px;
     font-size:10.5px;
+  }
+  .qorvo-live-external-icon{
+    width:14px;
+    height:14px;
+    flex-basis:14px;
   }
   .qorvo-live-modal-later{
     margin-top:16px;

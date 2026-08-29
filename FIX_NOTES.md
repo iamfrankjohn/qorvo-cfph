@@ -1,3 +1,12 @@
+# WEB v5.10 — WATCH LIVE Icon Fix
+
+- Replaced the custom CSS-drawn WATCH LIVE arrow with a clean inline SVG external-link icon.
+- The icon now keeps the same shape and proportions across desktop, iPhone, Android, and other browsers.
+- Mobile icon sizing was tuned to match the WATCH LIVE label.
+- TikTok LIVE detection and modal behavior are unchanged.
+- Footer version updated to `WEB v5.10`.
+- Safe ZIP excludes all live `data/*.json` files.
+
 # WEB v5.9 — LIVE Modal Mobile Polish
 
 - Made the TikTok LIVE popup smaller and more balanced on phones.
