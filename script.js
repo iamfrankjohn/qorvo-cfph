@@ -502,5 +502,5 @@ loadFeaturedQorvoPost();
     }catch(error){ console.warn('Schedule refresh failed:',error); }
   }
   refreshSchedule();
-  window.setInterval(refreshSchedule, 300000);
+  window.setInterval(refreshSchedule, 120000);
 })();;

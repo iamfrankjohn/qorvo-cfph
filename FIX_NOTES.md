@@ -44,3 +44,10 @@
 - Added `TIKTOOLS_LIVE_ENABLED` kill switch.
 - Monitoring stays OFF unless explicitly enabled.
 - Sandbox key can be kept for testing, but public production monitoring should only be enabled with a Tik.Tools plan that permits production use.
+
+## v17 — Self-hosted TikTok LIVE checker
+- Replaced Tik.Tools integration with the user's self-hosted QORVO TikTok checker.
+- Added `TIKTOK_CHECKER_URL` and `TIKTOK_CHECKER_SECRET` Vercel environment variables.
+- Vercel sends the enabled QORVO Control TikTok member list to the checker server-side.
+- The checker keeps a 2-minute cache, so many website visitors do not cause repeated TikTok checks.
+- Browser refresh interval is now 2 minutes while the page remains open.

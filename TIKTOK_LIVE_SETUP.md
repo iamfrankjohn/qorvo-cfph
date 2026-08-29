@@ -1,34 +1,45 @@
-# TikTok LIVE setup (v16)
+# TikTok LIVE setup — self-hosted checker
 
-## Important plan note
-Tik.Tools' Sandbox tier is intended for testing/evaluation and its Terms do not permit using Sandbox to power a public production website. For the live QORVO site, leave monitoring disabled while you are on Sandbox. Upgrade to a production-permitted Tik.Tools plan before enabling it publicly.
+The QORVO website no longer uses Tik.Tools. TikTok LIVE status is read from your own checker server.
 
-## Environment variables in Vercel
+## Vercel environment variables
 
-Add these in Project Settings > Environment Variables:
+In Vercel → Project → Settings → Environment Variables, add:
 
-- `TIKTOOLS_API_KEY` = your private Tik.Tools key
-- `TIKTOOLS_LIVE_ENABLED` = `false` while testing / Sandbox
+- `TIKTOK_CHECKER_URL` = the public HTTPS base URL of your checker, for example `https://live.example.com`
+- `TIKTOK_CHECKER_SECRET` = the exact same private key stored as `QORVO_API_KEY` on the checker server
 
-When you have a production-permitted Tik.Tools plan, change:
+Keep your existing QORVO/GitHub variables:
 
-- `TIKTOOLS_LIVE_ENABLED` = `true`
+- `QORVO_ADMIN_PASSWORD`
+- `GITHUB_CONTENT_TOKEN`
+- `GITHUB_REPO_OWNER`
+- `GITHUB_REPO_NAME`
+- `GITHUB_REPO_BRANCH`
 
-Then redeploy.
+Remove the old Tik.Tools variables if present:
 
-## How v16 reduces API usage
+- `TIKTOOLS_API_KEY`
+- `TIKTOOLS_LIVE_ENABLED`
 
-- Browser refresh interval changed from 90 seconds to 5 minutes.
-- `/api/tiktok-live` sends Vercel CDN caching headers for 5 minutes.
-- The function also keeps a 5-minute in-memory cache when the same serverless instance is reused.
-- This means multiple site visitors generally share a cached live-status response instead of every visitor triggering fresh Tik.Tools calls.
-- Up to 8 enabled TikTok members can be monitored from the QORVO Control Panel.
+Redeploy after changing environment variables.
 
-## Add members
+## How it works
 
-1. On the public site, click the footer QORVO logo 3 times quickly.
-2. Log in to QORVO Control Panel.
-3. Under TikTok LIVE Members, add a display name and TikTok username without `@`.
-4. Save.
+1. A visitor opens the QORVO website.
+2. The browser calls `/api/tiktok-live` on Vercel.
+3. Vercel reads the enabled TikTok member list managed in QORVO Control.
+4. Vercel securely sends that member list to your self-hosted checker.
+5. If the checker's cached result for that exact member list is less than 2 minutes old, it returns the cache and does not contact TikTok.
+6. If the cache is missing or expired, the checker checks TikTok once, stores the result, and returns it.
+7. LIVE members appear automatically above Events & Live Nights.
 
-When monitoring is enabled and a member is live, their LIVE row is shown above the manually managed Events & Live Nights schedule.
+The browser never receives `TIKTOK_CHECKER_SECRET`.
+
+## Important network requirement
+
+Vercel cannot access a private LAN address such as `http://192.168.1.193:3000`. The checker must have a public HTTPS URL reachable from Vercel. Do not expose port 3000 directly without HTTPS/authentication. A secure tunnel or HTTPS reverse proxy is recommended.
+
+## Member management
+
+Continue using QORVO Control → TikTok LIVE Members. The Vercel API sends the currently enabled member list to the checker on each request, so you do not need to manually keep `members.json` on the checker server synchronized.

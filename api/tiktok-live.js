@@ -1,10 +1,8 @@
 const localMembers = require('../data/tiktok-members.json');
 
 const FILE_PATH = 'data/tiktok-members.json';
-const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
-let memoryCache = { key: '', at: 0, payload: null };
 
-function cfg() {
+function githubConfig() {
   return {
     token: process.env.GITHUB_CONTENT_TOKEN,
     owner: process.env.GITHUB_REPO_OWNER,
@@ -13,57 +11,49 @@ function cfg() {
   };
 }
 
-function ghConfigured(c) {
+function githubConfigured(c) {
   return Boolean(c.token && c.owner && c.repo);
 }
 
-function liveMonitoringEnabled() {
-  return String(process.env.TIKTOOLS_LIVE_ENABLED || '').toLowerCase() === 'true';
+function checkerConfig() {
+  const baseUrl = String(process.env.TIKTOK_CHECKER_URL || '').trim().replace(/\/+$/, '');
+  const secret = String(process.env.TIKTOK_CHECKER_SECRET || '').trim();
+  return { baseUrl, secret };
 }
 
 async function readMembers() {
-  const c = cfg();
-  if (!ghConfigured(c)) return localMembers.members || [];
+  const c = githubConfig();
+  if (!githubConfigured(c)) return localMembers.members || [];
 
   const url = `https://api.github.com/repos/${encodeURIComponent(c.owner)}/${encodeURIComponent(c.repo)}/contents/${FILE_PATH}?ref=${encodeURIComponent(c.branch)}`;
-  const r = await fetch(url, {
+  const response = await fetch(url, {
     headers: {
       Accept: 'application/vnd.github+json',
       Authorization: `Bearer ${c.token}`,
       'X-GitHub-Api-Version': '2022-11-28',
       'User-Agent': 'qorvo-cfph-live'
-    }
-  });
-
-  if (!r.ok) throw new Error(`GitHub ${r.status}`);
-  const x = await r.json();
-  const data = JSON.parse(Buffer.from(x.content.replace(/\n/g, ''), 'base64').toString('utf8'));
-  return Array.isArray(data.members) ? data.members : [];
-}
-
-async function checkOne(member, key) {
-  const u = encodeURIComponent(member.username);
-  const r = await fetch(`https://api.tik.tools/webcast/check_alive?unique_id=${u}`, {
-    headers: { 'x-api-key': key, Accept: 'application/json' },
+    },
     signal: AbortSignal.timeout(8000)
   });
 
-  if (!r.ok) throw new Error(`TikTools ${r.status}`);
-  const x = await r.json();
-  const raw = Array.isArray(x.data) ? x.data[0] : x.data;
-  if (!raw) return null;
+  if (!response.ok) throw new Error(`GitHub ${response.status}`);
+  const payload = await response.json();
+  const data = JSON.parse(Buffer.from(payload.content.replace(/\n/g, ''), 'base64').toString('utf8'));
+  return Array.isArray(data.members) ? data.members : [];
+}
 
-  const alive = raw.alive === true || raw.is_live === true || raw.alive_status === 'live' || raw.live_status === 'live';
-  if (!alive) return null;
+function normalizeLiveMember(member) {
+  const username = String(member?.username || '').replace(/^@+/, '').trim();
+  if (!username) return null;
 
   return {
-    id: `tiktok-${member.username}`,
-    name: member.name || member.username,
-    username: member.username,
-    title: String(raw.title || `${member.name || member.username} is LIVE on TikTok`).trim(),
-    viewers: Number(raw.userCount ?? raw.user_count ?? 0) || 0,
-    roomId: String(raw.room_id || ''),
-    url: `https://www.tiktok.com/@${encodeURIComponent(member.username)}/live`
+    id: `tiktok-${username}`,
+    name: String(member?.name || username).trim(),
+    username,
+    title: `${String(member?.name || username).trim()} is LIVE on TikTok`,
+    viewers: Number(member?.viewers || 0) || 0,
+    roomId: String(member?.roomId || ''),
+    url: member?.url || `https://www.tiktok.com/@${encodeURIComponent(username)}/live`
   };
 }
 
@@ -73,70 +63,75 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
   }
 
-  // Vercel CDN may reuse this response for 5 minutes, so many visitors do not
-  // cause one TikTools request each. stale-while-revalidate keeps the page fast.
-  res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
+  // Every website visit may reach this Vercel function. The self-hosted checker
+  // decides whether TikTok actually needs to be contacted using its 2-minute cache.
+  res.setHeader('Cache-Control', 'no-store, max-age=0');
 
-  if (!liveMonitoringEnabled()) {
+  const checker = checkerConfig();
+  if (!checker.baseUrl || !checker.secret) {
     return res.status(200).json({
       ok: true,
-      enabled: false,
-      configured: Boolean(process.env.TIKTOOLS_API_KEY),
-      live: [],
-      message: 'TikTok LIVE monitoring is disabled. Set TIKTOOLS_LIVE_ENABLED=true only with a plan permitted for production use.'
-    });
-  }
-
-  const key = process.env.TIKTOOLS_API_KEY;
-  if (!key) {
-    return res.status(200).json({
-      ok: true,
-      enabled: true,
       configured: false,
       live: [],
-      message: 'TIKTOOLS_API_KEY is not configured.'
+      message: 'Self-hosted TikTok checker is not configured in Vercel.'
     });
   }
 
   try {
     const members = (await readMembers())
-      .filter(m => m.enabled !== false && m.username)
-      .slice(0, 8);
+      .filter(member => member?.enabled !== false && member?.username)
+      .map(member => ({
+        name: String(member.name || member.username).trim(),
+        username: String(member.username).replace(/^@+/, '').trim(),
+        enabled: true
+      }))
+      .slice(0, 12);
 
-    const cacheKey = members.map(m => m.username).join('|');
-    if (memoryCache.payload && memoryCache.key === cacheKey && Date.now() - memoryCache.at < CACHE_TTL_MS) {
-      return res.status(200).json(memoryCache.payload);
+    if (!members.length) {
+      return res.status(200).json({
+        ok: true,
+        configured: true,
+        checkedAt: null,
+        source: 'no-members',
+        live: []
+      });
     }
 
-    const live = [];
-    for (const member of members) {
-      try {
-        const x = await checkOne(member, key);
-        if (x) live.push(x);
-      } catch (e) {
-        console.warn('TikTok live check failed:', member.username, e.message);
-      }
+    const response = await fetch(`${checker.baseUrl}/api/live`, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'x-qorvo-key': checker.secret
+      },
+      body: JSON.stringify({ members }),
+      signal: AbortSignal.timeout(15000)
+    });
+
+    if (!response.ok) {
+      throw new Error(`Checker HTTP ${response.status}`);
     }
 
-    const payload = {
-      ok: true,
-      enabled: true,
-      configured: true,
-      checkedAt: new Date().toISOString(),
-      cacheSeconds: 300,
-      live
-    };
+    const payload = await response.json();
+    const live = (Array.isArray(payload.live) ? payload.live : [])
+      .map(normalizeLiveMember)
+      .filter(Boolean);
 
-    memoryCache = { key: cacheKey, at: Date.now(), payload };
-    return res.status(200).json(payload);
-  } catch (e) {
-    console.error(e);
     return res.status(200).json({
       ok: true,
-      enabled: true,
+      configured: true,
+      checkedAt: payload.checkedAt || new Date().toISOString(),
+      source: payload.source || 'checker',
+      cacheAgeSeconds: Number(payload.cacheAgeSeconds || 0) || 0,
+      live
+    });
+  } catch (error) {
+    console.error('Self-hosted TikTok checker failed:', error?.message || error);
+    return res.status(200).json({
+      ok: true,
       configured: true,
       live: [],
-      warning: 'TikTok live status could not be checked right now.'
+      warning: 'TikTok LIVE status could not be checked right now.'
     });
   }
 };
