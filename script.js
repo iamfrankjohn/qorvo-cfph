@@ -605,7 +605,7 @@ loadFeaturedQorvoPost();
       rows.push(`<div class="event-row"><div class="event-date"><b class="event-day">${esc(dp.day)}</b><span class="event-month">${esc(dp.month)}</span>${e.time?`<span class="event-time">${esc(e.time)}</span>`:''}</div><div class="event-info"><span>${esc(e.category||'COMMUNITY')}</span><h3>${esc(e.title)}</h3></div><div class="event-type">${esc(e.badge||'CFPH')}</div>${link}</div>`);
     });
     if (!rows.length) {
-      list.innerHTML='<div class="event-empty"><strong>NO UPCOMING DEPLOYMENTS</strong><span>No QORVO events are currently scheduled and no monitored member is live on TikTok right now.</span></div>';
+      list.innerHTML='<div class="event-empty"><strong>NO UPCOMING DEPLOYMENTS</strong><span>No QORVO events are currently scheduled and no monitored member is live right now.</span></div>';
       return;
     }
     list.innerHTML=rows.join('');

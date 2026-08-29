@@ -32,7 +32,7 @@ Redeploy after changing environment variables.
 4. Vercel securely sends that member list to your self-hosted checker.
 5. If the checker's cached result for that exact member list is less than 2 minutes old, it returns the cache and does not contact TikTok.
 6. If the cache is missing or expired, the checker checks TikTok once, stores the result, and returns it.
-7. LIVE members appear automatically above Events & Live Nights.
+7. LIVE members appear automatically above Events & Live.
 
 The browser never receives `TIKTOK_CHECKER_SECRET`.
 

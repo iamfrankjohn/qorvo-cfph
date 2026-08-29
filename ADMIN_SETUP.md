@@ -33,7 +33,7 @@ The API writes `data/featured-post.json` to GitHub. The homepage API also reads 
 The 3-click shortcut is only a convenience feature; it is not the security layer. The admin password is checked on the server and the GitHub token remains in Vercel environment variables.
 
 ## Events & Live Schedule Manager
-The same control panel now manages the public **Events & Live Nights** section.
+The same control panel now manages the public **Events & Live** section.
 
 - Add a title, category, badge, date, optional time/note, and optional link.
 - Use **Always open** for ongoing items such as clip submissions.
@@ -43,7 +43,7 @@ The same control panel now manages the public **Events & Live Nights** section.
 
 ## TikTok LIVE members (self-hosted)
 
-The control panel includes **TIKTOK LIVE MEMBERS**. Add a member display name and TikTok username, then save. The public Events & Live Nights section asks your self-hosted checker whether configured members are live.
+The control panel includes **TIKTOK LIVE MEMBERS**. Add a member display name and TikTok username, then save. The public Events & Live section asks your self-hosted checker whether configured members are live.
 
 Add these Vercel Production environment variables:
 

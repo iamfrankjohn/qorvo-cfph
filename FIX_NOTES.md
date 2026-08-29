@@ -34,7 +34,7 @@
 ## v15
 - Added TikTok LIVE member manager to QORVO Control Panel.
 - Added server-side TikTok live-status checks using TikTools.
-- LIVE members automatically appear at the top of Events & Live Nights.
+- LIVE members automatically appear at the top of Events & Live.
 - Homepage refreshes live status about every 90 seconds.
 - Added `TIKTOOLS_API_KEY` environment variable and setup guide.
 
@@ -66,6 +66,6 @@
 
 ## v21 — LIVE visitor modal
 - Added an automatic QORVO LIVE modal when one or more monitored TikTok members are live.
-- Uses the same `/api/tiktok-live` response as the Events & Live Nights section, so it does not create a second TikTok check.
+- Uses the same `/api/tiktok-live` response as the Events & Live section, so it does not create a second TikTok check.
 - Shows once per browser session, only when a live member is detected.
 - Supports multiple simultaneous live members and mobile layout.
