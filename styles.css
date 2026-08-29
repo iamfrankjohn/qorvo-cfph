@@ -792,3 +792,155 @@ footer p:last-child{text-align:right}
 @media(prefers-reduced-motion:reduce){
   .messenger-card,.messenger-fab,.messenger-start{transition:none}
 }
+
+/* =====================================================
+   QORVO FAQ CHAT ADDITIONS
+===================================================== */
+.messenger-card{
+  width:min(390px,calc(100vw - 36px));
+  max-height:min(650px,calc(100vh - 115px));
+}
+
+.messenger-card-body{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  max-height:calc(min(650px,100vh - 115px) - 73px);
+  padding:14px;
+  overflow:hidden;
+}
+
+.faq-chat{
+  min-height:88px;
+  max-height:255px;
+  overflow-y:auto;
+  padding:3px 2px 2px;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(255,255,255,.18) transparent;
+}
+
+.faq-chat::-webkit-scrollbar{width:6px}
+.faq-chat::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18);border-radius:999px}
+
+.faq-row{
+  display:flex;
+  align-items:flex-end;
+  gap:8px;
+  margin:0 0 10px;
+  animation:faqMessageIn .18s ease both;
+}
+
+.faq-row-user{justify-content:flex-end}
+.faq-row-bot{justify-content:flex-start}
+
+.faq-avatar{
+  flex:0 0 auto;
+  width:27px;
+  height:27px;
+  border-radius:50%;
+  object-fit:cover;
+  border:1px solid rgba(75,255,91,.35);
+}
+
+.faq-bubble{
+  max-width:82%;
+  padding:10px 12px;
+  font-size:12px;
+  line-height:1.5;
+  word-break:break-word;
+}
+
+.faq-bubble-bot{
+  color:#e8eef5;
+  background:rgba(255,255,255,.075);
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:15px 15px 15px 4px;
+}
+
+.faq-bubble-user{
+  color:#fff;
+  background:#168aff;
+  border-radius:15px 15px 4px 15px;
+  box-shadow:0 5px 15px rgba(22,138,255,.18);
+}
+
+.faq-options{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:7px;
+  max-height:205px;
+  overflow-y:auto;
+  padding:1px 2px 2px;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(255,255,255,.18) transparent;
+}
+
+.faq-option{
+  width:100%;
+  padding:10px 12px;
+  border:1px solid rgba(22,138,255,.3);
+  border-radius:10px;
+  background:rgba(22,138,255,.08);
+  color:#e9f4ff;
+  cursor:pointer;
+  text-align:left;
+  font:700 11px/1.35 "Inter",sans-serif;
+  transition:background .16s ease,border-color .16s ease,transform .16s ease;
+}
+
+.faq-option:hover{
+  background:rgba(22,138,255,.18);
+  border-color:rgba(22,138,255,.55);
+  transform:translateY(-1px);
+}
+
+.faq-option:focus-visible,.faq-reset:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+}
+
+.faq-actions{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  align-items:center;
+  gap:8px;
+  padding-top:2px;
+}
+
+.faq-reset{
+  height:42px;
+  padding:0 11px;
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:8px;
+  background:rgba(255,255,255,.05);
+  color:#aebac8;
+  cursor:pointer;
+  font:700 10px/1 "Inter",sans-serif;
+  white-space:nowrap;
+}
+
+.faq-reset:hover{background:rgba(255,255,255,.1);color:#fff}
+.faq-actions .messenger-start{min-height:42px;padding:10px 12px;font-size:11px}
+
+@keyframes faqMessageIn{
+  from{opacity:0;transform:translateY(5px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+@media(max-width:520px){
+  .messenger-card{width:min(360px,calc(100vw - 24px));max-height:calc(100vh - 95px)}
+  .messenger-card-body{max-height:calc(100vh - 168px)}
+  .faq-chat{max-height:220px}
+  .faq-options{max-height:185px}
+}
+
+@media(max-width:370px){
+  .faq-actions{grid-template-columns:1fr}
+  .faq-reset{order:2}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .faq-row{animation:none}
+  .faq-option{transition:none}
+}
+.faq-option:disabled{opacity:.55;cursor:wait;transform:none}

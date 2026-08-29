@@ -190,3 +190,82 @@ document.addEventListener('click', event => {
   if (!messengerWidget?.classList.contains('open')) return;
   if (!messengerWidget.contains(event.target)) setMessengerWidget(false);
 });
+
+// QORVO FAQ auto replies
+const faqChat = document.getElementById('faq-chat');
+const faqOptions = document.getElementById('faq-options');
+const faqReset = document.getElementById('faq-reset');
+
+const qorvoFaqs = {
+  join: {
+    question: 'How do I join QORVO CFPH?',
+    answer: 'Thanks for your interest in joining QORVO CFPH! 🦅🔥 Send us your IGN and tell us that you want to join. A Clan Officer will reply with the current requirements and next steps.'
+  },
+  scrim: {
+    question: 'How can we schedule a Clan War/Scrim?',
+    answer: 'To challenge or schedule a Clan War/Scrim with us, please message us with your Clan Name, Leader/Representative IGN, proposed date and time, and match format (for example, 5v5). Our officers will review your request and reply shortly.'
+  },
+  requirements: {
+    question: 'What are the clan requirements?',
+    answer: 'Clan requirements may change depending on current recruitment needs. Send us your IGN through Messenger and a Clan Officer will provide the latest requirements and application details.'
+  },
+  officer: {
+    question: 'How do I contact a Clan Officer?',
+    answer: 'Tap “Continue on Messenger” below and send your concern to the QORVO CFPH Page. Please include your IGN and a short description so the appropriate Clan Officer can assist you.'
+  },
+  events: {
+    question: 'Where can I see giveaways and events?',
+    answer: 'Our latest giveaways, events, announcements, and community updates are posted on the QORVO CFPH Facebook Page. Follow the Page so you do not miss new posts.'
+  },
+  report: {
+    question: 'How do I report a concern?',
+    answer: 'Please message the QORVO CFPH Page with your IGN, the IGN of the player involved (if applicable), a clear description of the concern, and screenshots or video evidence when available. Our team will review it.'
+  }
+};
+
+function addFaqMessage(text, sender) {
+  if (!faqChat) return;
+
+  const row = document.createElement('div');
+  row.className = `faq-row faq-row-${sender}`;
+
+  if (sender === 'bot') {
+    const avatar = document.createElement('img');
+    avatar.src = 'assets/qorvo-mark.png';
+    avatar.alt = '';
+    avatar.className = 'faq-avatar';
+    row.appendChild(avatar);
+  }
+
+  const bubble = document.createElement('div');
+  bubble.className = `faq-bubble faq-bubble-${sender}`;
+  bubble.textContent = text;
+  row.appendChild(bubble);
+
+  faqChat.appendChild(row);
+  faqChat.scrollTo({ top: faqChat.scrollHeight, behavior: 'smooth' });
+}
+
+faqOptions?.addEventListener('click', event => {
+  const button = event.target.closest('.faq-option');
+  if (!button) return;
+
+  const faq = qorvoFaqs[button.dataset.faq];
+  if (!faq) return;
+
+  addFaqMessage(faq.question, 'user');
+  button.disabled = true;
+  button.setAttribute('aria-pressed', 'true');
+
+  window.setTimeout(() => {
+    addFaqMessage(faq.answer, 'bot');
+    button.disabled = false;
+    button.removeAttribute('aria-pressed');
+  }, 280);
+});
+
+faqReset?.addEventListener('click', () => {
+  if (!faqChat) return;
+  faqChat.innerHTML = '';
+  addFaqMessage('Hi! 👋 Welcome to QORVO CFPH. Choose a frequently asked question below for an instant answer.', 'bot');
+});
