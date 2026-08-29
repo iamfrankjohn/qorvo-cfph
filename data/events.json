@@ -1,4 +1,16 @@
 {
-  "events": [],
-  "updatedAt": "2026-08-29T15:07:06.143Z"
+  "events": [
+    {
+      "id": "1788016094610-uf0mz",
+      "title": "CLAN WAR",
+      "category": "EVENT",
+      "badge": "CFPH",
+      "date": "2026-08-30",
+      "time": "8:00 PM",
+      "url": "",
+      "alwaysOpen": false,
+      "enabled": true
+    }
+  ],
+  "updatedAt": "2026-08-29T15:08:16.291Z"
 }
