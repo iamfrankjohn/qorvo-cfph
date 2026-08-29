@@ -1,11 +1,14 @@
-# QORVO CFPH Final Website
+# QORVO CFPH Website — No Meta Developer Version
 
-Includes:
-- Responsive/fluid layout for desktop, tablet, iPhone and Android
-- QORVO logo image in header and footer
-- Multi-size qorvo.ico favicon
-- Apple touch icon PNG
-- No decorative Q in the Join the Squad section
-- Existing QORVO cover artwork
+Included:
 
-Deploy by pushing this folder to your GitHub repository. Vercel will redeploy automatically.
+- Responsive desktop/tablet/mobile design
+- QORVO logos and favicon
+- Static Community Update card
+- Facebook Page timeline for latest QORVO content
+- Automatic Server Intel from official CrossFire PH news
+- Vercel serverless API for CrossFire updates
+- No Facebook Page ID required
+- No Facebook access token required
+
+Read `SETUP_NO_META.md`.
