@@ -1,0 +1,50 @@
+name: Update CFPH latest news
+
+on:
+  workflow_dispatch:
+  schedule:
+    # GitHub scheduled workflows run in UTC and may start a little late.
+    - cron: '*/30 * * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-cfph-news
+  cancel-in-progress: false
+
+jobs:
+  update-news:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Discover newest CFPH posts
+        env:
+          CFPH_MAX_LOOKAHEAD: '20'
+          CFPH_REQUEST_DELAY_MS: '650'
+        run: node scripts/update-cfph-news.mjs
+
+      - name: Commit update when news changed
+        shell: bash
+        run: |
+          if git diff --quiet -- data/news.json; then
+            echo "No new CFPH posts found."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/news.json
+          git commit -m "Auto-update latest CFPH news"
+          git push

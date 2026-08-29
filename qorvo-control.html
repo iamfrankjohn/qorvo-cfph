@@ -7,84 +7,158 @@
   <title>QORVO Control Panel</title>
   <link rel="icon" href="assets/qorvo.ico">
   <style>
-    :root{color-scheme:dark;--bg:#090b0f;--panel:#11151c;--line:#28303b;--text:#f5f7fa;--muted:#9ea8b5;--accent:#ff6b00;--danger:#ff5a5f}
-    *{box-sizing:border-box} body{margin:0;min-height:100vh;font-family:Inter,Arial,sans-serif;background:radial-gradient(circle at top,#18202b 0,#090b0f 45%);color:var(--text);display:grid;place-items:center;padding:24px}
-    .panel{width:min(680px,100%);background:rgba(17,21,28,.96);border:1px solid var(--line);border-radius:20px;box-shadow:0 24px 80px rgba(0,0,0,.45);overflow:hidden}
-    .head{display:flex;align-items:center;gap:14px;padding:22px 24px;border-bottom:1px solid var(--line)} .head img{width:48px;height:48px;object-fit:contain}.head h1{margin:0;font-size:1.15rem;letter-spacing:.08em}.head p{margin:4px 0 0;color:var(--muted);font-size:.86rem}
-    .body{padding:24px}.note{padding:12px 14px;border:1px solid var(--line);border-radius:12px;color:var(--muted);font-size:.9rem;margin-bottom:18px;background:#0b0f14}
-    label{display:block;font-weight:700;font-size:.86rem;margin:16px 0 8px} input,select{width:100%;padding:13px 14px;border-radius:11px;border:1px solid var(--line);background:#090d12;color:var(--text);outline:none}input:focus,select:focus{border-color:var(--accent)}
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}.btn{border:0;border-radius:10px;padding:12px 16px;font-weight:800;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}.primary{background:var(--accent);color:#111}.secondary{background:#202733;color:#fff}.danger{background:#3b1719;color:#ffd6d8;border:1px solid #6d282d}
-    #status{min-height:22px;margin-top:14px;color:var(--muted);font-size:.9rem}.ok{color:#7ee787!important}.err{color:#ff8e93!important}.hidden{display:none!important}
-    .manager-block{margin-top:30px;padding-top:24px;border-top:1px solid var(--line)}.manager-block h2{margin:0;font-size:1rem;letter-spacing:.06em}.manager-block>p{color:var(--muted);font-size:.86rem;line-height:1.5}.event-admin-item{margin-top:12px;padding:14px;border:1px solid var(--line);border-radius:12px;background:#0b0f14}.event-admin-item strong{display:block}.event-admin-item span{color:var(--muted);font-size:.8rem}.event-admin-item button{float:right}.checkline{display:flex;align-items:center;gap:9px;margin-top:14px;color:var(--muted);font-size:.85rem}.checkline input{width:auto}.current{margin-top:22px;border-top:1px solid var(--line);padding-top:18px}.current a{color:#ff9c57;word-break:break-all}
-    @media(max-width:600px){.row{grid-template-columns:1fr}.body{padding:18px}.head{padding:18px}}
+    :root{color-scheme:dark;--bg:#070a0d;--panel:#0f141a;--panel2:#131a22;--line:#27313c;--text:#f5f7fa;--muted:#94a0ad;--accent:#24f05a;--accent2:#ff6b00;--danger:#ff5a5f;--shadow:0 24px 80px rgba(0,0,0,.46)}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;font-family:Inter,Arial,sans-serif;background:radial-gradient(circle at 18% 0,#16231b 0,#090d11 33%,#06080b 70%);color:var(--text);padding:24px}
+    .shell{width:min(1180px,100%);margin:0 auto;display:grid;grid-template-columns:260px minmax(0,1fr);gap:18px}
+    .sidebar,.content{background:rgba(15,20,26,.96);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow)}
+    .sidebar{position:sticky;top:24px;height:fit-content;overflow:hidden}
+    .brand{display:flex;align-items:center;gap:12px;padding:20px;border-bottom:1px solid var(--line)}
+    .brand img{width:44px;height:44px;object-fit:contain}.brand h1{font-size:1rem;margin:0;letter-spacing:.08em}.brand p{margin:4px 0 0;color:var(--muted);font-size:.78rem}
+    .nav{padding:14px}.nav-title{font-size:.68rem;letter-spacing:.18em;color:#6f7b88;padding:6px 10px 10px;font-weight:800}
+    .nav-btn{width:100%;border:1px solid transparent;background:transparent;color:#cbd3dc;border-radius:12px;padding:12px 13px;text-align:left;display:flex;align-items:center;gap:11px;font-weight:800;cursor:pointer;margin-bottom:6px}
+    .nav-btn:hover{background:#141b22;border-color:#26313b}.nav-btn.active{background:linear-gradient(90deg,rgba(36,240,90,.15),rgba(36,240,90,.04));border-color:rgba(36,240,90,.35);color:#fff}.nav-btn .icon{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:#0a0f13;border:1px solid #26313b;color:var(--accent);font-size:.95rem}
+    .sidebar-foot{padding:14px;border-top:1px solid var(--line)}
+    .view-site{display:flex;justify-content:center;text-decoration:none;color:#061006;background:var(--accent);font-weight:900;padding:11px 14px;border-radius:10px}
+    .content{overflow:hidden}.head{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:22px 24px;border-bottom:1px solid var(--line)}.head h2{margin:0;font-size:1.15rem;letter-spacing:.04em}.head p{margin:5px 0 0;color:var(--muted);font-size:.86rem}.head-badge{font-size:.72rem;letter-spacing:.14em;color:var(--accent);border:1px solid rgba(36,240,90,.35);background:rgba(36,240,90,.08);padding:8px 10px;border-radius:999px;font-weight:900;white-space:nowrap}
+    .body{padding:24px}.note{padding:12px 14px;border:1px solid var(--line);border-radius:12px;color:var(--muted);font-size:.9rem;background:#0a0f14}
+    .login-card{max-width:560px;margin:20px auto}.login-card .note{margin-bottom:18px}
+    label{display:block;font-weight:800;font-size:.82rem;margin:16px 0 8px;color:#d8dee6}input,select{width:100%;padding:13px 14px;border-radius:11px;border:1px solid var(--line);background:#090d12;color:var(--text);outline:none}input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(36,240,90,.08)}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}.btn{border:0;border-radius:10px;padding:11px 15px;font-weight:900;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}.primary{background:var(--accent);color:#071108}.secondary{background:#202832;color:#fff;border:1px solid #303b47}.danger{background:#35171b;color:#ffd6d8;border:1px solid #6d282d}
+    #status{min-height:22px;margin-top:16px;color:var(--muted);font-size:.9rem}.ok{color:#7ee787!important}.err{color:#ff8e93!important}.hidden{display:none!important}
+    .tool-panel{display:none}.tool-panel.active{display:block}.tool-card{background:linear-gradient(180deg,#111820,#0d1218);border:1px solid var(--line);border-radius:16px;padding:20px}.tool-card h3{margin:0;font-size:1.04rem;letter-spacing:.04em}.tool-card>p{color:var(--muted);font-size:.87rem;line-height:1.5;margin:7px 0 18px}
+    .overview{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}.overview-card{padding:16px;border:1px solid var(--line);border-radius:14px;background:#0a0f14}.overview-card strong{display:block;font-size:1.3rem;margin-top:6px}.overview-card span{font-size:.72rem;letter-spacing:.12em;color:var(--muted);font-weight:900}.overview-card em{font-style:normal;color:var(--accent)}
+    .event-admin-item{margin-top:10px;padding:14px;border:1px solid var(--line);border-radius:12px;background:#0a0f14;min-height:58px}.event-admin-item strong{display:block;padding-right:90px}.event-admin-item span{color:var(--muted);font-size:.8rem;display:block;margin-top:5px}.event-admin-item button{float:right;margin-left:10px}.checkline{display:flex;align-items:center;gap:9px;margin-top:14px;color:var(--muted);font-size:.85rem}.checkline input{width:auto}.current{margin-top:20px;border-top:1px solid var(--line);padding-top:16px}.current a{color:#ff9c57;word-break:break-all}
+    .mobile-select{display:none;margin-bottom:16px}.mobile-select label{margin-top:0}
+    @media(max-width:860px){body{padding:12px}.shell{grid-template-columns:1fr}.sidebar{position:static}.nav{display:none}.sidebar-foot{display:none}.brand{border-bottom:0}.mobile-select{display:block}.overview{grid-template-columns:1fr}.content{border-radius:16px}.body{padding:18px}.head{padding:18px}.head-badge{display:none}}
+    @media(max-width:600px){.row{grid-template-columns:1fr}.actions .btn{flex:1 1 100%}}
   </style>
 </head>
 <body>
-  <main class="panel">
-    <div class="head">
-      <img src="assets/qorvo-mark.png" alt="QORVO logo">
-      <div><h1>QORVO CONTROL PANEL</h1><p>Featured Post, Events & TikTok LIVE Manager</p></div>
-    </div>
-    <div class="body">
-      <div class="note">Private shortcut: click the QORVO footer logo on the public website <strong>3 times quickly</strong>. This page still requires your admin password.</div>
+  <main class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <img src="assets/qorvo-mark.png" alt="QORVO logo">
+        <div><h1>QORVO CONTROL</h1><p>Website Management Panel</p></div>
+      </div>
+      <nav class="nav" id="tool-nav">
+        <div class="nav-title">SELECT WHAT TO MANAGE</div>
+        <button class="nav-btn active" type="button" data-tool="featured"><span class="icon">★</span><span>Featured Post</span></button>
+        <button class="nav-btn" type="button" data-tool="events"><span class="icon">◫</span><span>Events & Schedule</span></button>
+        <button class="nav-btn" type="button" data-tool="tiktok"><span class="icon">●</span><span>TikTok LIVE Members</span></button>
+      </nav>
+      <div class="sidebar-foot"><a class="view-site" href="/">VIEW WEBSITE ↗</a></div>
+    </aside>
 
-      <section id="login-section">
-        <label for="password">Admin password</label>
-        <input id="password" type="password" autocomplete="current-password" placeholder="Enter admin password">
-        <div class="actions"><button class="btn primary" id="login-btn">Login</button><a class="btn secondary" href="/">Back to website</a></div>
-      </section>
+    <section class="content">
+      <header class="head">
+        <div><h2 id="panel-title">FEATURED POST</h2><p id="panel-subtitle">Choose and manage the post pinned on the homepage.</p></div>
+        <div class="head-badge">ADMIN MODE</div>
+      </header>
+      <div class="body">
+        <section id="login-section" class="login-card">
+          <div class="note">Private control panel. Enter the admin password to manage website content.</div>
+          <label for="password">Admin password</label>
+          <input id="password" type="password" autocomplete="current-password" placeholder="Enter admin password">
+          <div class="actions"><button class="btn primary" id="login-btn">Login</button><a class="btn secondary" href="/">Back to website</a></div>
+        </section>
 
-      <section id="editor-section" class="hidden">
-        <label for="post-url">Facebook post link</label>
-        <input id="post-url" type="url" placeholder="https://www.facebook.com/.../posts/...">
-        <div class="row">
-          <div><label for="post-label">Card label</label><input id="post-label" value="PINNED FROM QORVO" maxlength="60"></div>
-          <div><label for="post-title">Card title</label><input id="post-title" value="Featured QORVO Post" maxlength="100"></div>
-        </div>
-        <div class="actions">
-          <button class="btn primary" id="save-btn">Save Featured Post</button>
-          <button class="btn danger" id="clear-btn">Remove Featured Post</button>
-          <a class="btn secondary" href="/">View Website</a>
-        </div>
-        <div class="current"><strong>Current:</strong> <a id="current-link" href="#" target="_blank" rel="noopener">None</a></div>
+        <section id="editor-section" class="hidden">
+          <div class="mobile-select">
+            <label for="mobile-tool-select">What do you want to manage?</label>
+            <select id="mobile-tool-select">
+              <option value="featured">Featured Post</option>
+              <option value="events">Events & Schedule</option>
+              <option value="tiktok">TikTok LIVE Members</option>
+            </select>
+          </div>
 
-        <div class="manager-block">
-          <h2>EVENTS & LIVE SCHEDULE</h2>
-          <p>Add upcoming events, live streams, giveaways or always-open community activities. Dated items automatically disappear from the public schedule after their date passes.</p>
-          <label for="event-title">Event title</label>
-          <input id="event-title" placeholder="QORVO CFPH Game Night" maxlength="120">
-          <div class="row">
-            <div><label for="event-category">Category</label><select id="event-category"><option>COMMUNITY</option><option>EVENT</option><option>LIVE</option><option>GIVEAWAY</option><option>STREAM</option></select></div>
-            <div><label for="event-badge">Badge</label><input id="event-badge" value="CFPH" maxlength="20" placeholder="CFPH"></div>
+          <div class="overview">
+            <div class="overview-card"><span>FEATURED POST</span><strong id="summary-featured"><em>Ready</em></strong></div>
+            <div class="overview-card"><span>EVENTS</span><strong id="summary-events">0</strong></div>
+            <div class="overview-card"><span>TIKTOK MEMBERS</span><strong id="summary-tiktok">0</strong></div>
           </div>
-          <div class="row">
-            <div><label for="event-date">Date</label><input id="event-date" type="date"></div>
-            <div><label for="event-time">Time / note</label><input id="event-time" placeholder="8:00 PM" maxlength="30"></div>
-          </div>
-          <label for="event-url">Details / live link (optional)</label>
-          <input id="event-url" type="url" placeholder="https://www.facebook.com/...">
-          <label class="checkline"><input id="event-always" type="checkbox"> Always open (no expiration date)</label>
-          <div class="actions"><button class="btn primary" id="add-event-btn">Add Event</button><button class="btn secondary" id="save-events-btn">Save Schedule</button></div>
-          <div id="event-admin-list"></div>
-        </div>
-        <div class="manager-block">
-          <h2>TIKTOK LIVE MEMBERS</h2>
-          <p>Add QORVO members whose TikTok LIVE status should be checked automatically. When anyone is live, they will appear at the top of Events & Live Nights.</p>
-          <div class="row">
-            <div><label for="tiktok-name">Member display name</label><input id="tiktok-name" placeholder="Reed.Q" maxlength="80"></div>
-            <div><label for="tiktok-username">TikTok username</label><input id="tiktok-username" placeholder="username (without @)" maxlength="50"></div>
-          </div>
-          <div class="actions"><button class="btn primary" id="add-tiktok-btn">Add Member</button><button class="btn secondary" id="save-tiktok-btn">Save TikTok Members</button></div>
-          <div id="tiktok-admin-list"></div>
-          <div class="note" style="margin-top:14px">Uses your <strong>self-hosted TikTok LIVE checker</strong>. Configure <strong>TIKTOK_CHECKER_URL</strong> and <strong>TIKTOK_CHECKER_SECRET</strong> in Vercel; the secret stays server-side and is never exposed in the browser.</div>
-        </div>
-      </section>
-      <div id="status" aria-live="polite"></div>
-    </div>
+
+          <section class="tool-panel active" data-panel="featured">
+            <div class="tool-card">
+              <h3>Featured Facebook Post</h3>
+              <p>Change the pinned QORVO post shown in Latest Updates.</p>
+              <label for="post-url">Facebook post link</label>
+              <input id="post-url" type="url" placeholder="https://www.facebook.com/.../posts/...">
+              <div class="row">
+                <div><label for="post-label">Card label</label><input id="post-label" value="PINNED FROM QORVO" maxlength="60"></div>
+                <div><label for="post-title">Card title</label><input id="post-title" value="Featured QORVO Post" maxlength="100"></div>
+              </div>
+              <div class="actions">
+                <button class="btn primary" id="save-btn">Save Featured Post</button>
+                <button class="btn danger" id="clear-btn">Remove Featured Post</button>
+              </div>
+              <div class="current"><strong>Current:</strong> <a id="current-link" href="#" target="_blank" rel="noopener">None</a></div>
+            </div>
+          </section>
+
+          <section class="tool-panel" data-panel="events">
+            <div class="tool-card">
+              <h3>Events & Live Schedule</h3>
+              <p>Add upcoming events, live streams, giveaways or always-open activities. Dated items automatically disappear after their date passes.</p>
+              <label for="event-title">Event title</label>
+              <input id="event-title" placeholder="QORVO CFPH Game Night" maxlength="120">
+              <div class="row">
+                <div><label for="event-category">Category</label><select id="event-category"><option>COMMUNITY</option><option>EVENT</option><option>LIVE</option><option>GIVEAWAY</option><option>STREAM</option></select></div>
+                <div><label for="event-badge">Badge</label><input id="event-badge" value="CFPH" maxlength="20" placeholder="CFPH"></div>
+              </div>
+              <div class="row">
+                <div><label for="event-date">Date</label><input id="event-date" type="date"></div>
+                <div><label for="event-time">Time / note</label><input id="event-time" placeholder="8:00 PM" maxlength="30"></div>
+              </div>
+              <label for="event-url">Details / live link (optional)</label>
+              <input id="event-url" type="url" placeholder="https://www.facebook.com/...">
+              <label class="checkline"><input id="event-always" type="checkbox"> Always open (no expiration date)</label>
+              <div class="actions"><button class="btn primary" id="add-event-btn">Add Event</button><button class="btn secondary" id="save-events-btn">Save Schedule</button></div>
+              <div id="event-admin-list"></div>
+            </div>
+          </section>
+
+          <section class="tool-panel" data-panel="tiktok">
+            <div class="tool-card">
+              <h3>TikTok LIVE Members</h3>
+              <p>Add QORVO members whose TikTok LIVE status should be checked automatically by your self-hosted checker.</p>
+              <div class="row">
+                <div><label for="tiktok-name">Member display name</label><input id="tiktok-name" placeholder="Reed.Q" maxlength="80"></div>
+                <div><label for="tiktok-username">TikTok username</label><input id="tiktok-username" placeholder="username (without @)" maxlength="50"></div>
+              </div>
+              <div class="actions"><button class="btn primary" id="add-tiktok-btn">Add Member</button><button class="btn secondary" id="save-tiktok-btn">Save TikTok Members</button></div>
+              <div id="tiktok-admin-list"></div>
+              <div class="note" style="margin-top:14px">LIVE status is checked through your self-hosted TikTok checker. The private checker secret stays on Vercel/server-side.</div>
+            </div>
+          </section>
+        </section>
+        <div id="status" aria-live="polite"></div>
+      </div>
+    </section>
   </main>
 <script>
   const $ = (id) => document.getElementById(id);
   let adminPassword = '';
+
+  const toolMeta = {
+    featured: ['FEATURED POST', 'Choose and manage the post pinned on the homepage.'],
+    events: ['EVENTS & SCHEDULE', 'Create, remove and publish Events & Live Nights entries.'],
+    tiktok: ['TIKTOK LIVE MEMBERS', 'Manage the TikTok accounts monitored for LIVE status.']
+  };
+
+  function selectTool(tool) {
+    document.querySelectorAll('[data-panel]').forEach(p => p.classList.toggle('active', p.dataset.panel === tool));
+    document.querySelectorAll('[data-tool]').forEach(b => b.classList.toggle('active', b.dataset.tool === tool));
+    const meta = toolMeta[tool] || toolMeta.featured;
+    $('panel-title').textContent = meta[0];
+    $('panel-subtitle').textContent = meta[1];
+    const mobile = $('mobile-tool-select');
+    if (mobile) mobile.value = tool;
+  }
+
+  document.querySelectorAll('[data-tool]').forEach(btn => btn.addEventListener('click', () => selectTool(btn.dataset.tool)));
+  $('mobile-tool-select')?.addEventListener('change', e => selectTool(e.target.value));
 
   function status(message, type='') {
     const el = $('status');
@@ -102,6 +176,7 @@
       $('post-title').value = post.title || 'Featured QORVO Post';
       $('current-link').textContent = post.url || 'None';
       $('current-link').href = post.url || '#';
+      $('summary-featured').innerHTML = post.url ? '<em>Active</em>' : 'None';
     } catch { status('Could not load the current featured post.', 'err'); }
   }
 
@@ -145,6 +220,7 @@
   let events = [];
   function renderEventsAdmin() {
     const box = $('event-admin-list');
+    $('summary-events').textContent = events.length;
     if (!events.length) { box.innerHTML = '<div class="note" style="margin-top:14px">No events added yet.</div>'; return; }
     box.innerHTML = events.map((e,i) => `<div class="event-admin-item"><button class="btn danger" type="button" data-remove-event="${i}">Remove</button><strong>${e.title}</strong><span>${e.alwaysOpen ? 'ALWAYS OPEN' : (e.date || 'TBA')} · ${e.category || 'COMMUNITY'} · ${e.badge || 'CFPH'}${e.time ? ' · '+e.time : ''}</span></div>`).join('');
   }
@@ -171,6 +247,7 @@
   function escHtml(v='') { return String(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c])); }
   function renderTikTokMembers() {
     const box=$('tiktok-admin-list');
+    $('summary-tiktok').textContent = tiktokMembers.length;
     if(!tiktokMembers.length){ box.innerHTML='<div class="note" style="margin-top:14px">No TikTok members added yet.</div>'; return; }
     box.innerHTML=tiktokMembers.map((m,i)=>`<div class="event-admin-item"><button class="btn danger" type="button" data-remove-tiktok="${i}">Remove</button><strong>${escHtml(m.name||m.username)}</strong><span>@${escHtml(m.username)} · LIVE MONITORING ON</span></div>`).join('');
   }
