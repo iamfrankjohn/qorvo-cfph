@@ -1,3 +1,13 @@
+# WEB v5.2 — Hero Polish
+
+- Hero primary CTA now opens QORVO Messenger directly.
+- Updated the hero description.
+- Added `QORVO CFPH // COMMUNITY ONLINE`.
+- Hero info labels now read CrossFire Community, Events & Game Nights, and Drops / Giveaways & Rewards.
+- Navigation `Community` is now `Join Us`.
+- Footer version updated to `WEB v5.2`.
+- Safe ZIP excludes all live `data/*.json` files.
+
 # WEB v5.1 — Direct Messenger Application Links
 
 - Section 05 application buttons now open the QORVO Messenger conversation directly using `m.me/qorvo.cfph`.

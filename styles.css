@@ -168,7 +168,9 @@ img,video,svg,canvas,iframe{display:block;max-width:100%}
 .hero h1 .accent{color:var(--accent);-webkit-text-stroke:1px var(--accent)}
 .hero-copy>p{max-width:610px;color:var(--muted);font-size:clamp(14px,1.2vw,16px);line-height:1.75}
 
-.hero-actions{display:flex;gap:12px;margin-top:30px}
+.hero-community-status{display:flex;align-items:center;gap:8px;margin-top:24px;color:#86a494;font-size:9px;font-weight:800;letter-spacing:.14em}
+.hero-community-status i{display:block;width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px rgba(65,255,80,.65)}
+.hero-actions{display:flex;gap:12px;margin-top:14px}
 .btn{
   min-height:48px;
   padding:0 20px;
