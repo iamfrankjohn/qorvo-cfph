@@ -1,3 +1,12 @@
+# WEB v5.0 — Join the Squad Redesign
+
+- Major section redesign: rebuilt Section 05 as a Facebook-only QORVO application/joining section.
+- Removed TikTok completely from the section.
+- Added a three-step joining process: Visit, Message, Connect.
+- Applications clearly direct visitors to the official QORVO CFPH Facebook Page.
+- Visible footer version updated to `WEB v5.0`.
+- Safe-update ZIP still excludes all `data/*.json` files so Featured Post, TikTok Members, Events, Giveaways, and News remain preserved.
+
 # WEB v4.1 — QORVO Rewards
 
 - Added dynamic QORVO Rewards / Giveaways section and Giveaways manager in QORVO Control.
