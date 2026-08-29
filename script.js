@@ -393,11 +393,13 @@ loadFeaturedQorvoPost();
   let timer = null;
 
   trigger.addEventListener('click', (event) => {
+    // Never follow the footer brand link. A normal 1x or 2x click should do nothing.
+    event.preventDefault();
+
     clicks += 1;
     clearTimeout(timer);
 
     if (clicks >= 3) {
-      event.preventDefault();
       clicks = 0;
       window.location.href = '/qorvo-control';
       return;

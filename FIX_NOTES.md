@@ -7,3 +7,8 @@
 - Automatically checks both `News/Detail/{id}` and `Event/Detail/{id}`.
 - Keeps `View all official CFPH news` on `https://cfph.onstove.com/News/`.
 - Does not scrape STOVE directly because STOVE returns HTTP 567 to server-side fetches.
+
+
+## v11
+- Fixed footer QORVO admin trigger. Single/double clicks no longer jump to the top.
+- Three quick clicks still open `/qorvo-control`.
