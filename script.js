@@ -627,3 +627,33 @@ loadFeaturedQorvoPost();
   refreshSchedule();
   window.setInterval(refreshSchedule, 120000);
 })();;
+
+// WEB v4.1 — QORVO Rewards
+function rewardEsc(v=''){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
+function rewardActive(g){
+  if(!g || g.enabled===false || g.status==='draft' || g.status==='ended') return false;
+  const now=new Date();
+  if(g.startDate && now < new Date(g.startDate+'T00:00:00')) return false;
+  if(g.endDate && now > new Date(g.endDate+'T23:59:59')) return false;
+  return true;
+}
+function rewardDate(v){if(!v)return '';return new Date(v+'T00:00:00').toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'});}
+async function loadGiveaways(){
+  const box=document.getElementById('giveaway-state'); if(!box)return;
+  try{
+    const r=await fetch('/api/giveaways',{cache:'no-store'}); if(!r.ok)throw new Error();
+    const d=await r.json(), list=(Array.isArray(d.giveaways)?d.giveaways:[]).filter(rewardActive);
+    if(!list.length){
+      box.innerHTML=`<div class="reward-card reward-empty"><small>SUPPLY DROP</small><h3>NO ACTIVE GIVEAWAY</h3><p>No supply drop is active right now. Follow QORVO CFPH so you don't miss the next drop.</p><div class="reward-actions"><a class="btn primary" href="https://www.facebook.com/qorvo.cfph" target="_blank" rel="noopener">Facebook ↗</a></div></div>`;
+      return;
+    }
+    box.innerHTML=list.map(g=>{
+      const meta=[];
+      if(g.prize)meta.push(`<span>${rewardEsc(g.prize)}</span>`);
+      if(g.winners)meta.push(`<span>${rewardEsc(g.winners)} winner${String(g.winners)==='1'?'':'s'}</span>`);
+      if(g.endDate)meta.push(`<span>Ends ${rewardEsc(rewardDate(g.endDate))}</span>`);
+      return `<article class="reward-card reward-live"><small>GIVEAWAY LIVE</small><h3>${rewardEsc(g.title||'QORVO CFPH GIVEAWAY')}</h3>${g.description?`<p>${rewardEsc(g.description)}</p>`:''}${meta.length?`<div class="reward-meta">${meta.join('')}</div>`:''}${g.url?`<div class="reward-actions"><a class="btn primary" href="${rewardEsc(g.url)}" target="_blank" rel="noopener">View Giveaway ↗</a></div>`:''}</article>`;
+    }).join('');
+  }catch{box.innerHTML='<div class="reward-card reward-empty"><small>SUPPLY DROP</small><h3>REWARDS TEMPORARILY UNAVAILABLE</h3><p>Please check back shortly.</p></div>';}
+}
+document.addEventListener('DOMContentLoaded',loadGiveaways);

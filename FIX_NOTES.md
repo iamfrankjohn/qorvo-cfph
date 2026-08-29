@@ -1,3 +1,9 @@
+# WEB v4.1 — QORVO Rewards
+
+- Added dynamic QORVO Rewards / Giveaways section and Giveaways manager in QORVO Control.
+- Visible footer version changed to WEB v4.1.
+- Safe-update ZIP excludes ALL `data/*.json`, including giveaway data, so Featured Post, TikTok Members, Events, News, and Giveaways are preserved.
+
 # v24.0
 
 - Changed the homepage heading from “EVENTS & LIVE NIGHTS” to “EVENTS & LIVE”.

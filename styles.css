@@ -1457,3 +1457,16 @@ footer p:last-child{text-align:right}
   .qorvo-live-modal,.qorvo-live-modal-panel,.qorvo-live-modal-watch{transition:none}
   .qorvo-live-modal-eyebrow span{animation:none}
 }
+
+/* WEB v4.1 — QORVO Rewards */
+.reward-state{margin-top:26px;max-width:760px}
+.reward-card{border:1px solid var(--line);padding:22px;background:rgba(5,14,9,.58);position:relative}
+.reward-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent)}
+.reward-card>small{color:var(--accent);font-weight:900;letter-spacing:.16em}
+.reward-card h3{font-family:"Barlow Condensed",sans-serif;font-size:clamp(26px,3vw,40px);line-height:1;margin:10px 0;text-transform:uppercase}
+.reward-card p{margin:0;color:var(--muted)}
+.reward-meta{display:flex;flex-wrap:wrap;gap:9px;margin-top:17px}
+.reward-meta span{border:1px solid var(--line);padding:8px 10px;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.reward-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.reward-live small:before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-right:8px;box-shadow:0 0 10px var(--accent)}
+@media(max-width:650px){.reward-card{padding:17px}.reward-actions .btn{width:100%}}

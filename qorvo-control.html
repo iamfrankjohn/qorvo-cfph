@@ -46,6 +46,7 @@
         <button class="nav-btn active" type="button" data-tool="featured" disabled><span class="icon">★</span><span>Featured Post</span></button>
         <button class="nav-btn" type="button" data-tool="events" disabled><span class="icon">◫</span><span>Events & Schedule</span></button>
         <button class="nav-btn" type="button" data-tool="tiktok" disabled><span class="icon">●</span><span>TikTok LIVE Members</span></button>
+        <button class="nav-btn" type="button" data-tool="giveaways" disabled><span class="icon">◆</span><span>Giveaways</span></button>
       </nav>
       <div class="sidebar-foot"><a class="view-site" href="/">VIEW WEBSITE ↗</a></div>
     </aside>
@@ -70,6 +71,7 @@
               <option value="featured">Featured Post</option>
               <option value="events">Events & Schedule</option>
               <option value="tiktok">TikTok LIVE Members</option>
+              <option value="giveaways">Giveaways</option>
             </select>
           </div>
 
@@ -77,6 +79,7 @@
             <div class="overview-card"><span>FEATURED POST</span><strong id="summary-featured"><em>Ready</em></strong></div>
             <div class="overview-card"><span>EVENTS</span><strong id="summary-events">0</strong></div>
             <div class="overview-card"><span>TIKTOK MEMBERS</span><strong id="summary-tiktok">0</strong></div>
+            <div class="overview-card"><span>GIVEAWAYS</span><strong id="summary-giveaways">0</strong></div>
           </div>
 
           <section class="tool-panel active" data-panel="featured">
@@ -132,6 +135,28 @@
               <div class="note" style="margin-top:14px">LIVE status is checked through your self-hosted TikTok checker. The private checker secret stays on Vercel/server-side.</div>
             </div>
           </section>
+          <section class="tool-panel" data-panel="giveaways">
+            <div class="tool-card">
+              <h3>QORVO Giveaways</h3>
+              <p>Create and manage Supply Drops shown in QORVO Rewards.</p>
+              <div class="row">
+                <div><label for="giveaway-title">Giveaway title</label><input id="giveaway-title" placeholder="QORVO CFPH Monthly Giveaway"></div>
+                <div><label for="giveaway-prize">Prize / reward</label><input id="giveaway-prize" placeholder="Bomb Set / CCN / etc."></div>
+              </div>
+              <div class="row">
+                <div><label for="giveaway-winners">Number of winners</label><input id="giveaway-winners" type="number" min="1" placeholder="3"></div>
+                <div><label for="giveaway-status">Status</label><select id="giveaway-status"><option value="active">Active</option><option value="draft">Draft</option><option value="ended">Ended</option></select></div>
+              </div>
+              <div class="row">
+                <div><label for="giveaway-start">Start date</label><input id="giveaway-start" type="date"></div>
+                <div><label for="giveaway-end">End date</label><input id="giveaway-end" type="date"></div>
+              </div>
+              <label for="giveaway-url">Facebook / giveaway link</label><input id="giveaway-url" type="url" placeholder="https://www.facebook.com/...">
+              <label for="giveaway-description">Short description</label><textarea id="giveaway-description" rows="3" placeholder="Giveaway details"></textarea>
+              <div class="actions"><button class="btn primary" id="add-giveaway-btn">Add Giveaway</button><button class="btn secondary" id="save-giveaways-btn">Save Giveaways</button></div>
+              <div id="giveaway-admin-list"></div>
+            </div>
+          </section>
         </section>
         <div id="status" aria-live="polite"></div>
       </div>
@@ -144,7 +169,8 @@
   const toolMeta = {
     featured: ['FEATURED POST', 'Choose and manage the post pinned on the homepage.'],
     events: ['EVENTS & SCHEDULE', 'Create, remove and publish Events & Live entries.'],
-    tiktok: ['TIKTOK LIVE MEMBERS', 'Manage the TikTok accounts monitored for LIVE status.']
+    tiktok: ['TIKTOK LIVE MEMBERS', 'Manage the TikTok accounts monitored for LIVE status.'],
+    giveaways: ['GIVEAWAYS', 'Create and manage QORVO Rewards and Supply Drops.']
   };
 
   function selectTool(tool) {
@@ -198,6 +224,7 @@
       await loadCurrent();
       await loadEvents();
       await loadTikTokMembers();
+      await loadGiveawaysAdmin();
       status('Logged in.', 'ok');
     } catch (error) { status(error.message, 'err'); }
   });
@@ -273,6 +300,22 @@
     try{ const r=await fetch('/api/tiktok-members',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:adminPassword,members:tiktokMembers})}); const d=await r.json(); if(!r.ok||!d.ok) throw new Error(d.error||'Save failed'); tiktokMembers=d.members||[]; renderTikTokMembers(); status('TikTok members saved. LIVE detection is active.','ok'); }
     catch(e){ status(e.message,'err'); }
   });
+
+
+  let giveaways=[];
+  function renderGiveawaysAdmin(){
+    const box=$('giveaway-admin-list'); $('summary-giveaways').textContent=giveaways.length;
+    if(!giveaways.length){box.innerHTML='<div class="note" style="margin-top:14px">No giveaways added yet.</div>';return;}
+    box.innerHTML=giveaways.map((g,i)=>`<div class="event-admin-item"><button class="btn danger" type="button" data-remove-giveaway="${i}">Remove</button><strong>${escHtml(g.title||'Untitled Giveaway')}</strong><span>${escHtml((g.status||'active').toUpperCase())}${g.endDate?' · ENDS '+escHtml(g.endDate):''}</span></div>`).join('');
+  }
+  async function loadGiveawaysAdmin(){try{const r=await fetch('/api/giveaways',{cache:'no-store'});const d=await r.json();giveaways=Array.isArray(d.giveaways)?d.giveaways:[];renderGiveawaysAdmin();}catch{status('Could not load giveaways.','err');}}
+  $('add-giveaway-btn').addEventListener('click',()=>{
+    const title=$('giveaway-title').value.trim();if(!title)return status('Enter a giveaway title first.','err');
+    giveaways.push({id:`${Date.now()}-${Math.random().toString(36).slice(2,7)}`,title,prize:$('giveaway-prize').value.trim(),winners:$('giveaway-winners').value.trim(),status:$('giveaway-status').value,startDate:$('giveaway-start').value,endDate:$('giveaway-end').value,url:$('giveaway-url').value.trim(),description:$('giveaway-description').value.trim(),enabled:true});
+    ['giveaway-title','giveaway-prize','giveaway-winners','giveaway-start','giveaway-end','giveaway-url','giveaway-description'].forEach(id=>$(id).value='');renderGiveawaysAdmin();status('Giveaway added locally. Click Save Giveaways to publish it.','ok');
+  });
+  $('giveaway-admin-list').addEventListener('click',e=>{const b=e.target.closest('[data-remove-giveaway]');if(!b)return;giveaways.splice(Number(b.dataset.removeGiveaway),1);renderGiveawaysAdmin();});
+  $('save-giveaways-btn').addEventListener('click',async()=>{status('Saving giveaways...');try{const r=await fetch('/api/giveaways',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:adminPassword,giveaways})});const d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||'Save failed');giveaways=d.giveaways||giveaways;renderGiveawaysAdmin();status('Giveaways saved. QORVO Rewards will update automatically.','ok');}catch(e){status(e.message,'err');}});
 
   $('save-btn').addEventListener('click', () => save(true));
   $('clear-btn').addEventListener('click', () => save(false));
