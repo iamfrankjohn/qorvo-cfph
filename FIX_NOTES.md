@@ -56,3 +56,9 @@
 - Rebuilt the LIVE event row to prevent the left-side LIVE/NOW text from crowding or clipping.
 - Added a dedicated LIVE pill with pulse dot, cleaner spacing, username badge, and watch button.
 - Added tablet and phone layouts so the LIVE row stays readable on narrow screens.
+
+
+## v20 - Control panel login lock
+- Sidebar management buttons are disabled before admin authentication.
+- Sidebar buttons are automatically enabled after successful login.
+- Added a JavaScript authentication guard so tool switching cannot occur before login.

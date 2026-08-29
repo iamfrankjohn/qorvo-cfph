@@ -16,8 +16,8 @@
     .brand{display:flex;align-items:center;gap:12px;padding:20px;border-bottom:1px solid var(--line)}
     .brand img{width:44px;height:44px;object-fit:contain}.brand h1{font-size:1rem;margin:0;letter-spacing:.08em}.brand p{margin:4px 0 0;color:var(--muted);font-size:.78rem}
     .nav{padding:14px}.nav-title{font-size:.68rem;letter-spacing:.18em;color:#6f7b88;padding:6px 10px 10px;font-weight:800}
-    .nav-btn{width:100%;border:1px solid transparent;background:transparent;color:#cbd3dc;border-radius:12px;padding:12px 13px;text-align:left;display:flex;align-items:center;gap:11px;font-weight:800;cursor:pointer;margin-bottom:6px}
-    .nav-btn:hover{background:#141b22;border-color:#26313b}.nav-btn.active{background:linear-gradient(90deg,rgba(36,240,90,.15),rgba(36,240,90,.04));border-color:rgba(36,240,90,.35);color:#fff}.nav-btn .icon{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:#0a0f13;border:1px solid #26313b;color:var(--accent);font-size:.95rem}
+    .nav-btn{width:100%;border:1px solid transparent;background:transparent;color:#cbd3dc;border-radius:12px;padding:12px 13px;text-align:left;display:flex;align-items:center;gap:11px;font-weight:800;cursor:pointer;margin-bottom:6px}.nav-btn:disabled{cursor:not-allowed;opacity:.42;filter:saturate(.45)}
+    .nav-btn:not(:disabled):hover{background:#141b22;border-color:#26313b}.nav-btn.active:not(:disabled){background:linear-gradient(90deg,rgba(36,240,90,.15),rgba(36,240,90,.04));border-color:rgba(36,240,90,.35);color:#fff}.nav-btn .icon{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:#0a0f13;border:1px solid #26313b;color:var(--accent);font-size:.95rem}
     .sidebar-foot{padding:14px;border-top:1px solid var(--line)}
     .view-site{display:flex;justify-content:center;text-decoration:none;color:#061006;background:var(--accent);font-weight:900;padding:11px 14px;border-radius:10px}
     .content{overflow:hidden}.head{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:22px 24px;border-bottom:1px solid var(--line)}.head h2{margin:0;font-size:1.15rem;letter-spacing:.04em}.head p{margin:5px 0 0;color:var(--muted);font-size:.86rem}.head-badge{font-size:.72rem;letter-spacing:.14em;color:var(--accent);border:1px solid rgba(36,240,90,.35);background:rgba(36,240,90,.08);padding:8px 10px;border-radius:999px;font-weight:900;white-space:nowrap}
@@ -43,9 +43,9 @@
       </div>
       <nav class="nav" id="tool-nav">
         <div class="nav-title">SELECT WHAT TO MANAGE</div>
-        <button class="nav-btn active" type="button" data-tool="featured"><span class="icon">★</span><span>Featured Post</span></button>
-        <button class="nav-btn" type="button" data-tool="events"><span class="icon">◫</span><span>Events & Schedule</span></button>
-        <button class="nav-btn" type="button" data-tool="tiktok"><span class="icon">●</span><span>TikTok LIVE Members</span></button>
+        <button class="nav-btn active" type="button" data-tool="featured" disabled><span class="icon">★</span><span>Featured Post</span></button>
+        <button class="nav-btn" type="button" data-tool="events" disabled><span class="icon">◫</span><span>Events & Schedule</span></button>
+        <button class="nav-btn" type="button" data-tool="tiktok" disabled><span class="icon">●</span><span>TikTok LIVE Members</span></button>
       </nav>
       <div class="sidebar-foot"><a class="view-site" href="/">VIEW WEBSITE ↗</a></div>
     </aside>
@@ -157,7 +157,10 @@
     if (mobile) mobile.value = tool;
   }
 
-  document.querySelectorAll('[data-tool]').forEach(btn => btn.addEventListener('click', () => selectTool(btn.dataset.tool)));
+  document.querySelectorAll('[data-tool]').forEach(btn => btn.addEventListener('click', () => {
+    if (!adminPassword) return;
+    selectTool(btn.dataset.tool);
+  }));
   $('mobile-tool-select')?.addEventListener('change', e => selectTool(e.target.value));
 
   function status(message, type='') {
@@ -190,6 +193,7 @@
       if (!response.ok || !data.ok) throw new Error(data.error || 'Login failed');
       $('login-section').classList.add('hidden');
       $('editor-section').classList.remove('hidden');
+      document.querySelectorAll('[data-tool]').forEach(btn => btn.disabled = false);
       $('password').value = '';
       await loadCurrent();
       await loadEvents();
