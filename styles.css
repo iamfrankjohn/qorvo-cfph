@@ -279,8 +279,23 @@ img,video,svg,canvas,iframe{display:block;max-width:100%}
 .featured .card-visual{height:280px}
 .card-visual::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(66,255,79,.14),transparent 45%)}
 .visual-1{
-  background-image:linear-gradient(45deg,transparent 47%,rgba(255,255,255,.07) 48%,rgba(255,255,255,.07) 49%,transparent 50%);
-  background-size:18px 18px;
+  background-image:
+    linear-gradient(to bottom,rgba(3,10,7,.08),rgba(3,10,7,.72)),
+    url("assets/qorvo-cover.jpg");
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+}
+.community-media::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(135deg,rgba(66,255,79,.12),transparent 45%);
+  pointer-events:none;
+}
+.community-media .tag,
+.community-media .visual-copy{
+  z-index:2;
 }
 .visual-2{background:radial-gradient(circle at center,rgba(66,255,79,.14),transparent 35%),#0b131f}
 .visual-3{background:linear-gradient(135deg,#111c2b,#070c13)}
@@ -560,7 +575,7 @@ footer p:last-child{text-align:right}
   height:100%;
   object-fit:cover;
   object-position:center;
-  z-index:-1;
+  z-index:0;
 }
 
 .news-card.is-loading{
@@ -944,3 +959,13 @@ footer p:last-child{text-align:right}
   .faq-option{transition:none}
 }
 .faq-option:disabled{opacity:.55;cursor:wait;transform:none}
+
+
+/* Server Intel always has a visual, even if the official site blocks scraping. */
+#server-intel-media:not(.has-image){
+  background-image:
+    linear-gradient(to bottom,rgba(3,10,7,.08),rgba(3,10,7,.72)),
+    url("assets/qorvo-logo.jpg");
+  background-size:cover;
+  background-position:center 42%;
+}

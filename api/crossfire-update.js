@@ -1,4 +1,5 @@
-const OFFICIAL_NEWS_URL = 'https://cfph-mig.onstove.com/News';
+const OFFICIAL_NEWS_URL = 'https://cfph.onstove.com/News';
+const FALLBACK_IMAGE = '/assets/qorvo-logo.jpg';
 
 function json(res, status, body) {
   res.status(status);
@@ -141,7 +142,10 @@ export default async function handler(req, res) {
     return json(res, 405, { ok: false, error: 'Method not allowed' });
   }
 
-  const sourceUrl = process.env.CROSSFIRE_NEWS_URL || OFFICIAL_NEWS_URL;
+  // Normalize an old Vercel environment variable too, so existing deployments
+  // do not keep using the retired cfph-mig hostname.
+  const configuredUrl = process.env.CROSSFIRE_NEWS_URL || OFFICIAL_NEWS_URL;
+  const sourceUrl = configuredUrl.replace('cfph-mig.onstove.com', 'cfph.onstove.com');
 
   try {
     const response = await fetch(sourceUrl, {
@@ -181,7 +185,7 @@ export default async function handler(req, res) {
       title: 'Latest CrossFire Philippines updates',
       summary: 'Open the official CrossFire Philippines news page for the newest game updates, notices, maintenance information and events.',
       date: null,
-      image: null,
+      image: FALLBACK_IMAGE,
       url: sourceUrl,
       fallback: true,
       warning: error.message

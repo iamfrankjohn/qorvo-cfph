@@ -52,20 +52,39 @@ function cleanText(text = '', max = 180) {
     : normalized;
 }
 
-function setMedia(containerId, imageUrl) {
+function setMedia(containerId, imageUrl, fallbackUrl = '') {
   const box = document.getElementById(containerId);
-  if (!box || !imageUrl) return;
+  if (!box) return;
 
-  box.classList.add('has-image');
+  const finalUrl = imageUrl || fallbackUrl;
   const old = box.querySelector('img.dynamic-image');
   if (old) old.remove();
 
+  if (!finalUrl) {
+    box.classList.remove('has-image');
+    return;
+  }
+
   const img = document.createElement('img');
   img.className = 'dynamic-image';
-  img.src = imageUrl;
+  img.src = finalUrl;
   img.alt = '';
   img.loading = 'lazy';
   img.referrerPolicy = 'no-referrer';
+
+  img.addEventListener('load', () => {
+    box.classList.add('has-image');
+  });
+
+  img.addEventListener('error', () => {
+    if (fallbackUrl && img.src !== new URL(fallbackUrl, window.location.href).href) {
+      img.src = fallbackUrl;
+      return;
+    }
+    img.remove();
+    box.classList.remove('has-image');
+  });
+
   box.prepend(img);
 }
 
@@ -86,7 +105,7 @@ async function loadServerIntel() {
     if (text) text.textContent = cleanText(data.summary, 175) || 'Read the latest official CrossFire Philippines update.';
     if (link && data.url) link.href = data.url;
 
-    setMedia('server-intel-media', data.image);
+    setMedia('server-intel-media', data.image, '/assets/qorvo-logo.jpg');
   } catch (error) {
     console.warn('CrossFire update:', error);
 
@@ -94,10 +113,15 @@ async function loadServerIntel() {
     const title = document.getElementById('server-intel-title');
     const text = document.getElementById('server-intel-text');
 
+    const link = document.getElementById('server-intel-link');
+
     if (date) date.textContent = 'Official news';
     if (title) title.textContent = 'Latest CrossFire Philippines updates';
     if (text) text.textContent =
       'Open the official CrossFire Philippines news page for the latest game notices, events and updates.';
+    if (link) link.href = 'https://cfph.onstove.com/News';
+
+    setMedia('server-intel-media', null, '/assets/qorvo-logo.jpg');
   }
 }
 
