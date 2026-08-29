@@ -88,6 +88,23 @@ function setMedia(containerId, imageUrl, fallbackUrl = '') {
   box.prepend(img);
 }
 
+function buildCfphArticleUrl(post) {
+  // CFPH currently uses a sequential numeric content ID, but the URL
+  // section still matters (for example /Event/Detail/... vs /News/Detail/...).
+  // Store both `id` and `section` in data/news.json so each link is generated
+  // consistently without having to paste a full URL for every post.
+  const id = Number(post?.id);
+  const rawSection = String(post?.section || post?.category || 'News').trim();
+  const section = /^event$/i.test(rawSection) ? 'Event' : 'News';
+
+  if (Number.isInteger(id) && id > 0) {
+    return `https://cfph.onstove.com/${section}/Detail/${id}?category=0&searchText=`;
+  }
+
+  // Backward compatibility if a manually supplied URL is ever needed.
+  return post?.url || 'https://cfph.onstove.com/News/';
+}
+
 async function loadServerIntel() {
   const postsBox = document.getElementById('server-intel-posts');
 
@@ -124,10 +141,10 @@ async function loadServerIntel() {
         summary.textContent = cleanText(post.summary, 125) || 'Open the official CrossFire Philippines page for full details.';
 
         const link = document.createElement('a');
-        link.href = post.url || 'https://cfph.onstove.com/News/List';
+        link.href = buildCfphArticleUrl(post);
         link.target = '_blank';
         link.rel = 'noopener';
-        link.textContent = post.direct === false ? 'Open official news →' : 'Read full update →';
+        link.textContent = 'Read full update →';
 
         meta.append(category, date);
         item.append(meta, title, summary, link);
@@ -146,7 +163,7 @@ async function loadServerIntel() {
           <div class="server-intel-post-meta"><span>OFFICIAL NEWS</span><time>CFPH</time></div>
           <h4>CrossFire Philippines Updates</h4>
           <p>The local news file could not be loaded. Open the official CrossFire Philippines News page for the latest updates.</p>
-          <a href="https://cfph.onstove.com/News/List" target="_blank" rel="noopener">Open official news →</a>
+          <a href="https://cfph.onstove.com/News/" target="_blank" rel="noopener">Open official news →</a>
         </article>`;
     }
 

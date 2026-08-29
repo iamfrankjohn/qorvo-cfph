@@ -1,31 +1,28 @@
-# QORVO CFPH — 3 Latest CFPH Posts
+# Updating the 3 CFPH posts
 
-The Server Intel card now reads the three entries inside:
+Edit only `data/news.json`.
 
-`data/news.json`
+Each post uses:
 
-## Update a post
+```json
+{
+  "id": 4724,
+  "section": "Event",
+  "category": "Event",
+  "title": "Post title",
+  "summary": "Short preview",
+  "date": "2026-08-27",
+  "image": "/assets/qorvo-logo.jpg"
+}
+```
 
-Each post supports:
+The site builds the direct URL automatically:
 
-- `category` — Event, Announcement, Promo, Update, etc.
-- `title` — title shown on the website
-- `summary` — short preview shown under the title
-- `date` — use YYYY-MM-DD
-- `image` — optional image used by Server Intel visual
-- `url` — official direct article URL
-- `direct` — set `true` when `url` is the exact article; set `false` when it only points to the general official News page
+- `section: "Event"`, `id: 4724` -> `https://cfph.onstove.com/Event/Detail/4724?category=0&searchText=`
+- `section: "News"`, `id: 4723` -> `https://cfph.onstove.com/News/Detail/4723?category=0&searchText=`
 
-The website displays only the first 3 objects in the `posts` array, so keep newest posts at the top.
+Keep the newest post first in the array. The homepage shows the first three items.
 
-## Known direct URL
+`View all official CFPH news` opens `https://cfph.onstove.com/News/`.
 
-The newest post supplied in this build uses:
-
-`https://cfph.onstove.com/Event/Detail/4724?category=0&searchText=`
-
-The other two posts currently open the official News list because their exact direct URLs were not supplied. When you copy those direct links from CFPH, replace their `url` values and change `direct` to `true`.
-
-## GitHub → Vercel
-
-Edit `data/news.json`, commit, and push to the GitHub branch connected to Vercel. Vercel will redeploy from that commit.
+After editing, commit and push to the GitHub branch connected to Vercel.

@@ -2,33 +2,34 @@
   "ok": true,
   "source": "CrossFire Philippines official news",
   "image": "/assets/qorvo-logo.jpg",
+  "allNewsUrl": "https://cfph.onstove.com/News/",
   "posts": [
     {
+      "id": 4724,
+      "section": "Event",
       "category": "Event",
       "title": "STOVE Launcher Unification - One-Day Login Event Extended!",
       "summary": "CrossFire Philippines extended the STOVE Launcher Unification one-day login event. Open the official announcement for the complete event details.",
       "date": "2026-08-27",
-      "image": "/assets/qorvo-logo.jpg",
-      "url": "https://cfph.onstove.com/Event/Detail/4724?category=0&searchText=",
-      "direct": true
+      "image": "/assets/qorvo-logo.jpg"
     },
     {
+      "id": 4723,
+      "section": "News",
       "category": "Announcement",
       "title": "STOVE Launcher Integration and Age Rating Notice",
       "summary": "CrossFire Philippines announced STOVE Launcher integration together with an updated age-rating notice for players.",
       "date": "2026-08-26",
-      "image": "/assets/qorvo-logo.jpg",
-      "url": "https://cfph.onstove.com/News/List",
-      "direct": false
+      "image": "/assets/qorvo-logo.jpg"
     },
     {
+      "id": 4722,
+      "section": "Event",
       "category": "Event",
       "title": "Peak Time Login and Play Event - Aug 26, 2026",
       "summary": "A new Peak Time Login and Play event is available for CrossFire Philippines players. Check the official post for the event period and mechanics.",
       "date": "2026-08-26",
-      "image": "/assets/qorvo-logo.jpg",
-      "url": "https://cfph.onstove.com/News/List",
-      "direct": false
+      "image": "/assets/qorvo-logo.jpg"
     }
   ]
 }

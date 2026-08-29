@@ -1,10 +1,7 @@
-# QORVO CFPH Website — v5
+# QORVO CFPH Website — Automatic Latest 3 CFPH News (v7)
 
-Deploy-ready version for GitHub → Vercel.
+Server Intel displays the latest 3 CrossFire Philippines posts.
 
-## Server Intel
-The right-hand Latest Updates card shows up to 3 CrossFire Philippines posts from `data/news.json`.
+New in v7: a GitHub Actions job automatically looks for newer sequential CFPH content IDs and updates `data/news.json`. Your GitHub-to-Vercel connection then redeploys the site automatically.
 
-To update the latest CFPH news, edit only `data/news.json`, commit, and push to GitHub.
-
-See `LATEST_NEWS_SETUP.md` for the post format and direct-link instructions.
+Read `AUTO_NEWS_SETUP.md` for setup and limitations.
