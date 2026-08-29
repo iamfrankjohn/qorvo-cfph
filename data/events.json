@@ -1,4 +1,16 @@
 {
-  "events": [],
-  "updatedAt": "2026-08-29T15:10:43.520Z"
+  "events": [
+    {
+      "id": "1788016268947-r7hef",
+      "title": "CLAN WAR",
+      "category": "LIVE",
+      "badge": "CFPH",
+      "date": "2026-08-31",
+      "time": "9PM",
+      "url": "https://www.facebook.com/qorvo.cfph/posts/pfbid02VA5ej54cUvt5angnPxsDBVanjqcvHtbyLaBWpSy8DBjrvUFFchA9huQcH5imcDiyl",
+      "alwaysOpen": false,
+      "enabled": true
+    }
+  ],
+  "updatedAt": "2026-08-29T15:11:09.234Z"
 }
