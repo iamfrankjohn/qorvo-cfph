@@ -1,3 +1,14 @@
+# WEB v5.3 — Who We Are Redesign
+
+- Rewrote Section 01 to describe QORVO itself instead of describing the website.
+- Kept the strong `MORE THAN A PAGE. A SQUAD.` headline.
+- Added the community manifesto: `PLAY TOGETHER. COMPETE TOGETHER. GROW TOGETHER.`
+- Added a subtle `QORVO CFPH // BUILT FOR THE COMMUNITY` signature.
+- Added a green accent rail to the lead copy and improved spacing/hierarchy.
+- Facebook CTA remains a Page link (not Messenger) and now reads `Explore QORVO on Facebook`.
+- Visible footer version updated to `WEB v5.3`.
+- Safe ZIP excludes all live `data/*.json` files.
+
 # WEB v5.2 — Hero Polish
 
 - Hero primary CTA now opens QORVO Messenger directly.
