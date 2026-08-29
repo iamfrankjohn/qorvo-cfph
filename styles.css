@@ -1053,3 +1053,40 @@ footer p:last-child{text-align:right}
   .server-intel-post h4{font-size:20px}
   .server-intel-post p{font-size:11px}
 }
+
+
+/* STOVE branding inside Server Intel */
+.server-intel-brand{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin:0 0 12px;
+  padding:0 0 11px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.stove-brand{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  color:#ff5a36 !important;
+  font:900 25px/1 Arial,sans-serif !important;
+  letter-spacing:-1.5px;
+  text-decoration:none;
+}
+.stove-brand::before{
+  content:"●";
+  margin-right:5px;
+  font-size:11px;
+  line-height:1;
+}
+.stove-brand-note{
+  color:#71839a;
+  font-size:8px;
+  font-weight:800;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+}
+@media(max-width:700px){
+  .stove-brand{font-size:23px !important}
+}
