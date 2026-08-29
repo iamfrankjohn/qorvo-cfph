@@ -228,3 +228,420 @@ body{
 }
 .crate-face:before,.crate-face:after{background:#45ff55}
 .ticker i{color:#49ff59}
+
+
+/* =========================================================
+   QORVO RESPONSIVE PATCH — mobile, tablet, laptop, desktop
+   ========================================================= */
+
+html{
+  -webkit-text-size-adjust:100%;
+}
+
+body{
+  min-width:320px;
+}
+
+img, video, svg{
+  max-width:100%;
+  height:auto;
+}
+
+.site-header,
+.hero,
+.section,
+footer{
+  padding-left:max(0px, env(safe-area-inset-left));
+  padding-right:max(0px, env(safe-area-inset-right));
+}
+
+.hero{
+  min-height:min(760px, calc(100svh - 82px));
+}
+
+.hero-copy{
+  min-width:0;
+}
+
+.hero h1{
+  overflow-wrap:anywhere;
+}
+
+.hero-panel,
+.news-card,
+.community-card,
+.crate,
+.event-row{
+  min-width:0;
+}
+
+.hero-art img{
+  object-position:center;
+}
+
+/* Large desktop */
+@media (min-width:1400px){
+  :root{--max:1320px}
+  .hero{gap:90px}
+  .hero-copy>p{font-size:17px}
+  .hero-panel{height:540px}
+}
+
+/* Laptop / smaller desktop */
+@media (max-width:1100px){
+  .nav{gap:18px}
+  .hero{gap:42px}
+  .hero h1{font-size:clamp(64px,8vw,96px)}
+  .news-grid{grid-template-columns:1.15fr .925fr .925fr}
+  .giveaway{gap:60px}
+}
+
+/* Tablet */
+@media (max-width:900px){
+  .site-header{
+    position:sticky;
+    top:0;
+    z-index:100;
+    width:100%;
+    padding-left:20px;
+    padding-right:20px;
+    background:rgba(5,10,7,.94);
+    backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);
+  }
+
+  .nav{
+    position:fixed;
+    left:14px;
+    right:14px;
+    top:78px;
+    max-height:calc(100svh - 92px);
+    overflow:auto;
+    box-shadow:0 22px 60px rgba(0,0,0,.5);
+  }
+
+  .hero{
+    min-height:auto;
+    padding-top:54px;
+  }
+
+  .hero-copy{
+    max-width:720px;
+  }
+
+  .hero h1{
+    font-size:clamp(60px,12vw,94px);
+  }
+
+  .hero-panel{
+    width:100%;
+    max-width:760px;
+    justify-self:center;
+    aspect-ratio:16/9;
+    height:auto;
+  }
+
+  .two-col{
+    gap:32px;
+  }
+
+  .section{
+    padding-top:82px;
+    padding-bottom:82px;
+  }
+
+  .section-heading h2,
+  .section-bar h2,
+  .giveaway h2,
+  .community-card h2{
+    font-size:clamp(46px,9vw,68px);
+  }
+
+  .about-copy{
+    padding-top:0;
+  }
+
+  .news-grid{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .event-row{
+    gap:18px;
+  }
+
+  .giveaway{
+    gap:32px;
+  }
+
+  .crate{
+    max-width:560px;
+    width:100%;
+    justify-self:center;
+  }
+
+  footer{
+    grid-template-columns:1fr 1fr;
+  }
+
+  footer p:nth-child(2){
+    grid-column:1/-1;
+    order:3;
+  }
+}
+
+/* Phones */
+@media (max-width:640px){
+  .site-header,
+  .hero,
+  .section,
+  footer{
+    width:min(calc(100% - 24px), var(--max));
+  }
+
+  .site-header{
+    width:100%;
+    padding-left:12px;
+    padding-right:12px;
+  }
+
+  .brand strong{
+    font-size:20px;
+  }
+
+  .brand small{
+    max-width:150px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  .hero{
+    padding-top:38px;
+    padding-bottom:46px;
+  }
+
+  .hero h1{
+    margin-top:18px;
+    font-size:clamp(54px,17vw,76px);
+    line-height:.82;
+  }
+
+  .hero-copy>p{
+    font-size:14px;
+    line-height:1.7;
+  }
+
+  .hero-actions{
+    width:100%;
+  }
+
+  .hero-actions .btn{
+    width:100%;
+  }
+
+  .hero-meta{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+  }
+
+  .hero-meta div{
+    min-width:0;
+  }
+
+  .hero-meta span{
+    font-size:7px;
+  }
+
+  .hero-panel{
+    aspect-ratio:16/10;
+    height:auto;
+    min-height:0;
+  }
+
+  .hud-top{
+    padding:10px 12px;
+    font-size:7px;
+  }
+
+  .art-caption{
+    left:12px;
+    bottom:12px;
+  }
+
+  .art-caption strong{
+    font-size:16px;
+  }
+
+  .ticker div{
+    gap:20px;
+    padding:11px 0;
+  }
+
+  .section{
+    padding-top:64px;
+    padding-bottom:64px;
+  }
+
+  .section-heading h2,
+  .section-bar h2,
+  .giveaway h2,
+  .community-card h2{
+    font-size:clamp(42px,14vw,58px);
+  }
+
+  .about-copy .lead{
+    font-size:18px;
+  }
+
+  .section-bar{
+    margin-bottom:24px;
+  }
+
+  .news-grid{
+    grid-template-columns:1fr;
+  }
+
+  .featured .card-visual,
+  .card-visual{
+    height:auto;
+    aspect-ratio:16/9;
+  }
+
+  .visual-copy{
+    font-size:42px;
+  }
+
+  .visual-copy.small{
+    font-size:36px;
+  }
+
+  .card-body h3{
+    font-size:24px;
+  }
+
+  .event-bg{
+    top:54px;
+    height:calc(100% - 108px);
+  }
+
+  .event-list{
+    margin-top:30px;
+  }
+
+  .event-row{
+    grid-template-columns:64px 1fr 24px;
+    gap:10px;
+    padding:18px 0;
+  }
+
+  .event-date b{
+    font-size:22px;
+  }
+
+  .event-info h3{
+    font-size:20px;
+    overflow-wrap:anywhere;
+  }
+
+  .event-type{
+    display:none;
+  }
+
+  .steps{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .giveaway .btn{
+    width:100%;
+  }
+
+  .crate{
+    height:260px;
+  }
+
+  .crate-face{
+    left:6%;
+    right:6%;
+  }
+
+  .crate-face strong{
+    font-size:48px;
+  }
+
+  .community-card{
+    padding:42px 22px;
+  }
+
+  .community-actions{
+    width:100%;
+    max-width:none;
+  }
+
+  .community-actions .btn{
+    width:100%;
+  }
+
+  footer{
+    grid-template-columns:1fr;
+    gap:16px;
+  }
+
+  footer p:nth-child(2){
+    grid-column:auto;
+    order:initial;
+  }
+
+  footer p:last-child{
+    text-align:left;
+  }
+}
+
+/* Small phones */
+@media (max-width:390px){
+  .brand small{
+    display:none;
+  }
+
+  .hero h1{
+    font-size:clamp(48px,16vw,62px);
+  }
+
+  .hero-meta{
+    grid-template-columns:1fr;
+  }
+
+  .hero-meta div{
+    padding:6px 0;
+    border-bottom:1px solid var(--line);
+  }
+
+  .steps{
+    grid-template-columns:1fr;
+  }
+
+  .community-card{
+    padding:34px 18px;
+  }
+}
+
+/* Landscape phones / short screens */
+@media (max-height:520px) and (orientation:landscape){
+  .hero{
+    grid-template-columns:1fr 1fr;
+    gap:24px;
+    padding-top:28px;
+  }
+
+  .hero h1{
+    font-size:54px;
+  }
+
+  .hero-panel{
+    aspect-ratio:16/9;
+  }
+
+  .hero-meta{
+    display:none;
+  }
+}
