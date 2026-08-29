@@ -1,3 +1,11 @@
+# WEB v5.1 — Direct Messenger Application Links
+
+- Section 05 application buttons now open the QORVO Messenger conversation directly using `m.me/qorvo.cfph`.
+- Main CTA changed to `Continue on Messenger`.
+- `MESSAGE QORVO` also opens Messenger directly.
+- Visible footer version updated to `WEB v5.1`.
+- Safe-update ZIP still excludes all `data/*.json` files.
+
 # WEB v5.0 — Join the Squad Redesign
 
 - Major section redesign: rebuilt Section 05 as a Facebook-only QORVO application/joining section.
