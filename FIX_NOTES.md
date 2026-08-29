@@ -51,3 +51,8 @@
 - Vercel sends the enabled QORVO Control TikTok member list to the checker server-side.
 - The checker keeps a 2-minute cache, so many website visitors do not cause repeated TikTok checks.
 - Browser refresh interval is now 2 minutes while the page remains open.
+
+## v18 — TikTok LIVE UI polish
+- Rebuilt the LIVE event row to prevent the left-side LIVE/NOW text from crowding or clipping.
+- Added a dedicated LIVE pill with pulse dot, cleaner spacing, username badge, and watch button.
+- Added tablet and phone layouts so the LIVE row stays readable on narrow screens.

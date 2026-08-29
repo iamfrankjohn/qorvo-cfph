@@ -475,7 +475,7 @@ loadFeaturedQorvoPost();
     const rows = [];
     (live || []).forEach(x => {
       const viewers = x.viewers > 0 ? `${x.viewers.toLocaleString()} VIEWERS` : 'TIKTOK LIVE';
-      rows.push(`<div class="event-row event-row-live"><div class="event-date"><b class="event-day">LIVE</b><span class="event-month">NOW</span><span class="event-time">${esc(viewers)}</span></div><div class="event-info"><span>TIKTOK LIVE</span><h3>${esc(x.name || x.username)} IS LIVE</h3></div><div class="event-type">@${esc(x.username)}</div><a href="${esc(x.url)}" target="_blank" rel="noopener" aria-label="Watch ${esc(x.name || x.username)} live on TikTok">↗</a></div>`);
+      rows.push(`<div class="event-row event-row-live"><div class="event-live-status"><span class="live-status-pill"><i aria-hidden="true"></i>LIVE</span><span class="live-now">NOW</span><span class="live-viewers">${esc(viewers)}</span></div><div class="event-info event-live-info"><span>TIKTOK LIVE</span><h3>${esc(x.name || x.username)} IS LIVE</h3></div><div class="event-type event-live-user">@${esc(x.username)}</div><a class="event-live-link" href="${esc(x.url)}" target="_blank" rel="noopener" aria-label="Watch ${esc(x.name || x.username)} live on TikTok">↗</a></div>`);
     });
     (events || []).forEach(e => {
       const dp=e.alwaysOpen?{day:'OPEN',month:'24/7'}:dateParts(e.date);
