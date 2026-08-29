@@ -23,3 +23,10 @@
 ## v13
 - Removed the featured-post description text below the card title for a cleaner desktop and mobile layout.
 - Featured card now shows only the metadata, title, and Open Featured Post action below the Facebook embed.
+
+## v14
+- Added Events & Live Schedule Manager to QORVO Control Panel.
+- Replaced placeholder event rows with dynamic event data.
+- Added automatic hiding of expired dated events.
+- Added Always Open support for ongoing community activities.
+- Uses the existing GitHub/Vercel admin credentials; no new environment variables are required.

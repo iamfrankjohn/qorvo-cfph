@@ -1171,3 +1171,11 @@ footer p:last-child{text-align:right}
     min-height:500px;
   }
 }
+
+/* Dynamic Events & Live Schedule */
+.event-empty{padding:34px 0;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+.event-empty strong{font:800 27px "Barlow Condensed",sans-serif;letter-spacing:.02em}
+.event-empty span{max-width:720px;color:var(--muted);font-size:12px;line-height:1.7}
+.event-date b.event-day{font-size:24px}.event-date span.event-month{font-size:9px}
+.event-time{display:block!important;margin-top:4px;color:#8d9aae!important;font-size:8px!important;letter-spacing:.08em!important}
+@media(max-width:560px){.event-empty{padding:24px 0}.event-empty strong{font-size:22px}}

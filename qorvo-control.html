@@ -12,10 +12,10 @@
     .panel{width:min(680px,100%);background:rgba(17,21,28,.96);border:1px solid var(--line);border-radius:20px;box-shadow:0 24px 80px rgba(0,0,0,.45);overflow:hidden}
     .head{display:flex;align-items:center;gap:14px;padding:22px 24px;border-bottom:1px solid var(--line)} .head img{width:48px;height:48px;object-fit:contain}.head h1{margin:0;font-size:1.15rem;letter-spacing:.08em}.head p{margin:4px 0 0;color:var(--muted);font-size:.86rem}
     .body{padding:24px}.note{padding:12px 14px;border:1px solid var(--line);border-radius:12px;color:var(--muted);font-size:.9rem;margin-bottom:18px;background:#0b0f14}
-    label{display:block;font-weight:700;font-size:.86rem;margin:16px 0 8px} input{width:100%;padding:13px 14px;border-radius:11px;border:1px solid var(--line);background:#090d12;color:var(--text);outline:none}input:focus{border-color:var(--accent)}
+    label{display:block;font-weight:700;font-size:.86rem;margin:16px 0 8px} input,select{width:100%;padding:13px 14px;border-radius:11px;border:1px solid var(--line);background:#090d12;color:var(--text);outline:none}input:focus,select:focus{border-color:var(--accent)}
     .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}.btn{border:0;border-radius:10px;padding:12px 16px;font-weight:800;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}.primary{background:var(--accent);color:#111}.secondary{background:#202733;color:#fff}.danger{background:#3b1719;color:#ffd6d8;border:1px solid #6d282d}
     #status{min-height:22px;margin-top:14px;color:var(--muted);font-size:.9rem}.ok{color:#7ee787!important}.err{color:#ff8e93!important}.hidden{display:none!important}
-    .current{margin-top:22px;border-top:1px solid var(--line);padding-top:18px}.current a{color:#ff9c57;word-break:break-all}
+    .manager-block{margin-top:30px;padding-top:24px;border-top:1px solid var(--line)}.manager-block h2{margin:0;font-size:1rem;letter-spacing:.06em}.manager-block>p{color:var(--muted);font-size:.86rem;line-height:1.5}.event-admin-item{margin-top:12px;padding:14px;border:1px solid var(--line);border-radius:12px;background:#0b0f14}.event-admin-item strong{display:block}.event-admin-item span{color:var(--muted);font-size:.8rem}.event-admin-item button{float:right}.checkline{display:flex;align-items:center;gap:9px;margin-top:14px;color:var(--muted);font-size:.85rem}.checkline input{width:auto}.current{margin-top:22px;border-top:1px solid var(--line);padding-top:18px}.current a{color:#ff9c57;word-break:break-all}
     @media(max-width:600px){.row{grid-template-columns:1fr}.body{padding:18px}.head{padding:18px}}
   </style>
 </head>
@@ -23,7 +23,7 @@
   <main class="panel">
     <div class="head">
       <img src="assets/qorvo-mark.png" alt="QORVO logo">
-      <div><h1>QORVO CONTROL PANEL</h1><p>Featured Facebook Post Manager</p></div>
+      <div><h1>QORVO CONTROL PANEL</h1><p>Featured Post & Events Manager</p></div>
     </div>
     <div class="body">
       <div class="note">Private shortcut: click the QORVO footer logo on the public website <strong>3 times quickly</strong>. This page still requires your admin password.</div>
@@ -47,6 +47,26 @@
           <a class="btn secondary" href="/">View Website</a>
         </div>
         <div class="current"><strong>Current:</strong> <a id="current-link" href="#" target="_blank" rel="noopener">None</a></div>
+
+        <div class="manager-block">
+          <h2>EVENTS & LIVE SCHEDULE</h2>
+          <p>Add upcoming events, live streams, giveaways or always-open community activities. Dated items automatically disappear from the public schedule after their date passes.</p>
+          <label for="event-title">Event title</label>
+          <input id="event-title" placeholder="QORVO CFPH Game Night" maxlength="120">
+          <div class="row">
+            <div><label for="event-category">Category</label><select id="event-category"><option>COMMUNITY</option><option>EVENT</option><option>LIVE</option><option>GIVEAWAY</option><option>STREAM</option></select></div>
+            <div><label for="event-badge">Badge</label><input id="event-badge" value="CFPH" maxlength="20" placeholder="CFPH"></div>
+          </div>
+          <div class="row">
+            <div><label for="event-date">Date</label><input id="event-date" type="date"></div>
+            <div><label for="event-time">Time / note</label><input id="event-time" placeholder="8:00 PM" maxlength="30"></div>
+          </div>
+          <label for="event-url">Details / live link (optional)</label>
+          <input id="event-url" type="url" placeholder="https://www.facebook.com/...">
+          <label class="checkline"><input id="event-always" type="checkbox"> Always open (no expiration date)</label>
+          <div class="actions"><button class="btn primary" id="add-event-btn">Add Event</button><button class="btn secondary" id="save-events-btn">Save Schedule</button></div>
+          <div id="event-admin-list"></div>
+        </div>
       </section>
       <div id="status" aria-live="polite"></div>
     </div>
@@ -86,6 +106,7 @@
       $('editor-section').classList.remove('hidden');
       $('password').value = '';
       await loadCurrent();
+      await loadEvents();
       status('Logged in.', 'ok');
     } catch (error) { status(error.message, 'err'); }
   });
@@ -107,6 +128,31 @@
       status(enabled ? 'Featured post saved. The homepage can use it immediately.' : 'Featured post removed.', 'ok');
     } catch (error) { status(error.message, 'err'); }
   }
+
+
+  let events = [];
+  function renderEventsAdmin() {
+    const box = $('event-admin-list');
+    if (!events.length) { box.innerHTML = '<div class="note" style="margin-top:14px">No events added yet.</div>'; return; }
+    box.innerHTML = events.map((e,i) => `<div class="event-admin-item"><button class="btn danger" type="button" data-remove-event="${i}">Remove</button><strong>${e.title}</strong><span>${e.alwaysOpen ? 'ALWAYS OPEN' : (e.date || 'TBA')} · ${e.category || 'COMMUNITY'} · ${e.badge || 'CFPH'}${e.time ? ' · '+e.time : ''}</span></div>`).join('');
+  }
+  async function loadEvents() {
+    try { const r=await fetch('/api/events',{cache:'no-store'}); const d=await r.json(); events=Array.isArray(d.events)?d.events:[]; renderEventsAdmin(); }
+    catch { status('Could not load the event schedule.', 'err'); }
+  }
+  $('add-event-btn').addEventListener('click', () => {
+    const title=$('event-title').value.trim(); if(!title) return status('Enter an event title first.','err');
+    const alwaysOpen=$('event-always').checked; const date=$('event-date').value;
+    if(!alwaysOpen && !date) return status('Choose a date or mark the event as Always open.','err');
+    events.push({id:`${Date.now()}-${Math.random().toString(36).slice(2,7)}`,title,category:$('event-category').value,badge:$('event-badge').value.trim()||'CFPH',date:alwaysOpen?'':date,time:$('event-time').value.trim(),url:$('event-url').value.trim(),alwaysOpen,enabled:true});
+    ['event-title','event-date','event-time','event-url'].forEach(id=>$(id).value=''); $('event-always').checked=false; renderEventsAdmin(); status('Event added locally. Click Save Schedule to publish it.','ok');
+  });
+  $('event-admin-list').addEventListener('click',e=>{ const b=e.target.closest('[data-remove-event]'); if(!b)return; events.splice(Number(b.dataset.removeEvent),1); renderEventsAdmin(); status('Event removed locally. Click Save Schedule to publish the change.','ok'); });
+  $('save-events-btn').addEventListener('click', async()=>{
+    status('Saving schedule...');
+    try { const r=await fetch('/api/events',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:adminPassword,events})}); const d=await r.json(); if(!r.ok||!d.ok)throw new Error(d.error||'Save failed'); events=d.events||events; renderEventsAdmin(); status('Event schedule saved. The website will update automatically.','ok'); }
+    catch(e){status(e.message,'err');}
+  });
 
   $('save-btn').addEventListener('click', () => save(true));
   $('clear-btn').addEventListener('click', () => save(false));

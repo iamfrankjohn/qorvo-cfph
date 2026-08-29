@@ -31,3 +31,12 @@ The API writes `data/featured-post.json` to GitHub. The homepage API also reads 
 ## Security note
 
 The 3-click shortcut is only a convenience feature; it is not the security layer. The admin password is checked on the server and the GitHub token remains in Vercel environment variables.
+
+## Events & Live Schedule Manager
+The same control panel now manages the public **Events & Live Nights** section.
+
+- Add a title, category, badge, date, optional time/note, and optional link.
+- Use **Always open** for ongoing items such as clip submissions.
+- Click **Add Event**, then **Save Schedule** to publish.
+- Dated events automatically disappear from the public website after the event date.
+- The data is stored in `data/events.json` through the same GitHub token already used by Featured Post Manager.

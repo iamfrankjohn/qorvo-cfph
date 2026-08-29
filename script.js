@@ -447,3 +447,37 @@ loadFeaturedQorvoPost();
     }, 900);
   });
 })();
+
+// Dynamic QORVO Events & Live Schedule
+(() => {
+  const list = document.getElementById('event-list');
+  if (!list) return;
+  const esc = (v='') => String(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+  const today = new Date(); today.setHours(0,0,0,0);
+  const dateParts = (date) => {
+    if (!date) return {day:'TBA', month:'NEXT'};
+    const d = new Date(`${date}T00:00:00`);
+    if (Number.isNaN(d.getTime())) return {day:'TBA', month:'NEXT'};
+    return {day:String(d.getDate()).padStart(2,'0'), month:d.toLocaleString('en-US',{month:'short'}).toUpperCase()};
+  };
+  const active = (e) => {
+    if (e.enabled === false) return false;
+    if (e.alwaysOpen) return true;
+    if (!e.date) return true;
+    const d = new Date(`${e.date}T23:59:59`);
+    return !Number.isNaN(d.getTime()) && d >= today;
+  };
+  const sortEvents = (a,b) => {
+    if (a.alwaysOpen !== b.alwaysOpen) return a.alwaysOpen ? 1 : -1;
+    return String(a.date||'9999-12-31').localeCompare(String(b.date||'9999-12-31'));
+  };
+  fetch('/api/events',{cache:'no-store'}).then(r=>r.json()).then(data=>{
+    const events=(Array.isArray(data.events)?data.events:[]).filter(active).sort(sortEvents);
+    if (!events.length) return;
+    list.innerHTML=events.map(e=>{
+      const dp=e.alwaysOpen?{day:'OPEN',month:'24/7'}:dateParts(e.date);
+      const link=e.url?`<a href="${esc(e.url)}" target="_blank" rel="noopener" aria-label="Open ${esc(e.title)}">↗</a>`:'<span></span>';
+      return `<div class="event-row"><div class="event-date"><b class="event-day">${esc(dp.day)}</b><span class="event-month">${esc(dp.month)}</span>${e.time?`<span class="event-time">${esc(e.time)}</span>`:''}</div><div class="event-info"><span>${esc(e.category||'COMMUNITY')}</span><h3>${esc(e.title)}</h3></div><div class="event-type">${esc(e.badge||'CFPH')}</div>${link}</div>`;
+    }).join('');
+  }).catch(()=>{});
+})();
