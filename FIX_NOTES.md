@@ -1,18 +1,10 @@
-# QORVO CFPH v4 — Stable Server Intel News
+# v5 Changes
 
-## What changed
-
-- Removed live STOVE scraping from Server Intel because STOVE returns HTTP 567 Restricted Access to automated/server requests.
-- Added `data/news.json` as the single source for the Server Intel card.
-- The homepage now loads `/data/news.json` directly.
-- `/api/crossfire-update` is retained for compatibility and simply returns the same local JSON.
-- No external scraper, API key, environment variable, or proxy is required.
-- Existing image fallback remains in place.
-
-## Update only one file
-
-For future CrossFire PH news, edit:
-
-`data/news.json`
-
-See `LATEST_NEWS_SETUP.md` for instructions.
+- Server Intel now displays the 3 latest CrossFire Philippines posts instead of only one.
+- Added compact category, date, title, short preview, and per-post action links.
+- The first/latest post is visually highlighted.
+- Added a permanent "View all official CFPH news" link.
+- `data/news.json` now uses a `posts` array.
+- The first article uses the exact direct URL provided by the user.
+- Posts 2 and 3 currently use the official News list until their exact article links are added.
+- Existing STOVE scraping remains removed because STOVE blocks automated server access with HTTP 567.

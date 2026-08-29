@@ -89,42 +89,65 @@ function setMedia(containerId, imageUrl, fallbackUrl = '') {
 }
 
 async function loadServerIntel() {
+  const postsBox = document.getElementById('server-intel-posts');
+
   try {
     const response = await fetch('/data/news.json', { cache: 'no-store' });
     const data = await response.json();
 
     if (!response.ok) throw new Error('CrossFire news file unavailable');
 
-    const date = document.getElementById('server-intel-date');
-    const title = document.getElementById('server-intel-title');
-    const text = document.getElementById('server-intel-text');
-    const link = document.getElementById('server-intel-link');
+    const posts = Array.isArray(data.posts) ? data.posts.slice(0, 3) : [];
+    if (!posts.length) throw new Error('No CrossFire posts configured');
 
-    if (date) date.textContent = formatDate(data.date);
-    if (title) title.textContent = data.title || 'Latest CrossFire update';
-    if (text) text.textContent = cleanText(data.summary, 240) || 'Read the latest official CrossFire Philippines update.';
-    if (link && data.url) {
-      link.href = data.url;
-      link.textContent = 'Read full update →';
+    if (postsBox) {
+      postsBox.innerHTML = '';
+
+      posts.forEach((post, index) => {
+        const item = document.createElement('article');
+        item.className = 'server-intel-post';
+        if (index === 0) item.classList.add('is-latest');
+
+        const meta = document.createElement('div');
+        meta.className = 'server-intel-post-meta';
+
+        const category = document.createElement('span');
+        category.textContent = post.category || 'NEWS';
+
+        const date = document.createElement('time');
+        date.textContent = formatDate(post.date);
+
+        const title = document.createElement('h4');
+        title.textContent = post.title || 'CrossFire Philippines update';
+
+        const summary = document.createElement('p');
+        summary.textContent = cleanText(post.summary, 125) || 'Open the official CrossFire Philippines page for full details.';
+
+        const link = document.createElement('a');
+        link.href = post.url || 'https://cfph.onstove.com/News/List';
+        link.target = '_blank';
+        link.rel = 'noopener';
+        link.textContent = post.direct === false ? 'Open official news →' : 'Read full update →';
+
+        meta.append(category, date);
+        item.append(meta, title, summary, link);
+        postsBox.append(item);
+      });
     }
 
-    setMedia('server-intel-media', data.image, '/assets/qorvo-logo.jpg');
+    const firstImage = posts.find(post => post.image)?.image || data.image;
+    setMedia('server-intel-media', firstImage, '/assets/qorvo-logo.jpg');
   } catch (error) {
-    console.warn('CrossFire update:', error);
+    console.warn('CrossFire updates:', error);
 
-    const date = document.getElementById('server-intel-date');
-    const title = document.getElementById('server-intel-title');
-    const text = document.getElementById('server-intel-text');
-
-    const link = document.getElementById('server-intel-link');
-
-    if (date) date.textContent = 'Official news';
-    if (title) title.textContent = 'Latest CrossFire Philippines updates';
-    if (text) text.textContent =
-      'Open the official CrossFire Philippines news page for the latest game notices, events and updates.';
-    if (link) {
-      link.href = 'https://cfph.onstove.com/News/List';
-      link.textContent = 'Open official news →';
+    if (postsBox) {
+      postsBox.innerHTML = `
+        <article class="server-intel-post">
+          <div class="server-intel-post-meta"><span>OFFICIAL NEWS</span><time>CFPH</time></div>
+          <h4>CrossFire Philippines Updates</h4>
+          <p>The local news file could not be loaded. Open the official CrossFire Philippines News page for the latest updates.</p>
+          <a href="https://cfph.onstove.com/News/List" target="_blank" rel="noopener">Open official news →</a>
+        </article>`;
     }
 
     setMedia('server-intel-media', null, '/assets/qorvo-logo.jpg');

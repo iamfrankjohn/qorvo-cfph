@@ -1,14 +1,10 @@
-# QORVO CFPH Website — No Meta / Responsive Facebook Fix
+# QORVO CFPH Website — v5
 
-This version fixes the Facebook timeline card on desktop, tablet and mobile.
+Deploy-ready version for GitHub → Vercel.
 
-The previous iframe requested a fixed 500px Facebook plugin even when the card
-was much narrower. This version measures the actual card width and reloads the
-Facebook Page Plugin using the correct width.
+## Server Intel
+The right-hand Latest Updates card shows up to 3 CrossFire Philippines posts from `data/news.json`.
 
-Server Intel remains automatic with a safe fallback to the official CrossFire
-Philippines news page when the official site cannot be parsed server-side.
+To update the latest CFPH news, edit only `data/news.json`, commit, and push to GitHub.
 
-## Server Intel news
-
-Server Intel uses `data/news.json`. See `LATEST_NEWS_SETUP.md`. This avoids the HTTP 567 block from STOVE's automated-access protection.
+See `LATEST_NEWS_SETUP.md` for the post format and direct-link instructions.

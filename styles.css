@@ -969,3 +969,87 @@ footer p:last-child{text-align:right}
   background-size:cover;
   background-position:center 42%;
 }
+
+/* =========================================================
+   SERVER INTEL — 3 latest CrossFire Philippines posts
+   ========================================================= */
+.server-intel-body{
+  display:flex;
+  flex-direction:column;
+  gap:0;
+}
+
+.server-intel-heading h3{
+  margin-bottom:10px;
+}
+
+.server-intel-posts{
+  display:flex;
+  flex-direction:column;
+  border-top:1px solid rgba(255,255,255,.08);
+}
+
+.server-intel-post{
+  position:relative;
+  padding:13px 0 14px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.server-intel-post.is-latest::before{
+  content:"";
+  position:absolute;
+  left:-20px;
+  top:13px;
+  bottom:14px;
+  width:2px;
+  background:var(--accent);
+}
+
+.server-intel-post-meta{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:6px;
+  color:#71839a;
+  font-size:8px;
+  font-weight:800;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+}
+
+.server-intel-post-meta span{
+  color:var(--accent);
+}
+
+.server-intel-post h4{
+  margin:0 0 6px;
+  color:#fff;
+  font:700 19px/1.08 "Barlow Condensed",sans-serif;
+  text-transform:uppercase;
+}
+
+.server-intel-post p{
+  margin:0 0 7px;
+  color:var(--muted);
+  font-size:10.5px;
+  line-height:1.45;
+}
+
+.server-intel-post a,
+.server-intel-all{
+  display:inline-block;
+  color:var(--accent);
+  font-size:9px;
+  font-weight:800;
+  text-transform:uppercase;
+}
+
+.server-intel-all{
+  margin-top:14px;
+}
+
+@media(max-width:700px){
+  .server-intel-post h4{font-size:20px}
+  .server-intel-post p{font-size:11px}
+}
