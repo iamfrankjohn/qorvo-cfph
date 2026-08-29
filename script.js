@@ -525,21 +525,36 @@ loadFeaturedQorvoPost();
     close.setAttribute('aria-label', 'Close LIVE notification');
     close.textContent = '×';
 
+    const modalHead = document.createElement('div');
+    modalHead.className = 'qorvo-live-modal-head';
+
+    const headingCopy = document.createElement('div');
+    headingCopy.className = 'qorvo-live-modal-heading-copy';
+
     const eyebrow = document.createElement('div');
     eyebrow.className = 'qorvo-live-modal-eyebrow';
-    eyebrow.innerHTML = '<span aria-hidden="true"></span> LIVE NOW';
+    eyebrow.innerHTML = '<span aria-hidden="true"></span> QORVO LIVE ALERT';
 
     const title = document.createElement('h2');
     title.id = 'qorvo-live-modal-title';
-    title.textContent = liveMembers.length === 1
-      ? 'A QORVO MEMBER IS LIVE'
-      : `${liveMembers.length} QORVO MEMBERS ARE LIVE`;
+    title.innerHTML = liveMembers.length === 1
+      ? 'A QORVO MEMBER <em>IS LIVE NOW</em>'
+      : `${liveMembers.length} QORVO MEMBERS <em>ARE LIVE NOW</em>`;
 
     const subtitle = document.createElement('p');
     subtitle.className = 'qorvo-live-modal-subtitle';
     subtitle.textContent = liveMembers.length === 1
-      ? 'Jump into the stream and support the squad.'
-      : 'Choose a stream and join the squad live on TikTok.';
+      ? 'One of the squad is streaming now. Drop in and show some support.'
+      : 'The squad is live. Pick a stream and jump into the action.';
+
+    headingCopy.append(eyebrow, title, subtitle);
+
+    const signal = document.createElement('div');
+    signal.className = 'qorvo-live-modal-signal';
+    signal.setAttribute('aria-hidden', 'true');
+    signal.innerHTML = '<span class="qorvo-live-modal-signal-core">▶</span>';
+
+    modalHead.append(headingCopy, signal);
 
     const listEl = document.createElement('div');
     listEl.className = 'qorvo-live-modal-list';
@@ -548,22 +563,31 @@ loadFeaturedQorvoPost();
       const row = document.createElement('div');
       row.className = 'qorvo-live-modal-member';
 
+      const memberProfile = document.createElement('div');
+      memberProfile.className = 'qorvo-live-modal-profile';
+
+      const avatar = document.createElement('span');
+      avatar.className = 'qorvo-live-modal-avatar';
+      const displayName = member.name || member.username || 'QORVO Member';
+      avatar.textContent = String(displayName).trim().charAt(0).toUpperCase() || 'Q';
+
       const identity = document.createElement('div');
       identity.className = 'qorvo-live-modal-identity';
 
       const name = document.createElement('strong');
-      name.textContent = member.name || member.username || 'QORVO Member';
+      name.textContent = displayName;
 
       const username = document.createElement('span');
       username.textContent = member.username ? `@${member.username}` : 'TikTok LIVE';
 
       identity.append(name, username);
+      memberProfile.append(avatar, identity);
 
       const watch = document.createElement('a');
       watch.className = 'qorvo-live-modal-watch';
       watch.target = '_blank';
       watch.rel = 'noopener';
-      watch.textContent = 'WATCH LIVE ↗';
+      watch.innerHTML = '<span>WATCH LIVE</span><b aria-hidden="true">↗</b>';
 
       let liveUrl = '';
       try {
@@ -577,7 +601,7 @@ loadFeaturedQorvoPost();
       }
       watch.href = liveUrl || 'https://www.tiktok.com/';
 
-      row.append(identity, watch);
+      row.append(memberProfile, watch);
       listEl.append(row);
     });
 
@@ -586,7 +610,7 @@ loadFeaturedQorvoPost();
     later.className = 'qorvo-live-modal-later';
     later.textContent = 'MAYBE LATER';
 
-    panel.append(close, eyebrow, title, subtitle, listEl, later);
+    panel.append(close, modalHead, listEl, later);
     overlay.append(panel);
     document.body.append(overlay);
 

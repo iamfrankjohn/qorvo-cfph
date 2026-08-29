@@ -1,3 +1,15 @@
+# WEB v5.8 — LIVE Modal Redesign
+
+- Redesigned the visitor TikTok LIVE notification modal.
+- Stronger QORVO gaming-style hierarchy with a split white/green LIVE headline.
+- Added animated broadcast signal artwork using CSS only.
+- Added member initial avatars and improved stream cards.
+- WATCH LIVE is now a stronger primary action.
+- Cleaner MAYBE LATER divider treatment.
+- Improved desktop and mobile layouts while keeping the existing LIVE detection behavior.
+- Footer version updated to `WEB v5.8`.
+- Safe ZIP excludes all live `data/*.json` files.
+
 # WEB v5.7 — About Copy Update
 
 - Refined the `Who We Are` section copy to sound more natural and less repetitive.
