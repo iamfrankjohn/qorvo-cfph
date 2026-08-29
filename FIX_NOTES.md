@@ -1,3 +1,12 @@
+# WEB v5.11 — LIVE Alert Copy
+
+- Changed the popup status label from `QORVO LIVE ALERT` to `LIVE ALERT`.
+- One member: `A QORVO MEMBER / IS LIVE NOW`.
+- Multiple members: `QORVO MEMBERS / ARE LIVE NOW`.
+- Existing LIVE modal design, WATCH LIVE SVG icon, and TikTok detection behavior remain unchanged.
+- Footer version updated to `WEB v5.11`.
+- Safe ZIP excludes all live `data/*.json` files.
+
 # WEB v5.10 — WATCH LIVE Icon Fix
 
 - Replaced the custom CSS-drawn WATCH LIVE arrow with a clean inline SVG external-link icon.

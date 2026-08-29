@@ -533,13 +533,13 @@ loadFeaturedQorvoPost();
 
     const eyebrow = document.createElement('div');
     eyebrow.className = 'qorvo-live-modal-eyebrow';
-    eyebrow.innerHTML = '<span aria-hidden="true"></span> QORVO LIVE ALERT';
+    eyebrow.innerHTML = '<span aria-hidden="true"></span> LIVE ALERT';
 
     const title = document.createElement('h2');
     title.id = 'qorvo-live-modal-title';
     title.innerHTML = liveMembers.length === 1
       ? 'A QORVO MEMBER <em>IS LIVE NOW</em>'
-      : `${liveMembers.length} QORVO MEMBERS <em>ARE LIVE NOW</em>`;
+      : 'QORVO MEMBERS <em>ARE LIVE NOW</em>';
 
     const subtitle = document.createElement('p');
     subtitle.className = 'qorvo-live-modal-subtitle';
