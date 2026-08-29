@@ -1,3 +1,14 @@
+# WEB v5.5 — CTA Cleanup
+
+- Removed Messenger from the homepage hero.
+- Hero now has one focused CTA: `Explore the Community ↓`.
+- Removed the duplicate `MESSAGE QORVO` link inside Join the Squad.
+- Kept `Continue on Messenger` as the application CTA in Join the Squad.
+- Kept the separate floating Messenger help widget for support.
+- Kept the Who We Are Facebook Page CTA.
+- Footer version updated to `WEB v5.5`.
+- Safe ZIP excludes all live `data/*.json` files.
+
 # WEB v5.4 — Responsive Polish
 
 - Prevented `LOCK IN.`, `QORVO UP.`, and `DOMINATE.` from splitting internally.

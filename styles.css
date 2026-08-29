@@ -1680,3 +1680,12 @@ footer p:last-child{text-align:right}
   .community{padding-top:28px;padding-bottom:58px}
   footer{padding-top:28px;padding-bottom:28px}
 }
+
+/* WEB v5.5 — CTA cleanup */
+.hero-actions-clean{align-items:center}
+.hero-actions-clean .btn{min-width:220px;justify-content:center}
+.join-process-footer-clean{justify-content:flex-start}
+.join-process-footer-clean span{max-width:360px}
+@media(max-width:560px){
+  .hero-actions-clean .btn{width:100%;min-width:0}
+}
