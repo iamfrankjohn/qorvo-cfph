@@ -358,6 +358,16 @@ async function loadFeaturedQorvoPost() {
     if (!response.ok || !post || !post.enabled || !post.url) {
       iframe.style.display = 'none';
       placeholder.style.display = 'flex';
+
+      const placeholderText = placeholder.querySelector('p');
+      if (placeholderText) {
+        placeholderText.textContent = 'No featured post selected right now. Follow QORVO CFPH for the latest updates.';
+      }
+
+      title.textContent = 'No Featured Post Right Now';
+      if (time) time.textContent = 'QORVO Updates';
+      link.href = 'https://www.facebook.com/qorvo.cfph';
+      link.textContent = 'Open Facebook Page →';
       return;
     }
 
@@ -417,6 +427,16 @@ async function loadFeaturedQorvoPost() {
     console.error('Featured post load failed:', error);
     iframe.style.display = 'none';
     placeholder.style.display = 'flex';
+
+    const placeholderText = placeholder.querySelector('p');
+    if (placeholderText) {
+      placeholderText.textContent = 'Featured post is temporarily unavailable. Visit QORVO CFPH on Facebook for the latest updates.';
+    }
+
+    title.textContent = 'QORVO Updates';
+    if (time) time.textContent = 'Facebook';
+    link.href = 'https://www.facebook.com/qorvo.cfph';
+    link.textContent = 'Open Facebook Page →';
   }
 }
 

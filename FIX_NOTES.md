@@ -1,3 +1,14 @@
+# WEB v5.4 — Responsive Polish
+
+- Prevented `LOCK IN.`, `QORVO UP.`, and `DOMINATE.` from splitting internally.
+- Added laptop-specific hero sizing for common 901–1399px widths.
+- Changed the floating Messenger help control to a compact circular icon on phones.
+- Tightened phone-only vertical spacing for smoother scrolling.
+- Replaced admin-facing Featured Post placeholder text with visitor-facing loading and fallback copy.
+- Added a visitor-friendly Featured Post fallback when the API is unavailable.
+- Footer version updated to `WEB v5.4`.
+- Safe ZIP excludes all live `data/*.json` files.
+
 # WEB v5.3 — Who We Are Redesign
 
 - Rewrote Section 01 to describe QORVO itself instead of describing the website.
