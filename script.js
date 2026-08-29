@@ -102,8 +102,11 @@ async function loadServerIntel() {
 
     if (date) date.textContent = formatDate(data.date);
     if (title) title.textContent = data.title || 'Latest CrossFire update';
-    if (text) text.textContent = cleanText(data.summary, 175) || 'Read the latest official CrossFire Philippines update.';
-    if (link && data.url) link.href = data.url;
+    if (text) text.textContent = cleanText(data.summary, 240) || 'Read the latest official CrossFire Philippines update.';
+    if (link && data.url) {
+      link.href = data.url;
+      link.textContent = data.fallback ? 'Open official news →' : 'Read full update →';
+    }
 
     setMedia('server-intel-media', data.image, '/assets/qorvo-logo.jpg');
   } catch (error) {
@@ -119,7 +122,10 @@ async function loadServerIntel() {
     if (title) title.textContent = 'Latest CrossFire Philippines updates';
     if (text) text.textContent =
       'Open the official CrossFire Philippines news page for the latest game notices, events and updates.';
-    if (link) link.href = 'https://cfph.onstove.com/News';
+    if (link) {
+      link.href = 'https://cfph.onstove.com/News/List';
+      link.textContent = 'Open official news →';
+    }
 
     setMedia('server-intel-media', null, '/assets/qorvo-logo.jpg');
   }

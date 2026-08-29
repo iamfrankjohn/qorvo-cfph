@@ -1,140 +1,272 @@
-const OFFICIAL_NEWS_URL = 'https://cfph.onstove.com/News';
+const OFFICIAL_NEWS_URL = 'https://cfph.onstove.com/News/List';
 const FALLBACK_IMAGE = '/assets/qorvo-logo.jpg';
+const FETCH_TIMEOUT_MS = 9000;
 
 function json(res, status, body) {
   res.status(status);
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  // Keep one copy at the edge for 15 minutes and allow stale data for an hour.
   res.setHeader('Cache-Control', 's-maxage=900, stale-while-revalidate=3600');
   res.end(JSON.stringify(body));
 }
 
-function stripHtml(value = '') {
-  return value
-    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
-    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
-    .replace(/<[^>]+>/g, ' ')
+function decodeHtml(value = '') {
+  return String(value)
     .replace(/&nbsp;/gi, ' ')
     .replace(/&amp;/gi, '&')
     .replace(/&quot;/gi, '"')
-    .replace(/&#39;/gi, "'")
+    .replace(/&#39;|&apos;/gi, "'")
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCharCode(parseInt(n, 16)));
+}
+
+function stripHtml(value = '') {
+  return decodeHtml(value)
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<br\s*\/?\s*>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 }
 
+function compact(value = '', max = 300) {
+  const text = stripHtml(value);
+  if (!text) return '';
+  return text.length > max ? `${text.slice(0, max - 1).trimEnd()}…` : text;
+}
+
 function absolute(base, value) {
-  if (!value) return null;
-  try { return new URL(value, base).toString(); }
+  if (!value || typeof value !== 'string') return null;
+  const cleaned = decodeHtml(value).replace(/\\u002F/gi, '/').replace(/\\\//g, '/').trim();
+  if (!cleaned || cleaned.startsWith('data:')) return null;
+  try { return new URL(cleaned, base).toString(); }
   catch { return null; }
 }
 
+function normalizeOfficialUrl(value) {
+  if (!value) return value;
+  return String(value)
+    .replace('cfph-mig.onstove.com', 'cfph.onstove.com')
+    .replace('http://cfph.onstove.com', 'https://cfph.onstove.com');
+}
+
 function findMeta(html, key) {
+  const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const patterns = [
-    new RegExp(`<meta[^>]+property=["']${key}["'][^>]+content=["']([^"']+)["'][^>]*>`, 'i'),
-    new RegExp(`<meta[^>]+content=["']([^"']+)["'][^>]+property=["']${key}["'][^>]*>`, 'i'),
-    new RegExp(`<meta[^>]+name=["']${key}["'][^>]+content=["']([^"']+)["'][^>]*>`, 'i')
+    new RegExp(`<meta[^>]+property=["']${escaped}["'][^>]+content=["']([^"']+)["'][^>]*>`, 'i'),
+    new RegExp(`<meta[^>]+content=["']([^"']+)["'][^>]+property=["']${escaped}["'][^>]*>`, 'i'),
+    new RegExp(`<meta[^>]+name=["']${escaped}["'][^>]+content=["']([^"']+)["'][^>]*>`, 'i'),
+    new RegExp(`<meta[^>]+content=["']([^"']+)["'][^>]+name=["']${escaped}["'][^>]*>`, 'i')
   ];
-  for (const p of patterns) {
-    const m = html.match(p);
-    if (m?.[1]) return m[1];
+  for (const pattern of patterns) {
+    const match = html.match(pattern);
+    if (match?.[1]) return decodeHtml(match[1]);
   }
   return null;
 }
 
-function extractCandidates(html, baseUrl) {
-  const candidates = [];
+function dateValue(value) {
+  if (!value) return 0;
+  const parsed = Date.parse(value);
+  return Number.isNaN(parsed) ? 0 : parsed;
+}
 
-  // Try JSON-LD first
-  const jsonLdMatches = [...html.matchAll(/<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)];
-  for (const match of jsonLdMatches) {
-    try {
-      const parsed = JSON.parse(match[1]);
-      const items = Array.isArray(parsed) ? parsed : [parsed];
-      for (const item of items) {
-        if (!item || typeof item !== 'object') continue;
-        const title = item.headline || item.name;
-        const url = item.url || item.mainEntityOfPage?.['@id'];
-        if (title && url) {
-          candidates.push({
-            title: stripHtml(String(title)),
-            url: absolute(baseUrl, String(url)),
-            date: item.datePublished || item.dateModified || null,
-            image: Array.isArray(item.image) ? item.image[0] : (typeof item.image === 'string' ? item.image : item.image?.url),
-            summary: stripHtml(item.description || '')
-          });
-        }
-      }
-    } catch {}
+function looksLikeArticleUrl(url = '') {
+  const u = String(url).toLowerCase();
+  return (
+    /\/news\/(view|detail|article|read)/.test(u) ||
+    /[?&](postno|boardno|articleid|newsno|seq|id)=\d+/.test(u) ||
+    /page\.onstove\.com\/cfph\/.+\/view\/\d+/.test(u)
+  );
+}
+
+function scoreCandidate(item) {
+  let score = 0;
+  const title = (item.title || '').toLowerCase();
+  const url = (item.url || '').toLowerCase();
+  if (looksLikeArticleUrl(url)) score += 80;
+  if (url.includes('/news/')) score += 30;
+  if (/update|notice|maintenance|event|patch|news|announcement|migration|server/.test(title)) score += 12;
+  if ((item.title || '').length >= 12) score += 8;
+  if (item.date) score += 8;
+  if (item.image) score += 5;
+  if (item.summary) score += 4;
+  if (/login|signup|register|download|support|facebook|discord|home$/i.test(title)) score -= 80;
+  if (/\/news\/?(list)?$/i.test(new URL(item.url || 'https://x.invalid').pathname)) score -= 60;
+  return score;
+}
+
+function addCandidate(store, baseUrl, raw = {}) {
+  const title = compact(raw.title || raw.headline || raw.subject || raw.name || '', 180);
+  const url = normalizeOfficialUrl(absolute(baseUrl, raw.url || raw.href || raw.link || raw.permalink || raw.webUrl));
+  if (!title || !url || title.length < 6) return;
+
+  const imageValue = Array.isArray(raw.image) ? raw.image[0] :
+    (typeof raw.image === 'object' ? (raw.image?.url || raw.image?.contentUrl) : raw.image);
+
+  store.push({
+    title,
+    url,
+    date: raw.date || raw.datePublished || raw.publishedAt || raw.publishDate || raw.createdAt || raw.regDate || null,
+    image: absolute(baseUrl, imageValue || raw.thumbnail || raw.thumbnailUrl || raw.imageUrl || raw.coverImage || null),
+    summary: compact(raw.summary || raw.description || raw.excerpt || raw.content || raw.body || '', 320)
+  });
+}
+
+function walkJson(node, baseUrl, candidates, depth = 0) {
+  if (!node || depth > 10) return;
+  if (Array.isArray(node)) {
+    for (const child of node) walkJson(child, baseUrl, candidates, depth + 1);
+    return;
+  }
+  if (typeof node !== 'object') return;
+
+  const keys = Object.keys(node);
+  const hasTitle = keys.some(k => /^(title|headline|subject|name)$/i.test(k));
+  const hasUrl = keys.some(k => /^(url|href|link|permalink|webUrl)$/i.test(k));
+  if (hasTitle && hasUrl) addCandidate(candidates, baseUrl, node);
+
+  for (const value of Object.values(node)) {
+    if (value && typeof value === 'object') walkJson(value, baseUrl, candidates, depth + 1);
+  }
+}
+
+function extractJsonCandidates(html, baseUrl, candidates) {
+  // JSON-LD
+  for (const match of html.matchAll(/<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)) {
+    try { walkJson(JSON.parse(match[1]), baseUrl, candidates); } catch {}
   }
 
-  // Generic anchors from official news listing
+  // Common SPA hydration payloads (Next.js / Nuxt / generic application JSON)
+  for (const match of html.matchAll(/<script[^>]+(?:id=["']__NEXT_DATA__["']|type=["']application\/json["'])[^>]*>([\s\S]*?)<\/script>/gi)) {
+    try { walkJson(JSON.parse(match[1]), baseUrl, candidates); } catch {}
+  }
+
+  // Some sites embed escaped JSON directly in JS. Pull likely news objects conservatively.
+  const objectRe = /\{[^{}]{0,1800}(?:"title"|"subject"|"headline")[^{}]{0,1800}(?:"url"|"href"|"link")[^{}]{0,1800}\}/gi;
+  for (const match of html.matchAll(objectRe)) {
+    try { walkJson(JSON.parse(match[0]), baseUrl, candidates); } catch {}
+  }
+}
+
+function extractAnchorCandidates(html, baseUrl, candidates) {
   const anchorRe = /<a\b([^>]*?)href=["']([^"']+)["']([^>]*)>([\s\S]*?)<\/a>/gi;
-  for (const m of html.matchAll(anchorRe)) {
-    const href = m[2];
-    const text = stripHtml(m[4]);
+  for (const match of html.matchAll(anchorRe)) {
+    const href = match[2];
+    const text = compact(match[4], 180);
     if (!text || text.length < 8) continue;
 
-    const lowerHref = href.toLowerCase();
-    const lowerText = text.toLowerCase();
-    const looksLikeNews =
-      lowerHref.includes('news') ||
-      lowerHref.includes('notice') ||
-      lowerHref.includes('update') ||
-      /\b(update|notice|maintenance|event|news|patch|migration)\b/.test(lowerText);
-
-    if (!looksLikeNews) continue;
-
-    const url = absolute(baseUrl, href);
+    const url = normalizeOfficialUrl(absolute(baseUrl, href));
     if (!url) continue;
 
-    candidates.push({
-      title: text.slice(0, 160),
-      url,
-      date: null,
-      image: null,
-      summary: ''
-    });
-  }
+    const lower = `${href} ${text}`.toLowerCase();
+    if (!looksLikeArticleUrl(url) && !/news|notice|update|maintenance|event|patch|announcement|migration/.test(lower)) continue;
 
-  // Deduplicate
+    // Try to capture a thumbnail from inside the anchor.
+    const img = match[4].match(/<img[^>]+(?:src|data-src)=["']([^"']+)["']/i)?.[1] || null;
+    addCandidate(candidates, baseUrl, { title: text, url, image: img });
+  }
+}
+
+function extractCandidates(html, baseUrl) {
+  const candidates = [];
+  extractJsonCandidates(html, baseUrl, candidates);
+  extractAnchorCandidates(html, baseUrl, candidates);
+
   const seen = new Set();
-  return candidates.filter(item => {
-    const key = `${item.url}|${item.title}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
+  return candidates
+    .filter(item => {
+      const key = `${item.url}|${item.title}`.toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .sort((a, b) => {
+      const dateDiff = dateValue(b.date) - dateValue(a.date);
+      if (dateDiff) return dateDiff;
+      return scoreCandidate(b) - scoreCandidate(a);
+    });
+}
+
+function extractArticleText(html) {
+  // Prefer paragraphs from article/main content. This is intentionally generic
+  // because STOVE has changed its markup several times.
+  const scoped =
+    html.match(/<article\b[^>]*>([\s\S]*?)<\/article>/i)?.[1] ||
+    html.match(/<main\b[^>]*>([\s\S]*?)<\/main>/i)?.[1] ||
+    html;
+
+  const paragraphs = [];
+  for (const match of scoped.matchAll(/<p\b[^>]*>([\s\S]*?)<\/p>/gi)) {
+    const text = compact(match[1], 500);
+    if (text.length < 35) continue;
+    if (/cookie|privacy|terms|customer service|javascript enabled/i.test(text)) continue;
+    paragraphs.push(text);
+    if (paragraphs.join(' ').length > 450) break;
+  }
+  return compact(paragraphs.join(' '), 360);
+}
+
+async function fetchHtml(url) {
+  const response = await fetch(url, {
+    redirect: 'follow',
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+      'Accept-Language': 'en-PH,en;q=0.9',
+      'Cache-Control': 'no-cache',
+      'Referer': 'https://cfph.onstove.com/'
+    }
   });
+  if (!response.ok) throw new Error(`${url} returned HTTP ${response.status}`);
+  return { html: await response.text(), finalUrl: response.url || url };
 }
 
 async function enrich(candidate) {
   try {
-    const response = await fetch(candidate.url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; QORVO-CFPH/1.0)',
-        'Accept': 'text/html,application/xhtml+xml'
-      }
-    });
-    if (!response.ok) return candidate;
-
-    const html = await response.text();
-    const title = findMeta(html, 'og:title') || candidate.title;
-    const description = findMeta(html, 'og:description') || findMeta(html, 'description') || candidate.summary;
-    const image = findMeta(html, 'og:image') || candidate.image;
-
+    const { html, finalUrl } = await fetchHtml(candidate.url);
+    const title = findMeta(html, 'og:title') || findMeta(html, 'twitter:title') || candidate.title;
+    const description =
+      findMeta(html, 'og:description') ||
+      findMeta(html, 'twitter:description') ||
+      findMeta(html, 'description') ||
+      candidate.summary ||
+      extractArticleText(html);
+    const image =
+      findMeta(html, 'og:image') ||
+      findMeta(html, 'twitter:image') ||
+      candidate.image;
+    const canonical = html.match(/<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']+)["']/i)?.[1] || finalUrl;
     const time =
       html.match(/<time[^>]+datetime=["']([^"']+)["']/i)?.[1] ||
-      html.match(/(?:datePublished|publishDate|publishedAt)["']?\s*[:=]\s*["']([^"']+)["']/i)?.[1] ||
+      html.match(/"(?:datePublished|publishedAt|publishDate|createdAt|regDate)"\s*:\s*"([^"]+)"/i)?.[1] ||
       candidate.date;
 
     return {
       ...candidate,
-      title: stripHtml(title),
-      summary: stripHtml(description),
-      image: absolute(candidate.url, image),
-      date: time || null
+      title: compact(title, 180) || candidate.title,
+      summary: compact(description, 360) || 'Read the latest official CrossFire Philippines announcement.',
+      image: absolute(finalUrl, image),
+      date: time || null,
+      url: normalizeOfficialUrl(absolute(finalUrl, canonical) || candidate.url)
     };
   } catch {
     return candidate;
   }
+}
+
+function sourceVariants(configuredUrl) {
+  const configured = normalizeOfficialUrl(configuredUrl || OFFICIAL_NEWS_URL);
+  const urls = [
+    configured,
+    'https://cfph.onstove.com/News/List',
+    'https://cfph.onstove.com/News'
+  ];
+  return [...new Set(urls)];
 }
 
 export default async function handler(req, res) {
@@ -142,53 +274,44 @@ export default async function handler(req, res) {
     return json(res, 405, { ok: false, error: 'Method not allowed' });
   }
 
-  // Normalize an old Vercel environment variable too, so existing deployments
-  // do not keep using the retired cfph-mig hostname.
   const configuredUrl = process.env.CROSSFIRE_NEWS_URL || OFFICIAL_NEWS_URL;
-  const sourceUrl = configuredUrl.replace('cfph-mig.onstove.com', 'cfph.onstove.com');
+  const sources = sourceVariants(configuredUrl);
+  const errors = [];
 
-  try {
-    const response = await fetch(sourceUrl, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; QORVO-CFPH/1.0)',
-        'Accept': 'text/html,application/xhtml+xml'
-      }
-    });
+  for (const sourceUrl of sources) {
+    try {
+      const { html, finalUrl } = await fetchHtml(sourceUrl);
+      const candidates = extractCandidates(html, finalUrl);
+      const latestCandidate = candidates.find(item => scoreCandidate(item) > 20) || candidates[0];
+      if (!latestCandidate) throw new Error('No news entries detected.');
 
-    if (!response.ok) {
-      throw new Error(`Official CrossFire news returned ${response.status}`);
+      const latest = await enrich(latestCandidate);
+      return json(res, 200, {
+        ok: true,
+        source: 'CrossFire Philippines official news',
+        title: latest.title || 'Latest CrossFire Philippines update',
+        summary: latest.summary || 'Read the latest official CrossFire Philippines announcement.',
+        date: latest.date,
+        image: latest.image || FALLBACK_IMAGE,
+        url: latest.url || sourceUrl,
+        fallback: false
+      });
+    } catch (error) {
+      errors.push(error?.message || String(error));
     }
-
-    const html = await response.text();
-    const candidates = extractCandidates(html, sourceUrl);
-
-    if (!candidates.length) {
-      throw new Error('No news entries were detected on the official CrossFire page.');
-    }
-
-    const latest = await enrich(candidates[0]);
-
-    return json(res, 200, {
-      ok: true,
-      source: 'CrossFire Philippines official news',
-      title: latest.title || 'Latest CrossFire Philippines update',
-      summary: latest.summary || 'Read the latest official CrossFire Philippines update.',
-      date: latest.date,
-      image: latest.image,
-      url: latest.url || sourceUrl
-    });
-  } catch (error) {
-    // Graceful fallback: the site still shows a useful official link.
-    return json(res, 200, {
-      ok: true,
-      source: 'CrossFire Philippines official news',
-      title: 'Latest CrossFire Philippines updates',
-      summary: 'Open the official CrossFire Philippines news page for the newest game updates, notices, maintenance information and events.',
-      date: null,
-      image: FALLBACK_IMAGE,
-      url: sourceUrl,
-      fallback: true,
-      warning: error.message
-    });
   }
+
+  // The official STOVE edge occasionally blocks server-side requests. Keep the
+  // card useful and clickable instead of exposing an error/blank area.
+  return json(res, 200, {
+    ok: true,
+    source: 'CrossFire Philippines official news',
+    title: 'Latest CrossFire Philippines updates',
+    summary: 'The official news feed could not be read automatically right now. Open CrossFire Philippines News to view the newest notices, events, maintenance posts and game updates.',
+    date: null,
+    image: FALLBACK_IMAGE,
+    url: 'https://cfph.onstove.com/News/List',
+    fallback: true,
+    warning: errors.join(' | ').slice(0, 500)
+  });
 }

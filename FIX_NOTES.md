@@ -24,3 +24,11 @@ Updated files:
   - Updated the default official CrossFire PH news URL.
 
 This keeps the existing design while preventing the two outer Latest Updates cards from looking blank.
+
+## Automatic latest CFPH article preview
+- Server Intel now attempts both `/News/List` and `/News` on the official CrossFire Philippines STOVE site.
+- The serverless API extracts the latest article title, publish date, featured image, canonical article URL, and a short description/article excerpt.
+- It understands normal HTML links, JSON-LD, Next.js/application JSON hydration data, and common embedded news object shapes.
+- The homepage button changes to **Read full update →** when a real article is found.
+- If STOVE blocks server-side scraping, the card safely falls back to the official news listing and the local QORVO image instead of showing a blank/error card.
+- Vercel edge caching remains enabled (15 minutes, stale while revalidating for 1 hour).
