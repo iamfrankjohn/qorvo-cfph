@@ -448,12 +448,11 @@ loadFeaturedQorvoPost();
   });
 })();
 
-// Dynamic QORVO Events & Live Schedule
+// Dynamic QORVO Events & Live Schedule + automatic TikTok LIVE detection
 (() => {
   const list = document.getElementById('event-list');
   if (!list) return;
   const esc = (v='') => String(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
-  const today = new Date(); today.setHours(0,0,0,0);
   const dateParts = (date) => {
     if (!date) return {day:'TBA', month:'NEXT'};
     const d = new Date(`${date}T00:00:00`);
@@ -464,6 +463,7 @@ loadFeaturedQorvoPost();
     if (e.enabled === false) return false;
     if (e.alwaysOpen) return true;
     if (!e.date) return true;
+    const today = new Date(); today.setHours(0,0,0,0);
     const d = new Date(`${e.date}T23:59:59`);
     return !Number.isNaN(d.getTime()) && d >= today;
   };
@@ -471,13 +471,36 @@ loadFeaturedQorvoPost();
     if (a.alwaysOpen !== b.alwaysOpen) return a.alwaysOpen ? 1 : -1;
     return String(a.date||'9999-12-31').localeCompare(String(b.date||'9999-12-31'));
   };
-  fetch('/api/events',{cache:'no-store'}).then(r=>r.json()).then(data=>{
-    const events=(Array.isArray(data.events)?data.events:[]).filter(active).sort(sortEvents);
-    if (!events.length) return;
-    list.innerHTML=events.map(e=>{
+  function render(events, live) {
+    const rows = [];
+    (live || []).forEach(x => {
+      const viewers = x.viewers > 0 ? `${x.viewers.toLocaleString()} VIEWERS` : 'TIKTOK LIVE';
+      rows.push(`<div class="event-row event-row-live"><div class="event-date"><b class="event-day">LIVE</b><span class="event-month">NOW</span><span class="event-time">${esc(viewers)}</span></div><div class="event-info"><span>TIKTOK LIVE</span><h3>${esc(x.name || x.username)} IS LIVE</h3></div><div class="event-type">@${esc(x.username)}</div><a href="${esc(x.url)}" target="_blank" rel="noopener" aria-label="Watch ${esc(x.name || x.username)} live on TikTok">↗</a></div>`);
+    });
+    (events || []).forEach(e => {
       const dp=e.alwaysOpen?{day:'OPEN',month:'24/7'}:dateParts(e.date);
       const link=e.url?`<a href="${esc(e.url)}" target="_blank" rel="noopener" aria-label="Open ${esc(e.title)}">↗</a>`:'<span></span>';
-      return `<div class="event-row"><div class="event-date"><b class="event-day">${esc(dp.day)}</b><span class="event-month">${esc(dp.month)}</span>${e.time?`<span class="event-time">${esc(e.time)}</span>`:''}</div><div class="event-info"><span>${esc(e.category||'COMMUNITY')}</span><h3>${esc(e.title)}</h3></div><div class="event-type">${esc(e.badge||'CFPH')}</div>${link}</div>`;
-    }).join('');
-  }).catch(()=>{});
-})();
+      rows.push(`<div class="event-row"><div class="event-date"><b class="event-day">${esc(dp.day)}</b><span class="event-month">${esc(dp.month)}</span>${e.time?`<span class="event-time">${esc(e.time)}</span>`:''}</div><div class="event-info"><span>${esc(e.category||'COMMUNITY')}</span><h3>${esc(e.title)}</h3></div><div class="event-type">${esc(e.badge||'CFPH')}</div>${link}</div>`);
+    });
+    if (!rows.length) {
+      list.innerHTML='<div class="event-empty"><strong>NO UPCOMING DEPLOYMENTS</strong><span>No QORVO events are currently scheduled and no monitored member is live on TikTok right now.</span></div>';
+      return;
+    }
+    list.innerHTML=rows.join('');
+  }
+  async function refreshSchedule(){
+    try{
+      const [eventsRes, liveRes] = await Promise.all([
+        fetch('/api/events',{cache:'no-store'}),
+        fetch('/api/tiktok-live',{cache:'no-store'})
+      ]);
+      const eventsData = await eventsRes.json();
+      const liveData = await liveRes.json();
+      const events=(Array.isArray(eventsData.events)?eventsData.events:[]).filter(active).sort(sortEvents);
+      const live=Array.isArray(liveData.live)?liveData.live:[];
+      render(events, live);
+    }catch(error){ console.warn('Schedule refresh failed:',error); }
+  }
+  refreshSchedule();
+  window.setInterval(refreshSchedule, 90000);
+})();;

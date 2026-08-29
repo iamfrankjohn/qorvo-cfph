@@ -1179,3 +1179,11 @@ footer p:last-child{text-align:right}
 .event-date b.event-day{font-size:24px}.event-date span.event-month{font-size:9px}
 .event-time{display:block!important;margin-top:4px;color:#8d9aae!important;font-size:8px!important;letter-spacing:.08em!important}
 @media(max-width:560px){.event-empty{padding:24px 0}.event-empty strong{font-size:22px}}
+
+/* TikTok LIVE rows */
+.event-row-live{position:relative;background:linear-gradient(90deg,rgba(34,255,90,.055),transparent 70%)}
+.event-row-live::before{content:"";position:absolute;left:-1px;top:18px;bottom:18px;width:2px;background:var(--accent)}
+.event-row-live .event-day,.event-row-live .event-info span,.event-row-live .event-month{color:var(--accent)}
+.event-row-live .event-day{animation:qorvo-live-pulse 1.35s ease-in-out infinite}
+@keyframes qorvo-live-pulse{0%,100%{opacity:1}50%{opacity:.55}}
+@media(prefers-reduced-motion:reduce){.event-row-live .event-day{animation:none}}

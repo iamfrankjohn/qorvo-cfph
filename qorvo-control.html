@@ -23,7 +23,7 @@
   <main class="panel">
     <div class="head">
       <img src="assets/qorvo-mark.png" alt="QORVO logo">
-      <div><h1>QORVO CONTROL PANEL</h1><p>Featured Post & Events Manager</p></div>
+      <div><h1>QORVO CONTROL PANEL</h1><p>Featured Post, Events & TikTok LIVE Manager</p></div>
     </div>
     <div class="body">
       <div class="note">Private shortcut: click the QORVO footer logo on the public website <strong>3 times quickly</strong>. This page still requires your admin password.</div>
@@ -67,6 +67,17 @@
           <div class="actions"><button class="btn primary" id="add-event-btn">Add Event</button><button class="btn secondary" id="save-events-btn">Save Schedule</button></div>
           <div id="event-admin-list"></div>
         </div>
+        <div class="manager-block">
+          <h2>TIKTOK LIVE MEMBERS</h2>
+          <p>Add QORVO members whose TikTok LIVE status should be checked automatically. When anyone is live, they will appear at the top of Events & Live Nights.</p>
+          <div class="row">
+            <div><label for="tiktok-name">Member display name</label><input id="tiktok-name" placeholder="Reed.Q" maxlength="80"></div>
+            <div><label for="tiktok-username">TikTok username</label><input id="tiktok-username" placeholder="username (without @)" maxlength="50"></div>
+          </div>
+          <div class="actions"><button class="btn primary" id="add-tiktok-btn">Add Member</button><button class="btn secondary" id="save-tiktok-btn">Save TikTok Members</button></div>
+          <div id="tiktok-admin-list"></div>
+          <div class="note" style="margin-top:14px">Requires <strong>TIKTOOLS_API_KEY</strong> in Vercel. The API key stays server-side and is never exposed in the browser.</div>
+        </div>
       </section>
       <div id="status" aria-live="polite"></div>
     </div>
@@ -107,6 +118,7 @@
       $('password').value = '';
       await loadCurrent();
       await loadEvents();
+      await loadTikTokMembers();
       status('Logged in.', 'ok');
     } catch (error) { status(error.message, 'err'); }
   });
@@ -152,6 +164,33 @@
     status('Saving schedule...');
     try { const r=await fetch('/api/events',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:adminPassword,events})}); const d=await r.json(); if(!r.ok||!d.ok)throw new Error(d.error||'Save failed'); events=d.events||events; renderEventsAdmin(); status('Event schedule saved. The website will update automatically.','ok'); }
     catch(e){status(e.message,'err');}
+  });
+
+
+  let tiktokMembers = [];
+  function escHtml(v='') { return String(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c])); }
+  function renderTikTokMembers() {
+    const box=$('tiktok-admin-list');
+    if(!tiktokMembers.length){ box.innerHTML='<div class="note" style="margin-top:14px">No TikTok members added yet.</div>'; return; }
+    box.innerHTML=tiktokMembers.map((m,i)=>`<div class="event-admin-item"><button class="btn danger" type="button" data-remove-tiktok="${i}">Remove</button><strong>${escHtml(m.name||m.username)}</strong><span>@${escHtml(m.username)} · LIVE MONITORING ON</span></div>`).join('');
+  }
+  async function loadTikTokMembers(){
+    try{ const r=await fetch('/api/tiktok-members',{cache:'no-store'}); const d=await r.json(); tiktokMembers=Array.isArray(d.members)?d.members:[]; renderTikTokMembers(); }
+    catch{ status('Could not load TikTok members.','err'); }
+  }
+  $('add-tiktok-btn').addEventListener('click',()=>{
+    const username=$('tiktok-username').value.trim().replace(/^@+/,'');
+    const name=$('tiktok-name').value.trim() || username;
+    if(!username) return status('Enter a TikTok username first.','err');
+    if(tiktokMembers.some(m=>String(m.username).toLowerCase()===username.toLowerCase())) return status('That TikTok username is already in the list.','err');
+    tiktokMembers.push({id:`${Date.now()}-${Math.random().toString(36).slice(2,8)}`,name,username,enabled:true});
+    $('tiktok-name').value=''; $('tiktok-username').value=''; renderTikTokMembers(); status('Member added. Click Save TikTok Members.','ok');
+  });
+  $('tiktok-admin-list').addEventListener('click',e=>{ const b=e.target.closest('[data-remove-tiktok]'); if(!b)return; tiktokMembers.splice(Number(b.dataset.removeTiktok),1); renderTikTokMembers(); });
+  $('save-tiktok-btn').addEventListener('click',async()=>{
+    status('Saving TikTok members...');
+    try{ const r=await fetch('/api/tiktok-members',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:adminPassword,members:tiktokMembers})}); const d=await r.json(); if(!r.ok||!d.ok) throw new Error(d.error||'Save failed'); tiktokMembers=d.members||[]; renderTikTokMembers(); status('TikTok members saved. LIVE detection is active.','ok'); }
+    catch(e){ status(e.message,'err'); }
   });
 
   $('save-btn').addEventListener('click', () => save(true));

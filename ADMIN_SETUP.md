@@ -40,3 +40,13 @@ The same control panel now manages the public **Events & Live Nights** section.
 - Click **Add Event**, then **Save Schedule** to publish.
 - Dated events automatically disappear from the public website after the event date.
 - The data is stored in `data/events.json` through the same GitHub token already used by Featured Post Manager.
+
+## TikTok LIVE members (v15)
+
+The control panel now includes **TIKTOK LIVE MEMBERS**. Add a member display name and TikTok username, then save. The public Events & Live Nights section automatically checks whether configured members are live.
+
+Add one more Vercel Production environment variable:
+
+`TIKTOOLS_API_KEY`
+
+See `TIKTOK_LIVE_SETUP.md` for setup details.

@@ -30,3 +30,10 @@
 - Added automatic hiding of expired dated events.
 - Added Always Open support for ongoing community activities.
 - Uses the existing GitHub/Vercel admin credentials; no new environment variables are required.
+
+## v15
+- Added TikTok LIVE member manager to QORVO Control Panel.
+- Added server-side TikTok live-status checks using TikTools.
+- LIVE members automatically appear at the top of Events & Live Nights.
+- Homepage refreshes live status about every 90 seconds.
+- Added `TIKTOOLS_API_KEY` environment variable and setup guide.

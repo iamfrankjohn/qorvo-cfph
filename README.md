@@ -1,7 +1,9 @@
-# QORVO CFPH Website — Automatic Latest 3 CFPH News (v7)
+# QORVO CFPH Website v15
 
-Server Intel displays the latest 3 CrossFire Philippines posts.
+Includes:
+- Featured/Pinned Facebook post manager
+- Dynamic Events & Live Nights manager
+- Automatic CFPH/STOVE latest-news updater
+- TikTok LIVE member monitoring for Events & Live Nights
 
-New in v7: a GitHub Actions job automatically looks for newer sequential CFPH content IDs and updates `data/news.json`. Your GitHub-to-Vercel connection then redeploys the site automatically.
-
-Read `AUTO_NEWS_SETUP.md` for setup and limitations.
+See `ADMIN_SETUP.md`, `AUTO_NEWS_SETUP.md`, and `TIKTOK_LIVE_SETUP.md`.
