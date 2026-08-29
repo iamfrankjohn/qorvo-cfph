@@ -625,3 +625,58 @@ footer p:last-child{text-align:right}
     min-height:360px;
   }
 }
+
+
+/* =====================================================
+   FACEBOOK PLUGIN RESPONSIVE FIX
+===================================================== */
+
+.facebook-plugin-wrap{
+  width:100%;
+  max-width:100%;
+  box-sizing:border-box;
+  overflow:hidden;
+}
+
+.facebook-page-plugin{
+  display:block;
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  margin:0 auto;
+  border:0;
+}
+
+@media (min-width:980px){
+  .latest-facebook-card{
+    min-width:0;
+  }
+}
+
+@media (max-width:979px){
+  .news-grid{
+    align-items:start;
+  }
+}
+
+@media (max-width:700px){
+  .facebook-plugin-wrap{
+    width:100%;
+    max-width:100%;
+    overflow:hidden;
+  }
+
+  .facebook-page-plugin{
+    width:100% !important;
+    max-width:100% !important;
+  }
+}
+
+@media (max-width:480px){
+  .facebook-plugin-wrap .tag{
+    top:10px;
+    left:10px;
+    font-size:7px;
+    padding:6px 8px;
+  }
+}

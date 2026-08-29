@@ -1,14 +1,10 @@
-# QORVO CFPH Website — No Meta Developer Version
+# QORVO CFPH Website — No Meta / Responsive Facebook Fix
 
-Included:
+This version fixes the Facebook timeline card on desktop, tablet and mobile.
 
-- Responsive desktop/tablet/mobile design
-- QORVO logos and favicon
-- Static Community Update card
-- Facebook Page timeline for latest QORVO content
-- Automatic Server Intel from official CrossFire PH news
-- Vercel serverless API for CrossFire updates
-- No Facebook Page ID required
-- No Facebook access token required
+The previous iframe requested a fixed 500px Facebook plugin even when the card
+was much narrower. This version measures the actual card width and reloads the
+Facebook Page Plugin using the correct width.
 
-Read `SETUP_NO_META.md`.
+Server Intel remains automatic with a safe fallback to the official CrossFire
+Philippines news page when the official site cannot be parsed server-side.
