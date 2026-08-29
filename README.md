@@ -22,3 +22,8 @@ This static version works on Netlify, Cloudflare Pages, GitHub Pages, cPanel hos
 
 ## V2 branding
 The two supplied QORVO images are included in `assets/` and the wide artwork is now used as the main hero visual. The site accent has been changed from yellow to QORVO neon green.
+
+
+## Fluid responsive update
+This version uses fluid containers, CSS clamp(), auto-fit grids, minmax() columns, and safer mobile breakpoints.
+It is specifically adjusted to behave better when zooming in/out on iPhone and Android browsers.
