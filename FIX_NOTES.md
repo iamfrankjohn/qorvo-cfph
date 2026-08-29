@@ -1,3 +1,13 @@
+# WEB v5.9 — LIVE Modal Mobile Polish
+
+- Made the TikTok LIVE popup smaller and more balanced on phones.
+- Reduced mobile headline size, spacing, card padding, avatar size, and button height.
+- Limited the popup to a compact mobile width instead of nearly filling the screen.
+- Replaced the WATCH LIVE Unicode arrow with a CSS-drawn external-link arrow so iPhone/iOS and desktop use the same visual style.
+- Desktop LIVE modal styling and LIVE detection behavior remain unchanged.
+- Footer version updated to `WEB v5.9`.
+- Safe ZIP excludes all live `data/*.json` files.
+
 # WEB v5.8 — LIVE Modal Redesign
 
 - Redesigned the visitor TikTok LIVE notification modal.
