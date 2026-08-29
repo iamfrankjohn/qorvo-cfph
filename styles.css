@@ -1090,3 +1090,40 @@ footer p:last-child{text-align:right}
 @media(max-width:700px){
   .stove-brand{font-size:23px !important}
 }
+
+/* Featured / pinned Facebook post */
+.pinned-post-card .pinned-post-wrap {
+  position: relative;
+  min-height: 430px;
+  background: #0d1117;
+  overflow: hidden;
+}
+
+.pinned-post-card .facebook-post-plugin {
+  display: block;
+  width: 100%;
+  min-height: 500px;
+  background: #fff;
+}
+
+.pinned-post-placeholder {
+  min-height: 430px;
+  padding: 72px 28px 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 14px;
+  background: linear-gradient(145deg, rgba(0,0,0,.35), rgba(0,0,0,.78)), url('assets/qorvo-cover.jpg') center/cover no-repeat;
+}
+
+.pinned-post-placeholder p {
+  margin: 0;
+  max-width: 30rem;
+  color: rgba(255,255,255,.82);
+  font-size: .92rem;
+}
+
+#qorvo-admin-trigger {
+  user-select: none;
+  -webkit-user-select: none;
+}

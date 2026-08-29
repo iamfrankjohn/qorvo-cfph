@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>QORVO Control Panel</title>
+  <link rel="icon" href="assets/qorvo.ico">
+  <style>
+    :root{color-scheme:dark;--bg:#090b0f;--panel:#11151c;--line:#28303b;--text:#f5f7fa;--muted:#9ea8b5;--accent:#ff6b00;--danger:#ff5a5f}
+    *{box-sizing:border-box} body{margin:0;min-height:100vh;font-family:Inter,Arial,sans-serif;background:radial-gradient(circle at top,#18202b 0,#090b0f 45%);color:var(--text);display:grid;place-items:center;padding:24px}
+    .panel{width:min(680px,100%);background:rgba(17,21,28,.96);border:1px solid var(--line);border-radius:20px;box-shadow:0 24px 80px rgba(0,0,0,.45);overflow:hidden}
+    .head{display:flex;align-items:center;gap:14px;padding:22px 24px;border-bottom:1px solid var(--line)} .head img{width:48px;height:48px;object-fit:contain}.head h1{margin:0;font-size:1.15rem;letter-spacing:.08em}.head p{margin:4px 0 0;color:var(--muted);font-size:.86rem}
+    .body{padding:24px}.note{padding:12px 14px;border:1px solid var(--line);border-radius:12px;color:var(--muted);font-size:.9rem;margin-bottom:18px;background:#0b0f14}
+    label{display:block;font-weight:700;font-size:.86rem;margin:16px 0 8px} input{width:100%;padding:13px 14px;border-radius:11px;border:1px solid var(--line);background:#090d12;color:var(--text);outline:none}input:focus{border-color:var(--accent)}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}.btn{border:0;border-radius:10px;padding:12px 16px;font-weight:800;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}.primary{background:var(--accent);color:#111}.secondary{background:#202733;color:#fff}.danger{background:#3b1719;color:#ffd6d8;border:1px solid #6d282d}
+    #status{min-height:22px;margin-top:14px;color:var(--muted);font-size:.9rem}.ok{color:#7ee787!important}.err{color:#ff8e93!important}.hidden{display:none!important}
+    .current{margin-top:22px;border-top:1px solid var(--line);padding-top:18px}.current a{color:#ff9c57;word-break:break-all}
+    @media(max-width:600px){.row{grid-template-columns:1fr}.body{padding:18px}.head{padding:18px}}
+  </style>
+</head>
+<body>
+  <main class="panel">
+    <div class="head">
+      <img src="assets/qorvo-mark.png" alt="QORVO logo">
+      <div><h1>QORVO CONTROL PANEL</h1><p>Featured Facebook Post Manager</p></div>
+    </div>
+    <div class="body">
+      <div class="note">Private shortcut: click the QORVO footer logo on the public website <strong>3 times quickly</strong>. This page still requires your admin password.</div>
+
+      <section id="login-section">
+        <label for="password">Admin password</label>
+        <input id="password" type="password" autocomplete="current-password" placeholder="Enter admin password">
+        <div class="actions"><button class="btn primary" id="login-btn">Login</button><a class="btn secondary" href="/">Back to website</a></div>
+      </section>
+
+      <section id="editor-section" class="hidden">
+        <label for="post-url">Facebook post link</label>
+        <input id="post-url" type="url" placeholder="https://www.facebook.com/.../posts/...">
+        <div class="row">
+          <div><label for="post-label">Card label</label><input id="post-label" value="PINNED FROM QORVO" maxlength="60"></div>
+          <div><label for="post-title">Card title</label><input id="post-title" value="Featured QORVO Post" maxlength="100"></div>
+        </div>
+        <div class="actions">
+          <button class="btn primary" id="save-btn">Save Featured Post</button>
+          <button class="btn danger" id="clear-btn">Remove Featured Post</button>
+          <a class="btn secondary" href="/">View Website</a>
+        </div>
+        <div class="current"><strong>Current:</strong> <a id="current-link" href="#" target="_blank" rel="noopener">None</a></div>
+      </section>
+      <div id="status" aria-live="polite"></div>
+    </div>
+  </main>
+<script>
+  const $ = (id) => document.getElementById(id);
+  let adminPassword = '';
+
+  function status(message, type='') {
+    const el = $('status');
+    el.textContent = message;
+    el.className = type;
+  }
+
+  async function loadCurrent() {
+    try {
+      const response = await fetch('/api/featured-post', { cache: 'no-store' });
+      const payload = await response.json();
+      const post = payload.post || {};
+      $('post-url').value = post.url || '';
+      $('post-label').value = post.label || 'PINNED FROM QORVO';
+      $('post-title').value = post.title || 'Featured QORVO Post';
+      $('current-link').textContent = post.url || 'None';
+      $('current-link').href = post.url || '#';
+    } catch { status('Could not load the current featured post.', 'err'); }
+  }
+
+  $('login-btn').addEventListener('click', async () => {
+    adminPassword = $('password').value;
+    if (!adminPassword) return status('Enter your admin password.', 'err');
+    status('Checking password...');
+    try {
+      const response = await fetch('/api/admin-auth', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({password:adminPassword}) });
+      const data = await response.json();
+      if (!response.ok || !data.ok) throw new Error(data.error || 'Login failed');
+      $('login-section').classList.add('hidden');
+      $('editor-section').classList.remove('hidden');
+      $('password').value = '';
+      await loadCurrent();
+      status('Logged in.', 'ok');
+    } catch (error) { status(error.message, 'err'); }
+  });
+
+  $('password').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('login-btn').click(); });
+
+  async function save(enabled) {
+    const url = $('post-url').value.trim();
+    if (enabled && !url) return status('Paste a Facebook post link first.', 'err');
+    status(enabled ? 'Saving...' : 'Removing featured post...');
+    try {
+      const response = await fetch('/api/featured-post', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({ password:adminPassword, url, label:$('post-label').value, title:$('post-title').value, enabled })
+      });
+      const data = await response.json();
+      if (!response.ok || !data.ok) throw new Error(data.error || 'Save failed');
+      await loadCurrent();
+      status(enabled ? 'Featured post saved. The homepage can use it immediately.' : 'Featured post removed.', 'ok');
+    } catch (error) { status(error.message, 'err'); }
+  }
+
+  $('save-btn').addEventListener('click', () => save(true));
+  $('clear-btn').addEventListener('click', () => save(false));
+</script>
+</body>
+</html>

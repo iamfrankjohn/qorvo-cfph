@@ -122,19 +122,36 @@
       </div>
 
       <div class="cards news-grid">
-        <article class="news-card featured reveal" id="community-update-card">
-          <div class="card-visual visual-1 community-media">
-            <span class="tag">COMMUNITY UPDATE</span>
-            <div class="visual-copy">QORVO<br>CFPH</div>
+        <article class="news-card featured reveal pinned-post-card" id="community-update-card">
+          <div class="card-visual pinned-post-wrap" id="pinned-post-wrap">
+            <span class="tag" id="pinned-post-tag">PINNED FROM QORVO</span>
+            <div class="pinned-post-placeholder" id="pinned-post-placeholder">
+              <div class="visual-copy">QORVO<br>FEATURED</div>
+              <p>Choose a featured Facebook post from the private QORVO control panel.</p>
+            </div>
+            <iframe
+              class="facebook-post-plugin"
+              id="featured-facebook-post"
+              title="QORVO CFPH featured Facebook post"
+              src="about:blank"
+              width="100%"
+              height="500"
+              style="border:none;overflow:hidden;display:none"
+              scrolling="no"
+              frameborder="0"
+              allowfullscreen="true"
+              allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+              loading="lazy">
+            </iframe>
           </div>
           <div class="card-body">
             <div class="card-meta">
-              <span>Community</span>
-              <time>Always On</time>
+              <span>Featured</span>
+              <time id="pinned-post-time">QORVO Pick</time>
             </div>
-            <h3>Welcome to QORVO CFPH.</h3>
-            <p>Stay connected with our CrossFire PH community for events, giveaways, highlights, creator content and important announcements.</p>
-            <a href="https://www.facebook.com/qorvo.cfph" target="_blank" rel="noopener">Visit our Facebook Page →</a>
+            <h3 id="pinned-post-title">Featured QORVO Post</h3>
+            <p id="pinned-post-copy">This space displays the Facebook post selected by QORVO.</p>
+            <a id="pinned-post-link" href="https://www.facebook.com/qorvo.cfph" target="_blank" rel="noopener">Open Featured Post →</a>
           </div>
         </article>
 
@@ -270,7 +287,7 @@
   </main>
 
   <footer>
-    <a class="brand footer-brand" href="#top">
+    <a class="brand footer-brand" id="qorvo-admin-trigger" href="#top" title="QORVO CFPH">
       <span class="brand-mark brand-eagle"><img src="assets/qorvo-mark.png" alt="QORVO logo"></span>
       <span><strong>QORVO</strong><small>CFPH</small></span>
     </a>

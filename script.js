@@ -339,3 +339,72 @@ faqReset?.addEventListener('click', () => {
   faqChat.innerHTML = '';
   addFaqMessage('Hi! 👋 Welcome to QORVO CFPH. Choose a frequently asked question below for an instant answer.', 'bot');
 });
+
+// QORVO featured Facebook post
+async function loadFeaturedQorvoPost() {
+  const iframe = document.getElementById('featured-facebook-post');
+  const placeholder = document.getElementById('pinned-post-placeholder');
+  const tag = document.getElementById('pinned-post-tag');
+  const title = document.getElementById('pinned-post-title');
+  const copy = document.getElementById('pinned-post-copy');
+  const link = document.getElementById('pinned-post-link');
+  const time = document.getElementById('pinned-post-time');
+  if (!iframe || !placeholder || !tag || !title || !copy || !link) return;
+
+  try {
+    const response = await fetch('/api/featured-post', { cache: 'no-store' });
+    const payload = await response.json();
+    const post = payload && payload.post ? payload.post : null;
+
+    if (!response.ok || !post || !post.enabled || !post.url) {
+      iframe.style.display = 'none';
+      placeholder.style.display = 'flex';
+      return;
+    }
+
+    tag.textContent = post.label || 'PINNED FROM QORVO';
+    title.textContent = post.title || 'Featured QORVO Post';
+    copy.textContent = 'Selected by QORVO CFPH. Open the post on Facebook for the full caption, reactions, and comments.';
+    link.href = post.url;
+    time.textContent = 'Pinned Pick';
+
+    const params = new URLSearchParams({
+      href: post.url,
+      show_text: 'true',
+      width: '500'
+    });
+    iframe.src = `https://www.facebook.com/plugins/post.php?${params.toString()}`;
+    iframe.style.display = 'block';
+    placeholder.style.display = 'none';
+  } catch (error) {
+    console.error('Featured post load failed:', error);
+    iframe.style.display = 'none';
+    placeholder.style.display = 'flex';
+  }
+}
+
+loadFeaturedQorvoPost();
+
+// Hidden admin shortcut: click the footer QORVO brand 3 times quickly.
+(() => {
+  const trigger = document.getElementById('qorvo-admin-trigger');
+  if (!trigger) return;
+  let clicks = 0;
+  let timer = null;
+
+  trigger.addEventListener('click', (event) => {
+    clicks += 1;
+    clearTimeout(timer);
+
+    if (clicks >= 3) {
+      event.preventDefault();
+      clicks = 0;
+      window.location.href = '/qorvo-control';
+      return;
+    }
+
+    timer = setTimeout(() => {
+      clicks = 0;
+    }, 900);
+  });
+})();

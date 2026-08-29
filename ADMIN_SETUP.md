@@ -1,0 +1,33 @@
+# QORVO Control Panel Setup
+
+The public website has no visible Admin button. Click the QORVO brand/logo in the footer **3 times quickly** to open `/qorvo-control`.
+
+## Required Vercel Environment Variables
+
+Add these in Vercel → Project → Settings → Environment Variables, then redeploy once:
+
+- `QORVO_ADMIN_PASSWORD` = the private password you want to use
+- `GITHUB_CONTENT_TOKEN` = a GitHub fine-grained personal access token with **Contents: Read and write** permission for only this repository
+- `GITHUB_REPO_OWNER` = your GitHub username or organization name
+- `GITHUB_REPO_NAME` = your repository name
+- `GITHUB_REPO_BRANCH` = `main` (or your production branch)
+
+## GitHub token recommendation
+
+Create a fine-grained Personal Access Token and give it access only to the QORVO website repository. Under Repository permissions, set **Contents → Read and write**. Do not put this token in GitHub files or frontend JavaScript.
+
+## Using the control panel
+
+1. Open the public website.
+2. Scroll to the footer.
+3. Click the QORVO logo/brand 3 times quickly.
+4. Enter your admin password.
+5. Paste the Facebook post permalink you want to feature.
+6. Optionally edit the card label and title.
+7. Click **Save Featured Post**.
+
+The API writes `data/featured-post.json` to GitHub. The homepage API also reads the newest value directly from GitHub, so the featured card can update before the next Vercel deployment finishes.
+
+## Security note
+
+The 3-click shortcut is only a convenience feature; it is not the security layer. The admin password is checked on the server and the GitHub token remains in Vercel environment variables.
