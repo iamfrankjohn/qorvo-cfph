@@ -1288,3 +1288,162 @@ footer p:last-child{text-align:right}
   .live-viewers{flex-basis:100%;margin-left:0}
   .event-live-info h3{font-size:20px}
 }
+
+
+/* =========================================================
+   QORVO v21 — LIVE visitor modal
+   ========================================================= */
+.qorvo-live-modal{
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  display:grid;
+  place-items:center;
+  padding:22px;
+  background:rgba(2,7,4,.78);
+  backdrop-filter:blur(9px);
+  -webkit-backdrop-filter:blur(9px);
+  opacity:0;
+  visibility:hidden;
+  transition:opacity .2s ease,visibility .2s ease;
+}
+.qorvo-live-modal.is-open{opacity:1;visibility:visible}
+.qorvo-live-modal.is-closing{opacity:0}
+.qorvo-live-modal-panel{
+  position:relative;
+  width:min(620px,100%);
+  max-height:min(720px,calc(100vh - 44px));
+  overflow:auto;
+  padding:34px;
+  border:1px solid rgba(51,255,91,.28);
+  border-radius:20px;
+  background:
+    radial-gradient(circle at 12% 0%,rgba(51,255,91,.12),transparent 34%),
+    linear-gradient(145deg,#0c1410 0%,#080d0a 100%);
+  box-shadow:0 28px 90px rgba(0,0,0,.58),inset 0 1px 0 rgba(255,255,255,.035);
+  transform:translateY(14px) scale(.985);
+  transition:transform .22s ease;
+}
+.qorvo-live-modal.is-open .qorvo-live-modal-panel{transform:translateY(0) scale(1)}
+.qorvo-live-modal-panel::before{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  top:0;
+  height:3px;
+  border-radius:20px 20px 0 0;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);
+}
+.qorvo-live-modal-close{
+  position:absolute;
+  top:16px;
+  right:16px;
+  width:42px;
+  height:42px;
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:12px;
+  background:#111813;
+  color:#a9b7ad;
+  font:500 27px/1 Arial,sans-serif;
+  cursor:pointer;
+}
+.qorvo-live-modal-close:hover{color:#fff;border-color:rgba(51,255,91,.35);background:#152019}
+.qorvo-live-modal-eyebrow{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  margin:0 52px 17px 0;
+  color:var(--accent);
+  font:800 12px/1 "Barlow Condensed",sans-serif;
+  letter-spacing:.2em;
+}
+.qorvo-live-modal-eyebrow span{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:#ff394c;
+  box-shadow:0 0 0 6px rgba(255,57,76,.1);
+  animation:qorvo-modal-live-dot 1.25s ease-in-out infinite;
+}
+.qorvo-live-modal-panel h2{
+  margin:0;
+  max-width:500px;
+  color:#f4f7f5;
+  font:900 clamp(32px,6vw,50px)/.95 "Barlow Condensed",sans-serif;
+  letter-spacing:.015em;
+  text-transform:uppercase;
+}
+.qorvo-live-modal-subtitle{
+  margin:14px 0 24px;
+  color:#94a399;
+  font-size:14px;
+  line-height:1.65;
+}
+.qorvo-live-modal-list{display:grid;gap:10px}
+.qorvo-live-modal-member{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:16px;
+  padding:15px 16px;
+  border:1px solid rgba(255,255,255,.075);
+  border-radius:14px;
+  background:rgba(255,255,255,.025);
+}
+.qorvo-live-modal-identity{min-width:0;display:grid;gap:4px}
+.qorvo-live-modal-identity strong{
+  overflow:hidden;
+  color:#f2f6f3;
+  font:800 22px/1 "Barlow Condensed",sans-serif;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  text-transform:uppercase;
+}
+.qorvo-live-modal-identity span{
+  overflow:hidden;
+  color:#819088;
+  font-size:12px;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.qorvo-live-modal-watch{
+  display:inline-flex;
+  min-height:43px;
+  align-items:center;
+  justify-content:center;
+  padding:0 16px;
+  border:1px solid rgba(51,255,91,.36);
+  border-radius:11px;
+  background:rgba(51,255,91,.09);
+  color:var(--accent);
+  font:800 11px/1 "Barlow Condensed",sans-serif;
+  letter-spacing:.12em;
+  text-decoration:none;
+  transition:transform .16s ease,background .16s ease,border-color .16s ease;
+}
+.qorvo-live-modal-watch:hover{transform:translateY(-1px);background:rgba(51,255,91,.16);border-color:var(--accent)}
+.qorvo-live-modal-later{
+  display:block;
+  margin:20px auto 0;
+  border:0;
+  background:transparent;
+  color:#77847c;
+  font:700 10px/1 "Barlow Condensed",sans-serif;
+  letter-spacing:.16em;
+  cursor:pointer;
+}
+.qorvo-live-modal-later:hover{color:#dce5df}
+@keyframes qorvo-modal-live-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.55;transform:scale(.82)}}
+@media(max-width:560px){
+  .qorvo-live-modal{padding:14px}
+  .qorvo-live-modal-panel{padding:27px 18px 22px;border-radius:17px}
+  .qorvo-live-modal-close{top:12px;right:12px;width:38px;height:38px}
+  .qorvo-live-modal-eyebrow{margin-right:46px}
+  .qorvo-live-modal-member{grid-template-columns:1fr;gap:12px}
+  .qorvo-live-modal-watch{width:100%}
+}
+@media(prefers-reduced-motion:reduce){
+  .qorvo-live-modal,.qorvo-live-modal-panel,.qorvo-live-modal-watch{transition:none}
+  .qorvo-live-modal-eyebrow span{animation:none}
+}

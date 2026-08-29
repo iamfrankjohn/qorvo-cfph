@@ -62,3 +62,10 @@
 - Sidebar management buttons are disabled before admin authentication.
 - Sidebar buttons are automatically enabled after successful login.
 - Added a JavaScript authentication guard so tool switching cannot occur before login.
+
+
+## v21 — LIVE visitor modal
+- Added an automatic QORVO LIVE modal when one or more monitored TikTok members are live.
+- Uses the same `/api/tiktok-live` response as the Events & Live Nights section, so it does not create a second TikTok check.
+- Shows once per browser session, only when a live member is detected.
+- Supports multiple simultaneous live members and mobile layout.

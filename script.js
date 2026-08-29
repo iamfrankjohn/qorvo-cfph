@@ -471,6 +471,128 @@ loadFeaturedQorvoPost();
     if (a.alwaysOpen !== b.alwaysOpen) return a.alwaysOpen ? 1 : -1;
     return String(a.date||'9999-12-31').localeCompare(String(b.date||'9999-12-31'));
   };
+  function maybeShowLiveModal(liveMembers) {
+    if (!Array.isArray(liveMembers) || !liveMembers.length) return;
+
+    // Show at most once per browser session. If nobody is LIVE when the
+    // visitor first arrives, the modal can still appear later if a refresh
+    // detects a LIVE member.
+    try {
+      if (sessionStorage.getItem('qorvoLiveModalShown') === '1') return;
+      sessionStorage.setItem('qorvoLiveModalShown', '1');
+    } catch (_) {
+      // If sessionStorage is unavailable, still show the modal once for this page load.
+      if (window.__qorvoLiveModalShown) return;
+      window.__qorvoLiveModalShown = true;
+    }
+
+    const existing = document.getElementById('qorvo-live-modal');
+    if (existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'qorvo-live-modal';
+    overlay.className = 'qorvo-live-modal';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-labelledby', 'qorvo-live-modal-title');
+
+    const panel = document.createElement('div');
+    panel.className = 'qorvo-live-modal-panel';
+
+    const close = document.createElement('button');
+    close.type = 'button';
+    close.className = 'qorvo-live-modal-close';
+    close.setAttribute('aria-label', 'Close LIVE notification');
+    close.textContent = '×';
+
+    const eyebrow = document.createElement('div');
+    eyebrow.className = 'qorvo-live-modal-eyebrow';
+    eyebrow.innerHTML = '<span aria-hidden="true"></span> LIVE NOW';
+
+    const title = document.createElement('h2');
+    title.id = 'qorvo-live-modal-title';
+    title.textContent = liveMembers.length === 1
+      ? 'A QORVO MEMBER IS LIVE'
+      : `${liveMembers.length} QORVO MEMBERS ARE LIVE`;
+
+    const subtitle = document.createElement('p');
+    subtitle.className = 'qorvo-live-modal-subtitle';
+    subtitle.textContent = liveMembers.length === 1
+      ? 'Jump into the stream and support the squad.'
+      : 'Choose a stream and join the squad live on TikTok.';
+
+    const listEl = document.createElement('div');
+    listEl.className = 'qorvo-live-modal-list';
+
+    liveMembers.forEach(member => {
+      const row = document.createElement('div');
+      row.className = 'qorvo-live-modal-member';
+
+      const identity = document.createElement('div');
+      identity.className = 'qorvo-live-modal-identity';
+
+      const name = document.createElement('strong');
+      name.textContent = member.name || member.username || 'QORVO Member';
+
+      const username = document.createElement('span');
+      username.textContent = member.username ? `@${member.username}` : 'TikTok LIVE';
+
+      identity.append(name, username);
+
+      const watch = document.createElement('a');
+      watch.className = 'qorvo-live-modal-watch';
+      watch.target = '_blank';
+      watch.rel = 'noopener';
+      watch.textContent = 'WATCH LIVE ↗';
+
+      let liveUrl = '';
+      try {
+        const parsed = new URL(String(member.url || ''));
+        if (parsed.protocol === 'https:' && /(^|\.)tiktok\.com$/i.test(parsed.hostname)) {
+          liveUrl = parsed.href;
+        }
+      } catch (_) {}
+      if (!liveUrl && member.username) {
+        liveUrl = `https://www.tiktok.com/@${encodeURIComponent(member.username)}/live`;
+      }
+      watch.href = liveUrl || 'https://www.tiktok.com/';
+
+      row.append(identity, watch);
+      listEl.append(row);
+    });
+
+    const later = document.createElement('button');
+    later.type = 'button';
+    later.className = 'qorvo-live-modal-later';
+    later.textContent = 'MAYBE LATER';
+
+    panel.append(close, eyebrow, title, subtitle, listEl, later);
+    overlay.append(panel);
+    document.body.append(overlay);
+
+    const dismiss = () => {
+      overlay.classList.add('is-closing');
+      window.setTimeout(() => overlay.remove(), 180);
+    };
+
+    close.addEventListener('click', dismiss);
+    later.addEventListener('click', dismiss);
+    overlay.addEventListener('click', event => {
+      if (event.target === overlay) dismiss();
+    });
+
+    const onKeydown = event => {
+      if (event.key === 'Escape') {
+        dismiss();
+        document.removeEventListener('keydown', onKeydown);
+      }
+    };
+    document.addEventListener('keydown', onKeydown);
+
+    requestAnimationFrame(() => overlay.classList.add('is-open'));
+    close.focus({ preventScroll: true });
+  }
+
   function render(events, live) {
     const rows = [];
     (live || []).forEach(x => {
@@ -499,6 +621,7 @@ loadFeaturedQorvoPost();
       const events=(Array.isArray(eventsData.events)?eventsData.events:[]).filter(active).sort(sortEvents);
       const live=Array.isArray(liveData.live)?liveData.live:[];
       render(events, live);
+      maybeShowLiveModal(live);
     }catch(error){ console.warn('Schedule refresh failed:',error); }
   }
   refreshSchedule();
