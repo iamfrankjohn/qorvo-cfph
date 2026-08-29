@@ -368,14 +368,53 @@ async function loadFeaturedQorvoPost() {
     link.href = post.url;
     time.textContent = 'Pinned Pick';
 
-    const params = new URLSearchParams({
-      href: post.url,
-      show_text: 'true',
-      width: '500'
-    });
-    iframe.src = `https://www.facebook.com/plugins/post.php?${params.toString()}`;
+    const wrap = document.getElementById('pinned-post-wrap');
+
+    const renderFeaturedFacebookPost = () => {
+      if (!wrap) return;
+
+      // Facebook's embedded-post iframe is not truly responsive when its URL
+      // is generated with a fixed width. Build the plugin URL using the
+      // CURRENT card width so mobile devices do not get a 500px-wide post
+      // cropped inside a narrower card.
+      const availableWidth = Math.floor(wrap.getBoundingClientRect().width);
+      const pluginWidth = Math.max(350, Math.min(500, availableWidth || 500));
+
+      const params = new URLSearchParams({
+        href: post.url,
+        show_text: 'true',
+        width: String(pluginWidth)
+      });
+
+      const nextSrc = `https://www.facebook.com/plugins/post.php?${params.toString()}`;
+      iframe.width = pluginWidth;
+      iframe.dataset.pluginWidth = String(pluginWidth);
+      iframe.style.width = '100%';
+      iframe.style.maxWidth = `${pluginWidth}px`;
+      iframe.style.margin = '0 auto';
+
+      if (iframe.src !== nextSrc) iframe.src = nextSrc;
+    };
+
+    renderFeaturedFacebookPost();
     iframe.style.display = 'block';
     placeholder.style.display = 'none';
+
+    // Rebuild only when the card crosses into a meaningfully different width.
+    // This keeps rotation/resizing responsive without constantly reloading FB.
+    if ('ResizeObserver' in window && wrap) {
+      let resizeTimer;
+      const observer = new ResizeObserver(() => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+          const widthNow = Math.floor(wrap.getBoundingClientRect().width);
+          const target = Math.max(350, Math.min(500, widthNow || 500));
+          const current = Number(iframe.dataset.pluginWidth || 0);
+          if (Math.abs(target - current) >= 8) renderFeaturedFacebookPost();
+        }, 180);
+      });
+      observer.observe(wrap);
+    }
   } catch (error) {
     console.error('Featured post load failed:', error);
     iframe.style.display = 'none';

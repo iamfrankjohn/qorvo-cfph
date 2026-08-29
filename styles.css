@@ -1127,3 +1127,47 @@ footer p:last-child{text-align:right}
   user-select: none;
   -webkit-user-select: none;
 }
+
+
+/* =====================================================
+   FEATURED FACEBOOK POST — MOBILE RESPONSIVE FIX (v12)
+===================================================== */
+.pinned-post-card .pinned-post-wrap{
+  width:100%;
+  max-width:100%;
+  height:auto;
+  aspect-ratio:auto;
+  overflow:hidden;
+  padding:0;
+}
+
+.pinned-post-card .facebook-post-plugin{
+  display:block;
+  width:100% !important;
+  max-width:500px !important;
+  min-width:0 !important;
+  margin:0 auto;
+  border:0;
+}
+
+/* The generic mobile .card-visual rule uses a 16:9 aspect ratio.  That is
+   correct for artwork cards but not for a Facebook post embed. */
+@media(max-width:560px){
+  .pinned-post-card .pinned-post-wrap{
+    aspect-ratio:auto !important;
+    min-height:500px;
+  }
+
+  .pinned-post-card .facebook-post-plugin{
+    height:500px;
+    min-height:500px;
+  }
+}
+
+@media(max-width:390px){
+  :root{--page-pad:10px}
+
+  .pinned-post-card .pinned-post-wrap{
+    min-height:500px;
+  }
+}

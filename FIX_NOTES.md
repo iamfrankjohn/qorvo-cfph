@@ -12,3 +12,10 @@
 ## v11
 - Fixed footer QORVO admin trigger. Single/double clicks no longer jump to the top.
 - Three quick clicks still open `/qorvo-control`.
+
+
+## v12 — Featured post mobile fix
+- Facebook featured-post plugin now uses the actual card width instead of a fixed 500px plugin width.
+- Added responsive resize handling for phone rotation / viewport changes.
+- Disabled the generic 16:9 card aspect-ratio rule for the Facebook featured-post card on mobile.
+- Reduced very-small-phone page padding slightly so the Facebook embed has enough usable width.
