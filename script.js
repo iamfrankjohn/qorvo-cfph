@@ -90,10 +90,10 @@ function setMedia(containerId, imageUrl, fallbackUrl = '') {
 
 async function loadServerIntel() {
   try {
-    const response = await fetch('/api/crossfire-update', { cache: 'no-store' });
+    const response = await fetch('/data/news.json', { cache: 'no-store' });
     const data = await response.json();
 
-    if (!response.ok || !data.ok) throw new Error(data.error || 'CrossFire news unavailable');
+    if (!response.ok) throw new Error('CrossFire news file unavailable');
 
     const date = document.getElementById('server-intel-date');
     const title = document.getElementById('server-intel-title');
@@ -105,7 +105,7 @@ async function loadServerIntel() {
     if (text) text.textContent = cleanText(data.summary, 240) || 'Read the latest official CrossFire Philippines update.';
     if (link && data.url) {
       link.href = data.url;
-      link.textContent = data.fallback ? 'Open official news →' : 'Read full update →';
+      link.textContent = 'Read full update →';
     }
 
     setMedia('server-intel-media', data.image, '/assets/qorvo-logo.jpg');

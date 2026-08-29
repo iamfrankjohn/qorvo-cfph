@@ -1,24 +1,18 @@
-# QORVO CFPH Fix Notes
+# QORVO CFPH v4 — Stable Server Intel News
 
-## Server Intel latest-news fix
+## What changed
 
-- Uses the current official CrossFire PH URL: `https://cfph.onstove.com/News/List`.
-- First tries to read STOVE directly.
-- If STOVE rejects Vercel/server requests, automatically retries through Jina Reader's browser-rendered proxy.
-- Detects the newest official CrossFire PH news link.
-- Attempts to show the real article title, date, featured image, short preview, and direct article link.
-- Keeps a local QORVO fallback image and official-news button if the external feed is temporarily unavailable.
-- Edge cache remains 15 minutes to avoid unnecessary external requests.
+- Removed live STOVE scraping from Server Intel because STOVE returns HTTP 567 Restricted Access to automated/server requests.
+- Added `data/news.json` as the single source for the Server Intel card.
+- The homepage now loads `/data/news.json` directly.
+- `/api/crossfire-update` is retained for compatibility and simply returns the same local JSON.
+- No external scraper, API key, environment variable, or proxy is required.
+- Existing image fallback remains in place.
 
-## Existing visual fixes retained
+## Update only one file
 
-- Community Update uses `assets/qorvo-cover.jpg`.
-- Server Intel has `assets/qorvo-logo.jpg` as a safe fallback.
-- Old `cfph-mig.onstove.com` links are normalized to `cfph.onstove.com`.
+For future CrossFire PH news, edit:
 
+`data/news.json`
 
-## v3 Reader parser fix
-- Accepts any official `*.onstove.com/News/...` article URL, not only `cfph.onstove.com`.
-- Can parse latest CFPH title/date/image from Reader text even when article links are stripped.
-- Uses the official News list as the destination when an exact article URL is unavailable.
-- Adds a diagnostic excerpt to `warning` only when all parsing methods fail.
+See `LATEST_NEWS_SETUP.md` for instructions.
