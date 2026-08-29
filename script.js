@@ -346,10 +346,9 @@ async function loadFeaturedQorvoPost() {
   const placeholder = document.getElementById('pinned-post-placeholder');
   const tag = document.getElementById('pinned-post-tag');
   const title = document.getElementById('pinned-post-title');
-  const copy = document.getElementById('pinned-post-copy');
   const link = document.getElementById('pinned-post-link');
   const time = document.getElementById('pinned-post-time');
-  if (!iframe || !placeholder || !tag || !title || !copy || !link) return;
+  if (!iframe || !placeholder || !tag || !title || !link) return;
 
   try {
     const response = await fetch('/api/featured-post', { cache: 'no-store' });
@@ -364,7 +363,6 @@ async function loadFeaturedQorvoPost() {
 
     tag.textContent = post.label || 'PINNED FROM QORVO';
     title.textContent = post.title || 'Featured QORVO Post';
-    copy.textContent = 'Selected by QORVO CFPH. Open the post on Facebook for the full caption, reactions, and comments.';
     link.href = post.url;
     time.textContent = 'Pinned Pick';
 

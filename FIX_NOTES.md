@@ -19,3 +19,7 @@
 - Added responsive resize handling for phone rotation / viewport changes.
 - Disabled the generic 16:9 card aspect-ratio rule for the Facebook featured-post card on mobile.
 - Reduced very-small-phone page padding slightly so the Facebook embed has enough usable width.
+
+## v13
+- Removed the featured-post description text below the card title for a cleaner desktop and mobile layout.
+- Featured card now shows only the metadata, title, and Open Featured Post action below the Facebook embed.
