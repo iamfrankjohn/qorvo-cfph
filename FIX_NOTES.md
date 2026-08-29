@@ -1,7 +1,7 @@
-# v23.0
+# v24.0
 
 - Changed the homepage heading from “EVENTS & LIVE NIGHTS” to “EVENTS & LIVE”.
-- Added visible footer marker `WEB v23.0` beside the QORVO footer brand.
+- Added visible footer marker `WEB v24.0` beside the QORVO footer brand.
 - Kept the no-events message as: “No QORVO events are currently scheduled and no monitored member is live right now.”
 
 # v7 changes
