@@ -689,3 +689,106 @@ footer p:last-child{text-align:right}
     padding:6px 8px;
   }
 }
+
+
+/* =====================================================
+   QORVO MESSENGER WIDGET
+===================================================== */
+.messenger-widget{
+  position:fixed;
+  right:max(18px,env(safe-area-inset-right));
+  bottom:max(18px,env(safe-area-inset-bottom));
+  z-index:9999;
+  font-family:"Inter",sans-serif;
+}
+
+.messenger-card{
+  position:absolute;
+  right:0;
+  bottom:76px;
+  width:min(350px,calc(100vw - 36px));
+  overflow:hidden;
+  border:1px solid rgba(75,255,91,.28);
+  background:rgba(7,14,20,.98);
+  box-shadow:0 22px 70px rgba(0,0,0,.55),0 0 35px rgba(46,255,69,.08);
+  backdrop-filter:blur(14px);
+  transform:translateY(14px) scale(.97);
+  transform-origin:bottom right;
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transition:opacity .2s ease,transform .2s ease,visibility .2s ease;
+}
+
+.messenger-widget.open .messenger-card{
+  transform:translateY(0) scale(1);
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+}
+
+.messenger-card-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:15px 16px;
+  border-bottom:1px solid var(--line);
+  background:linear-gradient(135deg,rgba(46,255,69,.13),rgba(255,255,255,.02));
+}
+
+.messenger-identity{display:flex;align-items:center;gap:11px;min-width:0}
+.messenger-avatar{width:42px;height:42px;border-radius:50%;object-fit:cover;border:1px solid rgba(75,255,91,.45);background:#07100a}
+.messenger-identity strong{display:block;color:#fff;font:800 18px/1 "Barlow Condensed",sans-serif;letter-spacing:.04em}
+.messenger-identity span{display:block;margin-top:4px;color:#8797aa;font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase}
+
+.messenger-close{
+  flex:0 0 auto;
+  width:34px;height:34px;border:0;border-radius:8px;
+  background:rgba(255,255,255,.06);color:#aebac8;cursor:pointer;
+  transition:background .18s ease,color .18s ease;
+}
+.messenger-close:hover{background:rgba(255,255,255,.12);color:#fff}
+
+.messenger-card-body{padding:18px}
+.messenger-greeting{margin:0;color:#fff;font-size:15px;font-weight:700;line-height:1.45}
+.messenger-note{margin:8px 0 16px;color:var(--muted);font-size:12px;line-height:1.6}
+
+.messenger-start{
+  display:flex;align-items:center;justify-content:center;gap:9px;width:100%;
+  padding:13px 14px;border-radius:8px;background:#168aff;color:#fff;
+  font-size:12px;font-weight:800;text-decoration:none;letter-spacing:.01em;
+  transition:transform .18s ease,filter .18s ease;
+}
+.messenger-start:hover{transform:translateY(-1px);filter:brightness(1.08)}
+.messenger-start svg{width:19px;height:19px;fill:currentColor}
+
+.messenger-fab{
+  display:flex;align-items:center;gap:10px;margin-left:auto;
+  min-height:58px;padding:7px 8px 7px 17px;border:1px solid rgba(255,255,255,.12);
+  border-radius:999px;background:#168aff;color:#fff;cursor:pointer;
+  box-shadow:0 14px 35px rgba(0,0,0,.4),0 0 24px rgba(22,138,255,.22);
+  font:800 12px/1 "Inter",sans-serif;
+  transition:transform .18s ease,filter .18s ease;
+}
+.messenger-fab:hover{transform:translateY(-2px);filter:brightness(1.08)}
+.messenger-fab:focus-visible,.messenger-close:focus-visible,.messenger-start:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.messenger-fab-icon{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:#fff;color:#168aff}
+.messenger-fab-icon svg{width:24px;height:24px;fill:currentColor}
+.messenger-fab-label{white-space:nowrap}
+
+@media(max-width:520px){
+  .messenger-widget{right:max(12px,env(safe-area-inset-right));bottom:max(12px,env(safe-area-inset-bottom))}
+  .messenger-card{bottom:68px;width:min(340px,calc(100vw - 24px))}
+  .messenger-fab{min-height:54px;padding-left:14px}
+  .messenger-fab-icon{width:40px;height:40px}
+}
+
+@media(max-width:360px){
+  .messenger-fab-label{display:none}
+  .messenger-fab{padding:7px;border-radius:50%}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .messenger-card,.messenger-fab,.messenger-start{transition:none}
+}

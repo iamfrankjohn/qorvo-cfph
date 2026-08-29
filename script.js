@@ -155,3 +155,38 @@ if ('ResizeObserver' in window && facebookWrap) {
   const fbResizeObserver = new ResizeObserver(queueFacebookResize);
   fbResizeObserver.observe(facebookWrap);
 }
+
+
+// QORVO Messenger widget
+const messengerWidget = document.getElementById('messenger-widget');
+const messengerFab = document.getElementById('messenger-fab');
+const messengerCard = document.getElementById('messenger-card');
+const messengerClose = document.getElementById('messenger-close');
+
+function setMessengerWidget(open) {
+  if (!messengerWidget || !messengerFab || !messengerCard) return;
+  messengerWidget.classList.toggle('open', open);
+  messengerFab.setAttribute('aria-expanded', String(open));
+  messengerCard.setAttribute('aria-hidden', String(!open));
+}
+
+messengerFab?.addEventListener('click', () => {
+  setMessengerWidget(!messengerWidget?.classList.contains('open'));
+});
+
+messengerClose?.addEventListener('click', () => {
+  setMessengerWidget(false);
+  messengerFab?.focus();
+});
+
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && messengerWidget?.classList.contains('open')) {
+    setMessengerWidget(false);
+    messengerFab?.focus();
+  }
+});
+
+document.addEventListener('click', event => {
+  if (!messengerWidget?.classList.contains('open')) return;
+  if (!messengerWidget.contains(event.target)) setMessengerWidget(false);
+});
