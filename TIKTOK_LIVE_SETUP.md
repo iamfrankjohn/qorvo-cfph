@@ -1,32 +1,34 @@
-# TikTok LIVE auto detection
+# TikTok LIVE setup (v16)
 
-QORVO v15 can automatically show monitored members at the top of **Events & Live Nights** whenever they are LIVE on TikTok.
+## Important plan note
+Tik.Tools' Sandbox tier is intended for testing/evaluation and its Terms do not permit using Sandbox to power a public production website. For the live QORVO site, leave monitoring disabled while you are on Sandbox. Upgrade to a production-permitted Tik.Tools plan before enabling it publicly.
 
-## 1. Get a TikTools API key
-Create a TikTools account at https://tik.tools and copy your API key. The site uses TikTools' server-side `/webcast/check_alive` endpoint.
+## Environment variables in Vercel
 
-## 2. Add the key to Vercel
-Project Settings -> Environment Variables -> Production:
+Add these in Project Settings > Environment Variables:
 
-`TIKTOOLS_API_KEY = your private TikTools API key`
+- `TIKTOOLS_API_KEY` = your private Tik.Tools key
+- `TIKTOOLS_LIVE_ENABLED` = `false` while testing / Sandbox
 
-Redeploy once after adding it.
+When you have a production-permitted Tik.Tools plan, change:
 
-## 3. Add members
-Open the QORVO Control Panel (3 quick clicks on the footer QORVO logo), log in, then use **TIKTOK LIVE MEMBERS**.
+- `TIKTOOLS_LIVE_ENABLED` = `true`
 
-Add:
-- Member display name
-- TikTok username (without @)
+Then redeploy.
 
-Click **Save TikTok Members**.
+## How v16 reduces API usage
 
-## How it behaves
-- The homepage checks approximately every 90 seconds.
-- LIVE members appear before manually scheduled events.
-- Clicking the arrow opens that member's TikTok LIVE page.
-- When they are no longer live, their LIVE row disappears on a later check.
-- Manual events remain managed separately in the same admin panel.
+- Browser refresh interval changed from 90 seconds to 5 minutes.
+- `/api/tiktok-live` sends Vercel CDN caching headers for 5 minutes.
+- The function also keeps a 5-minute in-memory cache when the same serverless instance is reused.
+- This means multiple site visitors generally share a cached live-status response instead of every visitor triggering fresh Tik.Tools calls.
+- Up to 8 enabled TikTok members can be monitored from the QORVO Control Panel.
 
-## Notes
-TikTok LIVE detection uses a third-party service because TikTok's standard public Display API does not provide a simple public live-status endpoint for this use case. Availability and API limits depend on TikTools.
+## Add members
+
+1. On the public site, click the footer QORVO logo 3 times quickly.
+2. Log in to QORVO Control Panel.
+3. Under TikTok LIVE Members, add a display name and TikTok username without `@`.
+4. Save.
+
+When monitoring is enabled and a member is live, their LIVE row is shown above the manually managed Events & Live Nights schedule.

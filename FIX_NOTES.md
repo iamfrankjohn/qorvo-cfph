@@ -37,3 +37,10 @@
 - LIVE members automatically appear at the top of Events & Live Nights.
 - Homepage refreshes live status about every 90 seconds.
 - Added `TIKTOOLS_API_KEY` environment variable and setup guide.
+
+## v16 - TikTok LIVE quota / production safety
+- Changed homepage TikTok status refresh from 90 seconds to 5 minutes.
+- Added 5-minute CDN caching (`s-maxage=300`) and 5-minute server memory caching.
+- Added `TIKTOOLS_LIVE_ENABLED` kill switch.
+- Monitoring stays OFF unless explicitly enabled.
+- Sandbox key can be kept for testing, but public production monitoring should only be enabled with a Tik.Tools plan that permits production use.
