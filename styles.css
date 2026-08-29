@@ -416,6 +416,16 @@ footer{
 footer p:last-child{text-align:right}
 .footer-brand{opacity:.75}
 
+.footer-brand .site-version{
+  margin-top:7px;
+  color:var(--accent);
+  font-size:8px;
+  font-weight:800;
+  letter-spacing:.16em;
+  opacity:1;
+}
+
+
 /* Reveal */
 .reveal{opacity:0;transform:translateY(20px);transition:opacity .7s ease,transform .7s ease}
 .reveal.visible{opacity:1;transform:none}
