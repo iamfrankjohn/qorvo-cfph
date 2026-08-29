@@ -73,7 +73,35 @@ img,video,svg,canvas,iframe{display:block;max-width:100%}
   letter-spacing:.08em;
 }
 
-brand-mark.brand-eagle
+.brand-mark.brand-eagle {
+  width: 48px;
+  height: 48px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* No border */
+  border: none;
+
+  /* No box/background around logo */
+  background: transparent;
+  box-shadow: none;
+
+  /* Remove the tilted box shape */
+  transform: none;
+}
+
+.brand-mark.brand-eagle img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+
+  /* Don't compensate for the old skew */
+  transform: none;
+}
 
 .brand strong,.brand small{display:block}
 .brand strong{font:800 22px/18px "Barlow Condensed",sans-serif;color:#fff}
