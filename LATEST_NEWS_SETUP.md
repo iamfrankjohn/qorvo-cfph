@@ -1,24 +1,18 @@
-# Latest CrossFire Philippines News Card
+# Automatic CrossFire PH Latest News
 
-The **Server Intel** card now calls `/api/crossfire-update` and tries to read the official CrossFire Philippines STOVE news listing automatically.
+The Server Intel card now uses a two-stage fetch strategy:
 
-When successful it displays:
-- featured image
-- newest article title
-- publish date (when provided by STOVE)
-- a short official description/article excerpt
-- direct **Read full update →** link
+1. Directly request `https://cfph.onstove.com/News/List`.
+2. If STOVE blocks server-side requests, use Jina Reader (`https://r.jina.ai/`) as a browser-rendered fallback.
 
-## Vercel
-No extra package is required. Deploy the project normally.
+The API then finds the newest official news entry, fetches the article when possible, and returns:
 
-Optional environment variable:
+- article title
+- publication date
+- featured image when available
+- short article preview
+- direct article URL
 
-```text
-CROSSFIRE_NEWS_URL=https://cfph.onstove.com/News/List
-```
+The response is cached at the Vercel edge for 15 minutes. If both methods fail, the website keeps the QORVO fallback image and links to the official news list instead of showing a blank card.
 
-You can omit it because this is already the built-in default.
-
-## Important fallback behavior
-STOVE sometimes rejects automated/server-side requests at its CDN edge. When that happens, the card intentionally shows a local fallback image and links to the official News page. It will try again on later requests. This prevents a blank card or broken homepage.
+No API key is required for basic Jina Reader usage. If you later want higher rate limits, Jina supports an optional API key, but the current code does not require one.
