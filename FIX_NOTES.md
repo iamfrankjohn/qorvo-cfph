@@ -1,3 +1,11 @@
+# WEB v5.7 — About Copy Update
+
+- Refined the `Who We Are` section copy to sound more natural and less repetitive.
+- New wording reinforces the `MORE THAN A PAGE. A SQUAD.` message.
+- Closing line now ends with `there’s a place for you in the squad.`
+- Footer version updated to `WEB v5.7`.
+- Safe ZIP excludes all live `data/*.json` files.
+
 # WEB v5.6 — Help Button Idle Opacity
 
 - Floating `Need help?` Messenger button is now 50% opacity while idle.
