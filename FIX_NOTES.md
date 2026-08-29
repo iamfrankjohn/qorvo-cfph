@@ -15,3 +15,10 @@
 - Community Update uses `assets/qorvo-cover.jpg`.
 - Server Intel has `assets/qorvo-logo.jpg` as a safe fallback.
 - Old `cfph-mig.onstove.com` links are normalized to `cfph.onstove.com`.
+
+
+## v3 Reader parser fix
+- Accepts any official `*.onstove.com/News/...` article URL, not only `cfph.onstove.com`.
+- Can parse latest CFPH title/date/image from Reader text even when article links are stripped.
+- Uses the official News list as the destination when an exact article URL is unavailable.
+- Adds a diagnostic excerpt to `warning` only when all parsing methods fail.

@@ -83,9 +83,14 @@ function meta(html, key) {
 function looksLikeNewsLink(url, title = '') {
   const u = String(url || '').toLowerCase();
   const t = String(title || '').toLowerCase();
-  if (!u.includes('cfph.onstove.com')) return false;
-  if (!u.includes('/news')) return false;
-  if (/\/news\/?(list)?$/i.test(new URL(url).pathname)) return false;
+  let parsed;
+  try { parsed = new URL(url); } catch { return false; }
+
+  // Reader/proxy output may preserve cfph.onstove.com, use another onstove host,
+  // or return a relative URL that absolute() already resolved against CFPH.
+  if (!parsed.hostname.endsWith('onstove.com')) return false;
+  if (!parsed.pathname.toLowerCase().includes('/news')) return false;
+  if (/\/news\/?(list)?\/?$/i.test(parsed.pathname)) return false;
   if (/facebook|discord|login|signup|download/i.test(t)) return false;
   return true;
 }
@@ -139,6 +144,50 @@ function extractMarkdownCandidates(markdown, baseUrl) {
     seen.add(key);
     return true;
   });
+}
+
+
+function parseDateText(text = '') {
+  const s = String(text);
+  let m = s.match(/\b(0?[1-9]|1[0-2])\/(0?[1-9]|[12]\d|3[01])\/(20\d{2})\b/);
+  if (m) return `${m[3]}-${String(m[1]).padStart(2, '0')}-${String(m[2]).padStart(2, '0')}`;
+  m = s.match(/\b(20\d{2})[-/.](0?[1-9]|1[0-2])[-/.](0?[1-9]|[12]\d|3[01])\b/);
+  if (m) return `${m[1]}-${String(m[2]).padStart(2, '0')}-${String(m[3]).padStart(2, '0')}`;
+  return null;
+}
+
+function extractPlainMarkdownCandidates(markdown, baseUrl) {
+  const lines = String(markdown || '').split(/\r?\n/).map(s => s.trim());
+  const candidates = [];
+  const titlePattern = /^(?:#{1,6}\s*)?(\[(?:Event|Announcement|Promo|News|Notice|Update)\][^\n]{5,220}|[^\n]{8,220}(?:Event|Notice|Update|Maintenance|Promo)[^\n]{0,120})$/i;
+  const imageRe = /!\[[^\]]*\]\((https?:\/\/[^)]+|\/[^)]+)\)/i;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+      .replace(/^[-*+]\s+/, '')
+      .replace(/^>\s*/, '')
+      .trim();
+    const tm = line.match(titlePattern);
+    if (!tm) continue;
+
+    const title = compact(tm[1], 180);
+    if (!title || /latest crossfire philippines updates/i.test(title)) continue;
+
+    let date = null;
+    let image = null;
+    for (let j = Math.max(0, i - 2); j <= Math.min(lines.length - 1, i + 8); j++) {
+      if (!date) date = parseDateText(lines[j]);
+      if (!image) {
+        const im = lines[j].match(imageRe);
+        if (im) image = absolute(baseUrl, im[1]);
+      }
+    }
+
+    // Even if Reader removes the article href, the list content itself is still useful.
+    candidates.push({ title, url: baseUrl, image, date, order: i, listOnly: true });
+  }
+
+  return candidates;
 }
 
 function chooseLatest(candidates) {
@@ -223,9 +272,15 @@ async function getLatestNews() {
   // 2) Reliable fallback: browser-rendered Reader proxy.
   try {
     const { text: markdown } = await fetchViaJina(sourceUrl);
-    const latest = chooseLatest(extractMarkdownCandidates(markdown, sourceUrl));
-    if (latest) return { latest: await enrichArticle(latest), method: 'reader' };
-    errors.push('Reader fetch returned no usable news links.');
+    const linked = extractMarkdownCandidates(markdown, sourceUrl);
+    const plain = extractPlainMarkdownCandidates(markdown, sourceUrl);
+    const latest = chooseLatest([...linked, ...plain]);
+    if (latest) {
+      // If Reader exposed a real article URL, enrich that article. If it stripped links,
+      // keep the parsed list title/date/image and use the official News list as destination.
+      return { latest: latest.listOnly ? latest : await enrichArticle(latest), method: latest.listOnly ? 'reader-list' : 'reader' };
+    }
+    errors.push(`Reader fetch returned no usable news items. First 300 chars: ${compact(markdown, 300)}`);
   } catch (e) {
     errors.push(`Reader fetch: ${e.message}`);
   }
