@@ -1,3 +1,13 @@
+# WEB v5.12 — Facebook Mobile Feed Fix
+
+- Fixed the broken-looking Facebook Page timeline area on mobile.
+- Facebook's embedded timeline can create its own internal scrollbar and awkward white plugin UI on narrow screens.
+- On screens 700px and below, the iframe is now replaced with a clean QORVO-branded Facebook preview card.
+- Tapping the mobile preview opens the official QORVO CFPH Facebook Page.
+- Desktop keeps the live Facebook Page Plugin.
+- Footer version updated to `WEB v5.12`.
+- Safe ZIP excludes all live `data/*.json` files.
+
 # WEB v5.11 — LIVE Alert Copy
 
 - Changed the popup status label from `QORVO LIVE ALERT` to `LIVE ALERT`.

@@ -183,6 +183,15 @@ const facebookWrap = document.querySelector('.facebook-plugin-wrap');
 function loadResponsiveFacebookPlugin() {
   if (!facebookIframe || !facebookWrap) return;
 
+  // On phones/tablets, use the native QORVO preview instead of Facebook's
+  // timeline iframe, which can expose an internal scrollbar on narrow widths.
+  if (window.matchMedia('(max-width: 700px)').matches) {
+    if (facebookIframe.src !== 'about:blank') {
+      facebookIframe.src = 'about:blank';
+    }
+    return;
+  }
+
   const pageUrl = facebookIframe.dataset.pageUrl || 'https://www.facebook.com/qorvo.cfph';
   const wrapWidth = Math.floor(facebookWrap.getBoundingClientRect().width);
 

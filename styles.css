@@ -904,6 +904,165 @@ footer p:last-child{text-align:right}
 }
 
 
+
+/* =====================================================
+   WEB v5.12 — FACEBOOK MOBILE CARD FIX
+   Facebook's timeline iframe can show its own internal
+   scrollbar on narrow mobile screens. Use a clean,
+   native QORVO preview on phones instead.
+===================================================== */
+
+.facebook-mobile-preview{
+  display:none;
+}
+
+@media(max-width:700px){
+  .facebook-plugin-wrap{
+    min-height:260px;
+    height:260px;
+    background:#07100a;
+  }
+
+  .facebook-page-plugin{
+    display:none !important;
+  }
+
+  .facebook-mobile-preview{
+    position:absolute;
+    inset:0;
+    display:block;
+    overflow:hidden;
+    color:#fff;
+    text-decoration:none;
+    background:#07100a;
+  }
+
+  .facebook-mobile-preview-cover{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    object-position:center;
+    opacity:.34;
+    transform:scale(1.02);
+  }
+
+  .facebook-mobile-preview-shade{
+    position:absolute;
+    inset:0;
+    background:
+      linear-gradient(180deg,rgba(3,10,5,.18),rgba(3,10,5,.9)),
+      linear-gradient(90deg,rgba(3,10,5,.86),rgba(3,10,5,.32));
+  }
+
+  .facebook-mobile-preview-content{
+    position:absolute;
+    left:20px;
+    right:20px;
+    bottom:20px;
+    display:grid;
+    grid-template-columns:52px minmax(0,1fr) 34px;
+    align-items:center;
+    gap:13px;
+    z-index:2;
+  }
+
+  .facebook-mobile-preview-logo{
+    display:grid;
+    place-items:center;
+    width:52px;
+    height:52px;
+    border:1px solid rgba(51,255,91,.28);
+    border-radius:50%;
+    background:rgba(5,16,8,.82);
+    box-shadow:0 8px 24px rgba(0,0,0,.28);
+    overflow:hidden;
+  }
+
+  .facebook-mobile-preview-logo img{
+    width:82%;
+    height:82%;
+    object-fit:contain;
+  }
+
+  .facebook-mobile-preview-copy{
+    min-width:0;
+    display:grid;
+    gap:3px;
+  }
+
+  .facebook-mobile-preview-copy small{
+    color:var(--accent);
+    font:800 9px/1 "Barlow Condensed",sans-serif;
+    letter-spacing:.18em;
+  }
+
+  .facebook-mobile-preview-copy strong{
+    color:#fff;
+    font:900 27px/.95 "Barlow Condensed",sans-serif;
+    text-transform:uppercase;
+  }
+
+  .facebook-mobile-preview-copy span{
+    color:#a6b0aa;
+    font-size:11px;
+    line-height:1.4;
+  }
+
+  .facebook-mobile-preview-arrow{
+    display:grid;
+    place-items:center;
+    width:34px;
+    height:34px;
+    border:1px solid rgba(51,255,91,.32);
+    border-radius:50%;
+    background:rgba(51,255,91,.09);
+    color:var(--accent);
+    font-size:18px;
+    transition:transform .16s ease,background .16s ease;
+  }
+
+  .facebook-mobile-preview:active .facebook-mobile-preview-arrow{
+    transform:translateX(2px);
+    background:rgba(51,255,91,.16);
+  }
+
+  .facebook-plugin-wrap .tag{
+    z-index:4;
+  }
+}
+
+@media(max-width:380px){
+  .facebook-plugin-wrap{
+    min-height:238px;
+    height:238px;
+  }
+
+  .facebook-mobile-preview-content{
+    left:16px;
+    right:16px;
+    bottom:16px;
+    grid-template-columns:46px minmax(0,1fr) 30px;
+    gap:10px;
+  }
+
+  .facebook-mobile-preview-logo{
+    width:46px;
+    height:46px;
+  }
+
+  .facebook-mobile-preview-copy strong{
+    font-size:24px;
+  }
+
+  .facebook-mobile-preview-arrow{
+    width:30px;
+    height:30px;
+    font-size:16px;
+  }
+}
+
 /* =====================================================
    QORVO MESSENGER WIDGET
 ===================================================== */
