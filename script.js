@@ -227,6 +227,150 @@ async function loadLatestFacebookPost() {
 
 loadLatestFacebookPost();
 
+// WEB v5.15 — live QORVO Facebook Reels hero selector
+async function loadQorvoReels() {
+  const panel = document.getElementById('qorvo-reels-panel');
+  const stage = document.getElementById('reels-stage');
+  const dots = document.getElementById('reels-dots');
+  const prev = document.getElementById('reels-prev');
+  const next = document.getElementById('reels-next');
+  const captionTitle = document.getElementById('reels-caption-title');
+  if (!panel || !stage || !dots || !prev || !next) return;
+
+  const reelsPage = 'https://www.facebook.com/qorvo.cfph/reels';
+  let reels = [];
+  let active = 0;
+  let timer = null;
+
+  const reelLabel = index => index === 0 ? 'LATEST REEL' : `REEL ${index + 1}`;
+
+  function restartTimer() {
+    window.clearInterval(timer);
+    if (reels.length > 1) {
+      timer = window.setInterval(() => {
+        active = (active + 1) % reels.length;
+        render();
+      }, 6000);
+    }
+  }
+
+  function positionFor(index) {
+    const count = reels.length;
+    if (index === active) return 'active';
+    if (index === (active - 1 + count) % count) return 'left';
+    if (index === (active + 1) % count) return 'right';
+    return 'hidden';
+  }
+
+  function render() {
+    stage.innerHTML = '';
+    dots.innerHTML = '';
+
+    reels.forEach((reel, index) => {
+      const position = positionFor(index);
+      const link = document.createElement('a');
+      link.className = `reel-card reel-${position}`;
+      link.href = reel.url;
+      link.target = '_blank';
+      link.rel = 'noopener';
+      link.setAttribute('aria-label', `Watch QORVO ${reelLabel(index)} on Facebook`);
+
+      const img = document.createElement('img');
+      img.src = reel.thumbnail || '/assets/qorvo-cover.jpg';
+      img.alt = `QORVO CFPH ${reelLabel(index)} thumbnail`;
+      img.loading = index === active ? 'eager' : 'lazy';
+      img.addEventListener('error', () => { img.src = '/assets/qorvo-cover.jpg'; }, { once: true });
+
+      const shade = document.createElement('span');
+      shade.className = 'reel-card-shade';
+
+      const play = document.createElement('span');
+      play.className = 'reel-play';
+      play.textContent = '▶';
+
+      const info = document.createElement('span');
+      info.className = 'reel-card-info';
+      const metric = reel.metric ? `<small>${reel.metric}</small>` : '';
+      info.innerHTML = `<strong>${reelLabel(index)}</strong>${metric}`;
+
+      link.append(img, shade, play, info);
+      stage.append(link);
+
+      const dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = `reels-dot${index === active ? ' is-active' : ''}`;
+      dot.setAttribute('aria-label', `Show reel ${index + 1}`);
+      dot.addEventListener('click', () => {
+        active = index;
+        render();
+        restartTimer();
+      });
+      dots.append(dot);
+    });
+
+    if (captionTitle) {
+      captionTitle.textContent = `${reelLabel(active)} // WATCH ON FACEBOOK`;
+    }
+  }
+
+  function move(direction) {
+    if (!reels.length) return;
+    active = (active + direction + reels.length) % reels.length;
+    render();
+    restartTimer();
+  }
+
+  prev.addEventListener('click', () => move(-1));
+  next.addEventListener('click', () => move(1));
+
+  panel.addEventListener('mouseenter', () => window.clearInterval(timer));
+  panel.addEventListener('mouseleave', restartTimer);
+  panel.addEventListener('focusin', () => window.clearInterval(timer));
+  panel.addEventListener('focusout', restartTimer);
+
+  // Basic horizontal swipe support on touch devices.
+  let touchStartX = null;
+  stage.addEventListener('touchstart', event => {
+    touchStartX = event.changedTouches?.[0]?.clientX ?? null;
+  }, { passive: true });
+  stage.addEventListener('touchend', event => {
+    if (touchStartX === null) return;
+    const endX = event.changedTouches?.[0]?.clientX ?? touchStartX;
+    const delta = endX - touchStartX;
+    touchStartX = null;
+    if (Math.abs(delta) > 45) move(delta > 0 ? -1 : 1);
+  }, { passive: true });
+
+  try {
+    const response = await fetch('/api/facebook-reels', { cache: 'no-store' });
+    const payload = await response.json();
+    if (!response.ok || !payload?.ok || !Array.isArray(payload.reels) || !payload.reels.length) {
+      throw new Error(payload?.warning || payload?.error || 'Reels unavailable');
+    }
+
+    reels = payload.reels.filter(reel => reel?.url).slice(0, 5);
+    if (!reels.length) throw new Error('No valid Reels');
+    panel.classList.add('reels-ready');
+    render();
+    restartTimer();
+  } catch (error) {
+    console.warn('QORVO Reels:', error);
+    stage.innerHTML = `
+      <a class="reels-fallback" href="${reelsPage}" target="_blank" rel="noopener">
+        <img src="/assets/qorvo-cover.jpg" alt="QORVO CFPH">
+        <span class="reel-card-shade"></span>
+        <span class="reel-play">▶</span>
+        <span class="reel-card-info"><strong>QORVO REELS</strong><small>OPEN FACEBOOK</small></span>
+      </a>`;
+    dots.innerHTML = '';
+    prev.disabled = true;
+    next.disabled = true;
+    if (captionTitle) captionTitle.textContent = 'QORVO CFPH // FACEBOOK REELS';
+  }
+}
+
+loadQorvoReels();
+
 
 // QORVO Messenger widget
 const messengerWidget = document.getElementById('messenger-widget');

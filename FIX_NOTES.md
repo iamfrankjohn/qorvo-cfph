@@ -8,3 +8,11 @@
 - Falls back to the QORVO Facebook Page and cover image if the checker is temporarily unavailable.
 - Footer version updated to `WEB v5.14`.
 - Safe update package excludes all `data/*.json` live/admin-managed files.
+
+## WEB v5.15
+- Replaced the large hero eagle artwork panel with a live QORVO Facebook Reels selector.
+- Loads up to 5 latest Reels through `/api/facebook-reels`.
+- Added secure Vercel bridge; `FACEBOOK_CHECKER_SECRET` remains server-side.
+- Desktop shows center-focused Reel with adjacent previews, autoplay, arrows, and dots.
+- Mobile supports swipe navigation and a vertical Reel-focused layout.
+- Falls back to the QORVO Facebook Reels page if the checker is temporarily unavailable.

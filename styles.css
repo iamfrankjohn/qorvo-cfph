@@ -2318,3 +2318,182 @@ footer p:last-child{text-align:right}
   .facebook-latest-page-copy strong{font-size:22px}
 }
 @media(max-width:380px){.facebook-latest-visual{min-height:270px}}
+
+/* ==========================================================
+   WEB v5.15 — QORVO Facebook Reels hero selector
+   ========================================================== */
+.qorvo-reels-panel{
+  position:relative;
+  width:100%;
+  min-height:320px;
+  aspect-ratio:16/10;
+  overflow:hidden;
+  border:1px solid rgba(75,255,91,.28);
+  background:
+    radial-gradient(circle at 50% 45%,rgba(44,255,72,.12),transparent 42%),
+    linear-gradient(180deg,#061009 0%,#020704 100%);
+  box-shadow:0 35px 90px rgba(0,0,0,.55),0 0 45px rgba(46,255,69,.08);
+}
+.qorvo-reels-panel::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  opacity:.18;
+  background:repeating-linear-gradient(to bottom,transparent 0 3px,rgba(98,255,117,.12) 4px);
+  z-index:5;
+}
+.reels-hud{
+  position:absolute;
+  z-index:20;
+  left:0;right:0;top:0;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:15px 18px;
+  border-bottom:1px solid var(--line);
+  background:rgba(2,8,4,.75);
+  backdrop-filter:blur(8px);
+  color:#8392a8;
+  font-size:9px;
+  font-weight:800;
+  letter-spacing:.16em;
+}
+.reels-hud a{color:#8cf0ae;text-decoration:none;transition:color .2s ease}
+.reels-hud a:hover{color:#fff}
+.reels-stage{
+  position:absolute;
+  z-index:8;
+  inset:46px 14px 70px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  perspective:1000px;
+}
+.reels-loading{
+  display:flex;
+  min-height:190px;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  gap:7px;
+  color:#fff;
+  text-align:center;
+}
+.reels-loading-mark{display:grid;place-items:center;width:52px;height:52px;border:1px solid rgba(92,255,109,.5);border-radius:50%;color:var(--accent);box-shadow:0 0 30px rgba(61,255,79,.13)}
+.reels-loading strong{font:800 16px "Barlow Condensed",sans-serif;letter-spacing:.08em}
+.reels-loading small{color:var(--muted);font-size:9px;letter-spacing:.12em;text-transform:uppercase}
+.reel-card{
+  position:absolute;
+  display:block;
+  width:31%;
+  max-width:165px;
+  height:88%;
+  max-height:268px;
+  overflow:hidden;
+  border:1px solid rgba(132,255,145,.2);
+  border-radius:5px;
+  background:#09110b;
+  box-shadow:0 18px 35px rgba(0,0,0,.48);
+  text-decoration:none;
+  transition:transform .42s cubic-bezier(.22,.8,.25,1),opacity .35s ease,filter .35s ease,border-color .35s ease,box-shadow .35s ease;
+  will-change:transform,opacity;
+}
+.reel-card img,.reels-fallback img{width:100%;height:100%;object-fit:cover;display:block}
+.reel-active{z-index:4;transform:translateX(0) scale(1.07);opacity:1;border-color:rgba(117,255,129,.75);box-shadow:0 20px 50px rgba(0,0,0,.6),0 0 24px rgba(57,255,75,.16)}
+.reel-left{z-index:3;transform:translateX(-112%) scale(.83) rotateY(7deg);opacity:.65;filter:saturate(.7) brightness(.7)}
+.reel-right{z-index:3;transform:translateX(112%) scale(.83) rotateY(-7deg);opacity:.65;filter:saturate(.7) brightness(.7)}
+.reel-hidden{z-index:1;transform:scale(.7);opacity:0;pointer-events:none}
+.reel-card:hover{border-color:var(--accent);filter:none}
+.reel-card-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.02) 42%,rgba(0,0,0,.88) 100%)}
+.reel-play{
+  position:absolute;
+  left:50%;top:48%;
+  display:grid;
+  place-items:center;
+  width:48px;height:48px;
+  transform:translate(-50%,-50%);
+  border:1px solid rgba(255,255,255,.8);
+  border-radius:50%;
+  background:rgba(3,8,5,.5);
+  color:#fff;
+  font-size:17px;
+  line-height:1;
+  padding-left:3px;
+  backdrop-filter:blur(4px);
+  box-shadow:0 0 25px rgba(0,0,0,.35);
+}
+.reel-card:hover .reel-play,.reels-fallback:hover .reel-play{background:var(--accent);color:#031006;border-color:var(--accent)}
+.reel-card-info{
+  position:absolute;
+  z-index:3;
+  left:10px;right:10px;bottom:9px;
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:8px;
+  color:#fff;
+}
+.reel-card-info strong{font:800 14px "Barlow Condensed",sans-serif;letter-spacing:.08em}
+.reel-card-info small{color:#a7bbb0;font-size:8px;font-weight:800;letter-spacing:.08em;white-space:nowrap}
+.reels-controls{
+  position:absolute;
+  z-index:21;
+  left:50%;bottom:38px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  transform:translateX(-50%);
+}
+.reels-arrow{
+  display:grid;
+  place-items:center;
+  width:25px;height:25px;
+  border:1px solid rgba(126,255,139,.22);
+  border-radius:50%;
+  background:rgba(3,10,5,.75);
+  color:#a8b8aa;
+  font-size:20px;
+  line-height:1;
+  cursor:pointer;
+}
+.reels-arrow:hover{border-color:var(--accent);color:var(--accent)}
+.reels-arrow:disabled{opacity:.3;cursor:default}
+.reels-dots{display:flex;align-items:center;gap:6px}
+.reels-dot{width:6px;height:6px;padding:0;border:0;border-radius:50%;background:#526057;cursor:pointer;transition:width .2s ease,background .2s ease,border-radius .2s ease}
+.reels-dot.is-active{width:20px;border-radius:10px;background:var(--accent)}
+.reels-caption{
+  position:absolute;
+  z-index:20;
+  left:16px;right:16px;bottom:12px;
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:12px;
+  pointer-events:none;
+}
+.reels-caption small{color:#6fa77a;font-size:7px;font-weight:800;letter-spacing:.17em}
+.reels-caption strong{color:#dce9df;font:800 11px "Barlow Condensed",sans-serif;letter-spacing:.09em;text-align:right}
+.reels-fallback{position:relative;display:block;width:100%;height:100%;overflow:hidden;text-decoration:none;border:1px solid rgba(75,255,91,.22)}
+
+@media (max-width:720px){
+  .qorvo-reels-panel{aspect-ratio:16/10;min-height:330px}
+  .reels-stage{inset:46px 10px 70px}
+  .reel-card{width:39%;max-width:155px;height:88%}
+  .reel-left{transform:translateX(-95%) scale(.76);opacity:.45}
+  .reel-right{transform:translateX(95%) scale(.76);opacity:.45}
+  .reels-caption strong{max-width:60%;font-size:10px}
+}
+
+@media (max-width:480px){
+  .qorvo-reels-panel{aspect-ratio:auto;min-height:430px}
+  .reels-stage{inset:48px 8px 76px}
+  .reel-card{width:57%;max-width:190px;height:91%;max-height:315px}
+  .reel-active{transform:translateX(0) scale(1)}
+  .reel-left{transform:translateX(-91%) scale(.7);opacity:.30}
+  .reel-right{transform:translateX(91%) scale(.7);opacity:.30}
+  .reels-hud{padding:14px 12px}
+  .reels-caption{left:12px;right:12px}
+  .reels-caption small{display:none}
+  .reels-caption strong{max-width:100%;width:100%;text-align:center}
+}

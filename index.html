@@ -65,16 +65,29 @@
         </div>
       </div>
 
-      <div class="hero-panel reveal hero-art">
-        <img src="assets/qorvo-cover.jpg" alt="QORVO CFPH eagle cover artwork">
-        <div class="art-overlay"></div>
-        <div class="hud-top">
-          <span>QORVO // CFPH</span>
-          <span class="status"><i></i> ONLINE</span>
+      <div class="hero-panel reveal qorvo-reels-panel" id="qorvo-reels-panel">
+        <div class="reels-hud">
+          <span>QORVO // REELS</span>
+          <a href="https://www.facebook.com/qorvo.cfph/reels" target="_blank" rel="noopener">VIEW ALL ↗</a>
         </div>
-        <div class="art-caption">
-          <small>QORVO CFPH</small>
-          <strong>SQUAD // CROSSFIRE // ELITE</strong>
+
+        <div class="reels-stage" id="reels-stage" aria-live="polite">
+          <div class="reels-loading">
+            <span class="reels-loading-mark">▶</span>
+            <strong>LOADING QORVO REELS</strong>
+            <small>Latest videos from the squad</small>
+          </div>
+        </div>
+
+        <div class="reels-controls">
+          <button class="reels-arrow" id="reels-prev" type="button" aria-label="Previous reel">‹</button>
+          <div class="reels-dots" id="reels-dots" aria-label="Reel selection"></div>
+          <button class="reels-arrow" id="reels-next" type="button" aria-label="Next reel">›</button>
+        </div>
+
+        <div class="reels-caption">
+          <small>LATEST FROM THE SQUAD</small>
+          <strong id="reels-caption-title">QORVO CFPH // FACEBOOK REELS</strong>
         </div>
       </div>
     </section>
@@ -327,7 +340,7 @@
   <footer>
     <a class="brand footer-brand" id="qorvo-admin-trigger" href="#" title="QORVO CFPH" aria-label="QORVO CFPH">
       <span class="brand-mark brand-eagle"><img src="assets/qorvo-mark.png" alt="QORVO logo"></span>
-      <span><strong>QORVO</strong><small>CFPH</small><small class="site-version">WEB v5.14</small></span>
+      <span><strong>QORVO</strong><small>CFPH</small><small class="site-version">WEB v5.15</small></span>
     </a>
     <p>QORVO CFPH Community Website • Developed by iamfrankjohn</p>
     <p>© <span id="year"></span> QORVO CFPH</p>
