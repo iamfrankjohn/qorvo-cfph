@@ -2320,7 +2320,7 @@ footer p:last-child{text-align:right}
 @media(max-width:380px){.facebook-latest-visual{min-height:270px}}
 
 /* ==========================================================
-   WEB v5.15 — QORVO Facebook Reels hero selector
+   WEB v5.16 — QORVO Facebook Reels hero selector + player
    ========================================================== */
 .qorvo-reels-panel{
   position:relative;
@@ -2496,4 +2496,40 @@ footer p:last-child{text-align:right}
   .reels-caption{left:12px;right:12px}
   .reels-caption small{display:none}
   .reels-caption strong{max-width:100%;width:100%;text-align:center}
+}
+
+/* ==========================================================
+   WEB v5.16 — in-site QORVO Reel player
+   ========================================================== */
+.reel-card{appearance:none;padding:0;font:inherit;text-align:left;cursor:pointer}
+body.reel-player-open{overflow:hidden}
+.reel-player-modal{
+  position:fixed;z-index:10000;inset:0;display:none;align-items:center;justify-content:center;
+  padding:24px;background:rgba(0,3,1,.88);backdrop-filter:blur(12px);
+}
+.reel-player-modal.is-open{display:flex}
+.reel-player-shell{
+  width:min(94vw,440px);max-height:94vh;overflow:hidden;border:1px solid rgba(87,255,104,.42);
+  background:#030805;box-shadow:0 35px 110px rgba(0,0,0,.78),0 0 55px rgba(47,255,66,.1)
+}
+.reel-player-head,.reel-player-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#061009}
+.reel-player-head{height:48px;padding:0 12px 0 16px;border-bottom:1px solid rgba(91,255,106,.18);color:#b6c7ba;font-size:9px;font-weight:900;letter-spacing:.16em}
+.reel-player-close{display:grid;place-items:center;width:30px;height:30px;border:1px solid rgba(112,255,125,.25);border-radius:50%;background:#030805;color:#d9e6dc;font-size:22px;line-height:1;cursor:pointer}
+.reel-player-close:hover{border-color:var(--accent);color:var(--accent)}
+.reel-player-frame{position:relative;width:100%;aspect-ratio:9/16;max-height:calc(94vh - 94px);background:#000;overflow:hidden}
+.reel-player-frame video{display:block;width:100%;height:100%;object-fit:contain;background:#000}
+.reel-player-status{position:absolute;z-index:3;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:24px;text-align:center;background:linear-gradient(180deg,rgba(2,7,4,.74),rgba(1,3,2,.9));color:#fff;pointer-events:none}
+.reel-player-status[hidden]{display:none}
+.reel-player-status strong{font:800 18px "Barlow Condensed",sans-serif;letter-spacing:.1em}
+.reel-player-status small{color:#8fa094;font-size:9px;letter-spacing:.08em}
+.reel-player-spinner{width:42px;height:42px;border:2px solid rgba(80,255,97,.16);border-top-color:var(--accent);border-radius:50%;animation:reelSpin .8s linear infinite}
+@keyframes reelSpin{to{transform:rotate(360deg)}}
+.reel-player-foot{min-height:46px;padding:10px 15px;border-top:1px solid rgba(91,255,106,.18);font-size:8px;font-weight:800;letter-spacing:.12em;color:#64756a}
+.reel-player-foot a{color:#8cf0ae;text-decoration:none}.reel-player-foot a:hover{color:#fff}
+@media(max-width:520px){
+  .reel-player-modal{padding:0;align-items:stretch}
+  .reel-player-shell{width:100%;max-height:none;height:100%;display:flex;flex-direction:column;border:0}
+  .reel-player-frame{flex:1;min-height:0;aspect-ratio:auto;max-height:none}
+  .reel-player-head{padding-top:env(safe-area-inset-top);height:calc(48px + env(safe-area-inset-top))}
+  .reel-player-foot{padding-bottom:max(10px,env(safe-area-inset-bottom))}
 }

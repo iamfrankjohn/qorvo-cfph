@@ -10,8 +10,13 @@ function cleanReel(reel) {
   const url = String(reel.url || '').trim();
   if (!/^https:\/\/(www\.)?facebook\.com\/reel\//i.test(url)) return null;
 
+  const match = url.match(/\/reel\/([0-9]+)/i);
+  const id = String(reel.id || (match ? match[1] : '')).trim();
+  if (!/^[0-9]{5,30}$/.test(id)) return null;
+
   const thumbnail = String(reel.thumbnail || '').trim();
   return {
+    id,
     url,
     thumbnail: /^https:\/\//i.test(thumbnail) ? thumbnail : '',
     metric: String(reel.metric || '').trim().slice(0, 30)

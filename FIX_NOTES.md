@@ -16,3 +16,9 @@
 - Desktop shows center-focused Reel with adjacent previews, autoplay, arrows, and dots.
 - Mobile supports swipe navigation and a vertical Reel-focused layout.
 - Falls back to the QORVO Facebook Reels page if the checker is temporarily unavailable.
+
+## WEB v5.16
+- QORVO Reels now play inside the website in a responsive modal.
+- Added secure `/api/facebook-reel-video` bridge with HTTP Range forwarding.
+- Added Reel IDs to the sanitized `/api/facebook-reels` response.
+- Added loading/error states, native controls, fullscreen support, and Facebook fallback.

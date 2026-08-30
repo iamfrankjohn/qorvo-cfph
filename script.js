@@ -227,7 +227,7 @@ async function loadLatestFacebookPost() {
 
 loadLatestFacebookPost();
 
-// WEB v5.15 — live QORVO Facebook Reels hero selector
+// WEB v5.16 — live QORVO Facebook Reels with in-site player
 async function loadQorvoReels() {
   const panel = document.getElementById('qorvo-reels-panel');
   const stage = document.getElementById('reels-stage');
@@ -235,18 +235,26 @@ async function loadQorvoReels() {
   const prev = document.getElementById('reels-prev');
   const next = document.getElementById('reels-next');
   const captionTitle = document.getElementById('reels-caption-title');
+  const modal = document.getElementById('reel-player-modal');
+  const modalVideo = document.getElementById('reel-player-video');
+  const modalClose = document.getElementById('reel-player-close');
+  const modalFacebook = document.getElementById('reel-player-facebook');
+  const modalStatus = document.getElementById('reel-player-status');
+  const modalTitle = document.getElementById('reel-player-title');
   if (!panel || !stage || !dots || !prev || !next) return;
 
   const reelsPage = 'https://www.facebook.com/qorvo.cfph/reels';
   let reels = [];
   let active = 0;
   let timer = null;
+  let modalOpen = false;
 
   const reelLabel = index => index === 0 ? 'LATEST REEL' : `REEL ${index + 1}`;
+  const reelIdFrom = reel => String(reel?.id || (reel?.url?.match(/\/reel\/([0-9]+)/i) || [])[1] || '');
 
   function restartTimer() {
     window.clearInterval(timer);
-    if (reels.length > 1) {
+    if (!modalOpen && reels.length > 1) {
       timer = window.setInterval(() => {
         active = (active + 1) % reels.length;
         render();
@@ -262,18 +270,86 @@ async function loadQorvoReels() {
     return 'hidden';
   }
 
+  function closePlayer() {
+    if (!modal) return;
+    modalOpen = false;
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('reel-player-open');
+    if (modalVideo) {
+      modalVideo.pause();
+      modalVideo.removeAttribute('src');
+      modalVideo.load();
+    }
+    if (modalStatus) {
+      modalStatus.hidden = false;
+      modalStatus.innerHTML = '<span class="reel-player-spinner"></span><strong>PREPARING REEL</strong><small>Loading video + audio...</small>';
+    }
+    restartTimer();
+  }
+
+  function openPlayer(reel, index) {
+    const id = reelIdFrom(reel);
+    if (!modal || !modalVideo || !id) {
+      window.open(reel.url || reelsPage, '_blank', 'noopener');
+      return;
+    }
+
+    modalOpen = true;
+    window.clearInterval(timer);
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('reel-player-open');
+    if (modalTitle) modalTitle.textContent = `QORVO // ${reelLabel(index)}`;
+    if (modalFacebook) modalFacebook.href = reel.url || reelsPage;
+    if (modalStatus) {
+      modalStatus.hidden = false;
+      modalStatus.innerHTML = '<span class="reel-player-spinner"></span><strong>PREPARING REEL</strong><small>First play may take a few seconds</small>';
+    }
+
+    modalVideo.poster = reel.thumbnail || '/assets/qorvo-cover.jpg';
+    modalVideo.src = `/api/facebook-reel-video?id=${encodeURIComponent(id)}`;
+    modalVideo.load();
+
+    const playAttempt = modalVideo.play();
+    if (playAttempt?.catch) playAttempt.catch(() => {});
+    window.setTimeout(() => modalClose?.focus(), 50);
+  }
+
+  modalClose?.addEventListener('click', closePlayer);
+  modal?.addEventListener('click', event => {
+    if (event.target === modal) closePlayer();
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && modalOpen) closePlayer();
+  });
+  modalVideo?.addEventListener('loadeddata', () => {
+    if (modalStatus) modalStatus.hidden = true;
+  });
+  modalVideo?.addEventListener('canplay', () => {
+    if (modalStatus) modalStatus.hidden = true;
+  });
+  modalVideo?.addEventListener('error', () => {
+    if (!modalStatus) return;
+    modalStatus.hidden = false;
+    modalStatus.innerHTML = '<strong>REEL UNAVAILABLE</strong><small>Use “View on Facebook” below to watch this Reel.</small>';
+  });
+
   function render() {
     stage.innerHTML = '';
     dots.innerHTML = '';
 
     reels.forEach((reel, index) => {
       const position = positionFor(index);
-      const link = document.createElement('a');
-      link.className = `reel-card reel-${position}`;
-      link.href = reel.url;
-      link.target = '_blank';
-      link.rel = 'noopener';
-      link.setAttribute('aria-label', `Watch QORVO ${reelLabel(index)} on Facebook`);
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = `reel-card reel-${position}`;
+      card.setAttribute('aria-label', `Play QORVO ${reelLabel(index)}`);
+      card.addEventListener('click', () => {
+        active = index;
+        render();
+        openPlayer(reel, index);
+      });
 
       const img = document.createElement('img');
       img.src = reel.thumbnail || '/assets/qorvo-cover.jpg';
@@ -283,18 +359,16 @@ async function loadQorvoReels() {
 
       const shade = document.createElement('span');
       shade.className = 'reel-card-shade';
-
       const play = document.createElement('span');
       play.className = 'reel-play';
       play.textContent = '▶';
-
       const info = document.createElement('span');
       info.className = 'reel-card-info';
       const metric = reel.metric ? `<small>${reel.metric}</small>` : '';
       info.innerHTML = `<strong>${reelLabel(index)}</strong>${metric}`;
 
-      link.append(img, shade, play, info);
-      stage.append(link);
+      card.append(img, shade, play, info);
+      stage.append(card);
 
       const dot = document.createElement('button');
       dot.type = 'button';
@@ -308,9 +382,7 @@ async function loadQorvoReels() {
       dots.append(dot);
     });
 
-    if (captionTitle) {
-      captionTitle.textContent = `${reelLabel(active)} // WATCH ON FACEBOOK`;
-    }
+    if (captionTitle) captionTitle.textContent = `${reelLabel(active)} // PLAY ON QORVO`;
   }
 
   function move(direction) {
@@ -322,13 +394,11 @@ async function loadQorvoReels() {
 
   prev.addEventListener('click', () => move(-1));
   next.addEventListener('click', () => move(1));
-
   panel.addEventListener('mouseenter', () => window.clearInterval(timer));
   panel.addEventListener('mouseleave', restartTimer);
   panel.addEventListener('focusin', () => window.clearInterval(timer));
   panel.addEventListener('focusout', restartTimer);
 
-  // Basic horizontal swipe support on touch devices.
   let touchStartX = null;
   stage.addEventListener('touchstart', event => {
     touchStartX = event.changedTouches?.[0]?.clientX ?? null;
@@ -348,7 +418,7 @@ async function loadQorvoReels() {
       throw new Error(payload?.warning || payload?.error || 'Reels unavailable');
     }
 
-    reels = payload.reels.filter(reel => reel?.url).slice(0, 5);
+    reels = payload.reels.filter(reel => reel?.url && reelIdFrom(reel)).slice(0, 5);
     if (!reels.length) throw new Error('No valid Reels');
     panel.classList.add('reels-ready');
     render();
