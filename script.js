@@ -173,6 +173,59 @@ async function loadServerIntel() {
 
 loadServerIntel();
 
+// WEB v5.14 — Latest public QORVO Facebook post
+async function loadLatestFacebookPost() {
+  const card = document.getElementById('latest-facebook-card');
+  const image = document.getElementById('latest-facebook-image');
+  const author = document.getElementById('latest-facebook-author');
+  const age = document.getElementById('latest-facebook-age');
+  const status = document.getElementById('latest-facebook-status');
+  const caption = document.getElementById('latest-facebook-caption');
+  const link = document.getElementById('latest-facebook-link');
+  if (!card || !image || !author || !age || !status || !caption || !link) return;
+
+  const fallbackUrl = 'https://www.facebook.com/qorvo.cfph';
+  const fallbackImage = new URL('/assets/qorvo-cover.jpg', window.location.href).href;
+
+  try {
+    const response = await fetch('/api/facebook-latest', { cache: 'no-store' });
+    const payload = await response.json();
+    const post = payload?.post;
+
+    if (!response.ok || !payload?.ok || !post?.url) {
+      throw new Error(payload?.error || payload?.warning || 'Latest Facebook post unavailable');
+    }
+
+    author.textContent = post.author || 'QORVO CFPH';
+    age.textContent = post.age ? `Posted ${post.age} ago` : 'Latest public post';
+    status.textContent = payload.stale ? 'Cached Post' : 'Latest Post';
+    caption.textContent = post.caption || 'Open the latest QORVO CFPH post on Facebook.';
+    link.href = post.url;
+    link.textContent = 'View post →';
+
+    if (post.image) {
+      image.alt = post.imageAlt || 'Latest QORVO CFPH Facebook post image';
+      image.src = post.image;
+      image.addEventListener('error', () => {
+        image.src = fallbackImage;
+        image.alt = 'QORVO CFPH';
+      }, { once: true });
+    }
+
+    card.classList.add('facebook-latest-ready');
+  } catch (error) {
+    console.warn('Latest Facebook post:', error);
+    author.textContent = 'QORVO CFPH';
+    age.textContent = 'Official Facebook Page';
+    status.textContent = 'Facebook';
+    caption.textContent = 'The latest post could not be loaded right now. Open QORVO CFPH on Facebook for current updates.';
+    link.href = fallbackUrl;
+    link.textContent = 'Open Facebook Page →';
+    image.src = fallbackImage;
+  }
+}
+
+loadLatestFacebookPost();
 
 
 // QORVO Messenger widget

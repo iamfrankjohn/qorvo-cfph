@@ -1,5 +1,9 @@
-# QORVO CFPH v16
+# QORVO CFPH — WEB v5.14
 
-Includes Featured Facebook Post Manager, Events & Live Schedule Manager, automatic CFPH/STOVE news updater, and TikTok LIVE member monitoring with safer 5-minute caching and an explicit production enable switch.
+This release adds the live Latest From QORVO Facebook post through the self-hosted Facebook checker and a server-side Vercel bridge, while keeping the private checker secret out of browser code.
 
-See `ADMIN_SETUP.md`, `AUTO_NEWS_SETUP.md`, and `TIKTOK_LIVE_SETUP.md`.
+Required Vercel variables:
+- `FACEBOOK_CHECKER_URL=https://facebook.koufuprinting.com`
+- `FACEBOOK_CHECKER_SECRET=<your private checker secret>`
+
+Existing admin, TikTok LIVE, events, giveaways, featured post, and CFPH/STOVE news features remain unchanged.

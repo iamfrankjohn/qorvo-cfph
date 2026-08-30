@@ -2272,3 +2272,49 @@ footer p:last-child{text-align:right}
     font-size:28px;
   }
 }
+
+
+/* =====================================================
+   WEB v5.14 — LIVE LATEST FACEBOOK POST
+   Native QORVO rendering fed by /api/facebook-latest.
+===================================================== */
+.facebook-latest-visual{
+  position:relative;
+  min-height:420px;
+  overflow:hidden;
+  background:#07100a;
+  isolation:isolate;
+}
+.facebook-latest-visual .tag{position:absolute;z-index:5;top:14px;left:14px}
+.facebook-latest-image{
+  position:absolute;inset:0;z-index:0;width:100%;height:100%;object-fit:cover;object-position:center;
+  background:#07100a;transition:transform .35s ease,filter .35s ease;
+}
+.facebook-latest-card:hover .facebook-latest-image,.latest-facebook-card:hover .facebook-latest-image{transform:scale(1.018)}
+.facebook-latest-shade{
+  position:absolute;inset:0;z-index:1;background:
+    linear-gradient(180deg,rgba(2,8,4,.05) 0%,rgba(2,8,4,.18) 45%,rgba(2,8,4,.93) 100%),
+    linear-gradient(90deg,rgba(2,8,4,.38),transparent 72%);
+}
+.facebook-latest-page{
+  position:absolute;z-index:3;left:24px;right:24px;bottom:22px;display:grid;
+  grid-template-columns:58px minmax(0,1fr);gap:13px;align-items:center;
+}
+.facebook-latest-logo{
+  width:58px;height:58px;display:grid;place-items:center;border-radius:50%;overflow:hidden;
+  background:rgba(4,13,7,.92);border:1px solid rgba(51,255,91,.32);box-shadow:0 12px 30px rgba(0,0,0,.35);
+}
+.facebook-latest-logo img{width:84%;height:84%;object-fit:contain}
+.facebook-latest-page-copy{min-width:0;display:grid;gap:3px;text-shadow:0 2px 12px rgba(0,0,0,.62)}
+.facebook-latest-page-copy small{color:var(--accent);font:800 9px/1 "Barlow Condensed",sans-serif;letter-spacing:.18em}
+.facebook-latest-page-copy strong{color:#fff;font:900 25px/.95 "Barlow Condensed",sans-serif;text-transform:uppercase;letter-spacing:.015em}
+.facebook-latest-page-copy span{color:#c4cec7;font-size:11px;line-height:1.3}
+.facebook-latest-body p{white-space:pre-line}
+.facebook-latest-body #latest-facebook-link{display:inline-flex;align-items:center;gap:7px}
+@media(max-width:700px){
+  .facebook-latest-visual{min-height:300px}
+  .facebook-latest-page{left:18px;right:18px;bottom:17px;grid-template-columns:50px minmax(0,1fr);gap:11px}
+  .facebook-latest-logo{width:50px;height:50px}
+  .facebook-latest-page-copy strong{font-size:22px}
+}
+@media(max-width:380px){.facebook-latest-visual{min-height:270px}}
