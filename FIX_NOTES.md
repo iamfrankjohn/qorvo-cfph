@@ -1,3 +1,13 @@
+# WEB v5.13 — Latest From QORVO Redesign
+
+- Removed the Facebook timeline iframe from the `LATEST FROM QORVO` card.
+- The iframe was correctly showing the newest Facebook post, but because the latest post contains a screenshot of the QORVO website, it looked like the website was embedded inside itself.
+- Replaced it with a native QORVO-branded Facebook card that looks consistent on desktop and mobile.
+- The new card links directly to the official QORVO CFPH Facebook Page.
+- Removed the obsolete responsive Facebook iframe loader from `script.js`.
+- Footer version updated to `WEB v5.13`.
+- Safe ZIP excludes all live `data/*.json` files.
+
 # WEB v5.12 — Facebook Mobile Feed Fix
 
 - Fixed the broken-looking Facebook Page timeline area on mobile.

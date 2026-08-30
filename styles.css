@@ -2091,3 +2091,184 @@ footer p:last-child{text-align:right}
 @media(hover:none){
   .messenger-fab:active{opacity:1}
 }
+
+
+/* =====================================================
+   WEB v5.13 — LATEST FROM QORVO FACEBOOK REDESIGN
+   Replaces Facebook's timeline iframe with a native
+   QORVO card so the website never appears nested inside
+   itself when the latest Facebook post contains a site
+   screenshot.
+===================================================== */
+
+.facebook-community-visual{
+  position:relative;
+  min-height:420px;
+  overflow:hidden;
+  background:#07100a;
+  isolation:isolate;
+}
+
+.facebook-community-visual .tag{
+  position:absolute;
+  z-index:5;
+  top:14px;
+  left:14px;
+}
+
+.facebook-community-bg{
+  position:absolute;
+  inset:0;
+  z-index:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center;
+  opacity:.5;
+  transform:scale(1.02);
+  filter:saturate(.85) contrast(1.06);
+}
+
+.facebook-community-overlay{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  background:
+    radial-gradient(circle at 74% 34%,rgba(51,255,91,.11),transparent 32%),
+    linear-gradient(180deg,rgba(3,10,5,.14) 0%,rgba(3,10,5,.6) 48%,rgba(3,10,5,.96) 100%),
+    linear-gradient(90deg,rgba(2,8,4,.78),rgba(2,8,4,.22));
+}
+
+.facebook-community-link{
+  position:absolute;
+  inset:0;
+  z-index:3;
+  display:grid;
+  grid-template-columns:72px minmax(0,1fr);
+  align-content:end;
+  gap:16px;
+  padding:30px;
+  color:#fff;
+  text-decoration:none;
+}
+
+.facebook-community-logo{
+  display:grid;
+  place-items:center;
+  width:72px;
+  height:72px;
+  border:1px solid rgba(51,255,91,.3);
+  border-radius:50%;
+  background:rgba(4,13,7,.88);
+  box-shadow:
+    0 16px 38px rgba(0,0,0,.34),
+    inset 0 0 0 5px rgba(255,255,255,.02);
+  overflow:hidden;
+}
+
+.facebook-community-logo img{
+  width:84%;
+  height:84%;
+  object-fit:contain;
+}
+
+.facebook-community-copy{
+  min-width:0;
+  align-self:center;
+  display:grid;
+  gap:5px;
+}
+
+.facebook-community-copy small{
+  color:var(--accent);
+  font:800 10px/1 "Barlow Condensed",sans-serif;
+  letter-spacing:.2em;
+}
+
+.facebook-community-copy strong{
+  color:#fff;
+  font:900 clamp(32px,4vw,46px)/.9 "Barlow Condensed",sans-serif;
+  text-transform:uppercase;
+  letter-spacing:.01em;
+}
+
+.facebook-community-copy > span{
+  color:#aeb8b1;
+  font-size:12px;
+  line-height:1.45;
+}
+
+.facebook-community-action{
+  grid-column:1 / -1;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  min-height:48px;
+  margin-top:6px;
+  padding:0 15px 0 17px;
+  border:1px solid rgba(51,255,91,.28);
+  border-radius:11px;
+  background:rgba(5,16,8,.78);
+  color:var(--accent);
+  font:900 11px/1 "Barlow Condensed",sans-serif;
+  letter-spacing:.16em;
+  transition:
+    background .18s ease,
+    border-color .18s ease,
+    transform .18s ease;
+}
+
+.facebook-community-action svg{
+  width:16px;
+  height:16px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+.facebook-community-link:hover .facebook-community-action{
+  background:rgba(51,255,91,.1);
+  border-color:rgba(51,255,91,.5);
+  transform:translateY(-2px);
+}
+
+@media(max-width:700px){
+  .facebook-community-visual{
+    min-height:280px;
+  }
+
+  .facebook-community-link{
+    grid-template-columns:56px minmax(0,1fr);
+    gap:12px;
+    padding:22px 18px 18px;
+  }
+
+  .facebook-community-logo{
+    width:56px;
+    height:56px;
+  }
+
+  .facebook-community-copy strong{
+    font-size:32px;
+  }
+
+  .facebook-community-copy > span{
+    font-size:11px;
+  }
+
+  .facebook-community-action{
+    min-height:44px;
+  }
+}
+
+@media(max-width:380px){
+  .facebook-community-visual{
+    min-height:258px;
+  }
+
+  .facebook-community-copy strong{
+    font-size:28px;
+  }
+}

@@ -174,67 +174,6 @@ async function loadServerIntel() {
 loadServerIntel();
 
 
-/* Responsive Facebook Page Plugin
-   Facebook renders the iframe using the width supplied in its URL.
-   Rebuild the iframe URL to match the actual card width. */
-const facebookIframe = document.querySelector('.facebook-page-plugin');
-const facebookWrap = document.querySelector('.facebook-plugin-wrap');
-
-function loadResponsiveFacebookPlugin() {
-  if (!facebookIframe || !facebookWrap) return;
-
-  // On phones/tablets, use the native QORVO preview instead of Facebook's
-  // timeline iframe, which can expose an internal scrollbar on narrow widths.
-  if (window.matchMedia('(max-width: 700px)').matches) {
-    if (facebookIframe.src !== 'about:blank') {
-      facebookIframe.src = 'about:blank';
-    }
-    return;
-  }
-
-  const pageUrl = facebookIframe.dataset.pageUrl || 'https://www.facebook.com/qorvo.cfph';
-  const wrapWidth = Math.floor(facebookWrap.getBoundingClientRect().width);
-
-  // Facebook Page Plugin supports a practical minimum width.
-  const pluginWidth = Math.max(180, Math.min(500, wrapWidth));
-  const isMobile = window.matchMedia('(max-width: 480px)').matches;
-  const isTablet = window.matchMedia('(max-width: 700px)').matches;
-  const pluginHeight = isMobile ? 360 : (isTablet ? 390 : 420);
-
-  const params = new URLSearchParams({
-    href: pageUrl,
-    tabs: 'timeline',
-    width: String(pluginWidth),
-    height: String(pluginHeight),
-    small_header: 'true',
-    adapt_container_width: 'true',
-    hide_cover: 'true',
-    show_facepile: 'false'
-  });
-
-  const nextSrc = `https://www.facebook.com/plugins/page.php?${params.toString()}`;
-
-  if (facebookIframe.src !== nextSrc) {
-    facebookIframe.width = pluginWidth;
-    facebookIframe.height = pluginHeight;
-    facebookIframe.src = nextSrc;
-  }
-}
-
-let facebookResizeTimer;
-function queueFacebookResize() {
-  clearTimeout(facebookResizeTimer);
-  facebookResizeTimer = setTimeout(loadResponsiveFacebookPlugin, 180);
-}
-
-window.addEventListener('load', loadResponsiveFacebookPlugin);
-window.addEventListener('resize', queueFacebookResize);
-
-if ('ResizeObserver' in window && facebookWrap) {
-  const fbResizeObserver = new ResizeObserver(queueFacebookResize);
-  fbResizeObserver.observe(facebookWrap);
-}
-
 
 // QORVO Messenger widget
 const messengerWidget = document.getElementById('messenger-widget');
