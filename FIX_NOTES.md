@@ -24,7 +24,7 @@
 - Added loading/error states, native controls, fullscreen support, and Facebook fallback.
 
 
-## WEB v6.0
+## WEB v6.1
 - Major version bump.
 - Changed footer credit to `QORVO CFPH Community Website • Developed by FRNK.sys`.
 - Added the FRNK.sys developer logo to the footer as secondary branding.
