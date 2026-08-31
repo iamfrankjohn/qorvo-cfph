@@ -562,13 +562,85 @@ img,video,svg,canvas,iframe{display:block;max-width:100%}
   padding-bottom:4px;
 }
 @media(max-width:900px){
-  .community-join{grid-template-columns:1fr}
-  .community-join-left{clip-path:none}
+  .community-join{
+    grid-template-columns:1fr;
+    background:#071009;
+  }
+
+  /* WEB v6.10 — keep the green JOIN panel completely separate from the
+     dark application steps on phones/tablets. */
+  .community-join-left{
+    clip-path:none !important;
+  }
+
+  .join-process{
+    position:relative;
+    z-index:3;
+    background:
+      linear-gradient(rgba(65,255,80,.035) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(65,255,80,.025) 1px,transparent 1px),
+      #071009 !important;
+    background-size:100% 28px,28px 100%,auto !important;
+    border-top:1px solid rgba(65,255,80,.32);
+  }
+
+  .join-process-head strong,
+  .join-step strong{
+    color:#fff;
+  }
+
+  .join-step p{
+    color:#c3ccd6;
+  }
+
+  .join-process-footer span{
+    color:#aeb9c5;
+  }
+
+  .join-step-num{
+    background:#08130b;
+    color:#4cff59;
+    border-color:rgba(76,255,89,.58);
+  }
 }
+
 @media(max-width:620px){
   .community-join-left{padding:34px 24px}
   .join-process{padding:30px 24px}
-  .join-process-footer{align-items:flex-start;flex-direction:column}
+
+  .join-process-head small{
+    color:#4cff59;
+    font-size:10px;
+  }
+
+  .join-process-head strong{
+    font-size:34px;
+  }
+
+  .join-step{
+    grid-template-columns:58px minmax(0,1fr);
+    gap:16px;
+    padding:22px 0;
+  }
+
+  .join-step strong{
+    font-size:13px;
+  }
+
+  .join-step p{
+    font-size:13px;
+    line-height:1.65;
+  }
+
+  .join-process-footer{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .join-process-footer span{
+    font-size:10px;
+    line-height:1.65;
+  }
 }
 
 

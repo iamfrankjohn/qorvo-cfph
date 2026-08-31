@@ -1,16 +1,23 @@
-## WEB v6.9 — Force STOVE visual in Server Intel
+## WEB v6.10 — Mobile Join Section Readability
+
+- The green JOIN panel and dark HOW TO JOIN panel are fully separated on mobile/tablet.
+- The diagonal green shape can no longer wash over the application steps.
+- Step descriptions and the footer notice use higher-contrast text.
+- Mobile step copy is slightly larger for easier reading.
+
+## WEB v6.10 — Force STOVE visual in Server Intel
 
 - The Server Intel hero visual now always uses the STOVE branded artwork.
 - Article/post images are no longer allowed to replace the STOVE visual.
 - This fixes the QORVO artwork appearing again when an official news item contains a QORVO image.
 
-## WEB v6.9 — STOVE Server Intel Branding
+## WEB v6.10 — STOVE Server Intel Branding
 
 - Replaced the QORVO fallback artwork in Server Intel with a dedicated STOVE-branded visual.
 - Server Intel continues to use official CFPH/STOVE news data and article images when available.
 - QORVO branding elsewhere on the website is unchanged.
 
-## WEB v6.9 — Auto-refresh Latest Facebook Post
+## WEB v6.10 — Auto-refresh Latest Facebook Post
 
 - The Latest From QORVO CFPH card now checks for updates every 60 seconds while the tab is visible.
 - If the first Facebook request is still processing, the card retries automatically instead of requiring a full page refresh.
@@ -18,7 +25,7 @@
 - After a post loads successfully, temporary checker failures keep the existing post visible instead of replacing it with the fallback.
 - The server-side Facebook post cache remains unchanged; this is only a lightweight website refresh.
 
-## WEB v6.9 — Latest Facebook Caption Formatting
+## WEB v6.10 — Latest Facebook Caption Formatting
 
 - Preserves real line breaks from the Facebook caption in the Latest From QORVO card.
 - Handles escaped newline characters returned by the checker.
