@@ -1,3 +1,11 @@
+## WEB v6.6 — Latest Facebook Caption Formatting
+
+- Preserves real line breaks from the Facebook caption in the Latest From QORVO card.
+- Handles escaped newline characters returned by the checker.
+- Restores the QORVO stacked slogan layout when Facebook flattens the public caption.
+- Separates the hashtag block for cleaner readability.
+- Removes trailing Facebook “Send message” UI text when it is accidentally included in the scraped caption.
+
 ## WEB v6.5 — Auto-Unlock Admin PIN
 
 - Removed the manual UNLOCK button from the QORVO Control PIN screen.

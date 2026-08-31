@@ -1,4 +1,9 @@
-# QORVO CFPH — WEB v6.5
+# QORVO CFPH — WEB v6.6
+## WEB v6.6 — Facebook Caption Formatting
+
+The Latest From QORVO card now preserves Facebook caption line breaks. If the public Facebook render flattens the caption, the frontend restores QORVO's common stacked LOCK IN. / QORVO UP. / DOMINATE. layout and separates the hashtag block. Stray “Send message” UI text from Facebook is also removed when present.
+
+
 ## WEB v6.5 — Auto-Unlock PIN
 
 The QORVO Control lock screen now behaves like a device PIN screen: entering the sixth digit immediately authenticates the PIN, with no separate Unlock button. Paste and Enter remain supported as accessibility/desktop fallbacks.

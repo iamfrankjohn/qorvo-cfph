@@ -173,6 +173,41 @@ async function loadServerIntel() {
 
 loadServerIntel();
 
+// WEB v6.6 — preserve Facebook caption formatting
+function formatFacebookCaption(value) {
+  let text = String(value || '')
+    .replace(/\\r\\n/g, '\n')
+    .replace(/\\n/g, '\n')
+    .replace(/\r\n?/g, '\n')
+    .trim();
+
+  // Remove a small piece of Facebook UI text that can occasionally be
+  // included by the public-page checker after the real caption.
+  text = text.replace(/\s*[·•]\s*\d*\s*Send message\s*$/i, '').trim();
+
+  // If Facebook already supplied line breaks, keep them and only tidy
+  // excessive empty lines.
+  if (text.includes('\n')) {
+    return text
+      .split('\n')
+      .map(line => line.trimEnd())
+      .join('\n')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+  }
+
+  // Some public Facebook renders flatten the caption before our checker
+  // receives it. Restore QORVO's common stacked slogan and separate the
+  // hashtag block so the website still resembles the original post.
+  text = text
+    .replace(/\s+(?=LOCK IN\.)/i, '\n\n')
+    .replace(/\s+(?=QORVO UP\.)/i, '\n')
+    .replace(/\s+(?=DOMINATE\.)/i, '\n')
+    .replace(/\s+(?=#[\p{L}\p{N}_])/u, '\n\n');
+
+  return text.trim();
+}
+
 // WEB v5.14 — Latest public QORVO Facebook post
 async function loadLatestFacebookPost() {
   const card = document.getElementById('latest-facebook-card');
@@ -199,7 +234,7 @@ async function loadLatestFacebookPost() {
     author.textContent = post.author || 'QORVO CFPH';
     age.textContent = post.age ? `Posted ${post.age} ago` : 'Latest public post';
     status.textContent = payload.stale ? 'Cached Post' : 'Latest Post';
-    caption.textContent = post.caption || 'Open the latest QORVO CFPH post on Facebook.';
+    caption.textContent = formatFacebookCaption(post.caption) || 'Open the latest QORVO CFPH post on Facebook.';
     link.href = post.url;
     link.textContent = 'View post →';
 
