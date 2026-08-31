@@ -29,3 +29,8 @@
 - Changed footer credit to `QORVO CFPH Community Website • Developed by FRNK.sys`.
 - Added the FRNK.sys developer logo to the footer as secondary branding.
 - Preserved the WEB v5.16 in-site Facebook Reel player and existing integrations.
+
+
+## WEB v6.2
+- Removed the redundant DEVELOPED BY label beside the FRNK.sys footer logo.
+- Updated visible website version to WEB v6.2.
