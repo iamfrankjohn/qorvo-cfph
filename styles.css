@@ -2533,3 +2533,57 @@ body.reel-player-open{overflow:hidden}
   .reel-player-head{padding-top:env(safe-area-inset-top);height:calc(48px + env(safe-area-inset-top))}
   .reel-player-foot{padding-bottom:max(10px,env(safe-area-inset-bottom))}
 }
+
+
+/* WEB v6.0 — FRNK.sys developer branding */
+.footer-developer{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:14px;
+  min-width:0;
+}
+.footer-developer p{
+  margin:0;
+}
+.footer-developer strong{
+  color:#a9b8ca;
+  font-weight:800;
+  letter-spacing:.04em;
+}
+.footer-developer-logo{
+  display:block;
+  width:82px;
+  max-width:22vw;
+  height:auto;
+  opacity:.68;
+  filter:saturate(.82) brightness(.9);
+  transition:opacity .2s ease,filter .2s ease,transform .2s ease;
+}
+.footer-developer-logo:hover{
+  opacity:1;
+  filter:saturate(1) brightness(1.08);
+  transform:translateY(-1px);
+}
+@media(max-width:820px){
+  .footer-developer{
+    justify-content:flex-start;
+    flex-wrap:wrap;
+    gap:10px 14px;
+  }
+  .footer-developer-logo{
+    width:76px;
+    max-width:160px;
+  }
+}
+@media(max-width:560px){
+  .footer-developer{
+    align-items:center;
+  }
+  .footer-developer p{
+    flex:1 1 220px;
+  }
+  .footer-developer-logo{
+    width:68px;
+  }
+}

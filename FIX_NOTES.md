@@ -22,3 +22,10 @@
 - Added secure `/api/facebook-reel-video` bridge with HTTP Range forwarding.
 - Added Reel IDs to the sanitized `/api/facebook-reels` response.
 - Added loading/error states, native controls, fullscreen support, and Facebook fallback.
+
+
+## WEB v6.0
+- Major version bump.
+- Changed footer credit to `QORVO CFPH Community Website • Developed by FRNK.sys`.
+- Added the FRNK.sys developer logo to the footer as secondary branding.
+- Preserved the WEB v5.16 in-site Facebook Reel player and existing integrations.
