@@ -31,6 +31,12 @@
 - Preserved the WEB v5.16 in-site Facebook Reel player and existing integrations.
 
 
-## WEB v6.2
+## WEB v6.3
 - Removed the redundant DEVELOPED BY label beside the FRNK.sys footer logo.
-- Updated visible website version to WEB v6.2.
+- Updated visible website version to WEB v6.3.
+
+
+## WEB v6.3
+- Removed the separate QORVO / CFPH text from the footer branding group.
+- Positioned WEB v6.3 directly below the QORVO logo.
+- Kept the FRNK.sys logo beside QORVO with the existing divider.

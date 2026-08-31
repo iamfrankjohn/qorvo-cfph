@@ -2534,7 +2534,7 @@ body.reel-player-open{overflow:hidden}
   .reel-player-foot{padding-bottom:max(10px,env(safe-area-inset-bottom))}
 }
 
-/* WEB v6.2 — streamlined QORVO + FRNK.sys footer branding */
+/* WEB v6.3 — logo-only QORVO + FRNK.sys footer branding */
 .footer-branding-row{
   display:flex;
   align-items:center;
@@ -2595,4 +2595,31 @@ body.reel-player-open{overflow:hidden}
   .footer-brand-divider{height:34px}
   .footer-developer-mark small{font-size:5.5px}
   .footer-developer-logo{width:66px;max-width:120px}
+}
+
+
+/* WEB v6.3 — QORVO logo with version directly underneath */
+.footer-brand-logo-only{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  text-decoration:none;
+  opacity:.82;
+  flex:0 0 auto;
+}
+.footer-brand-logo-only .brand-mark{margin:0}
+.footer-brand-logo-only .site-version{
+  display:block;
+  margin:0;
+  color:var(--accent);
+  font-size:8px;
+  font-weight:800;
+  line-height:1;
+  letter-spacing:.16em;
+  white-space:nowrap;
+}
+@media(max-width:560px){
+  .footer-brand-logo-only .site-version{font-size:7px;letter-spacing:.12em}
 }

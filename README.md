@@ -1,4 +1,4 @@
-# QORVO CFPH — WEB v6.2
+# QORVO CFPH — WEB v6.3
 
 This release adds the live Latest From QORVO Facebook post through the self-hosted Facebook checker and a server-side Vercel bridge, while keeping the private checker secret out of browser code.
 
@@ -19,6 +19,6 @@ WEB v5.16 adds in-site Facebook Reel playback. Reel cards now open a QORVO-style
 Major branding update: the footer now credits **FRNK.sys** as the website developer and displays the FRNK.sys developer logo beside the footer branding. Existing Reel player, live integrations, admin tools, and community features are preserved.
 
 
-## WEB v6.2
+## WEB v6.3
 
 Footer refinement: removed the redundant “DEVELOPED BY” label beside the FRNK.sys logo. The existing credit line remains “QORVO CFPH Community Website • Developed by FRNK.sys”.
