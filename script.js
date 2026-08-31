@@ -152,8 +152,9 @@ async function loadServerIntel() {
       });
     }
 
-    const firstImage = posts.find(post => post.image)?.image || data.image;
-    setMedia('server-intel-media', firstImage, '/assets/stove-brand.svg');
+    // WEB v6.9 — Server Intel is a STOVE-sourced section, so always use
+    // the STOVE branded visual instead of a post/article image.
+    setMedia('server-intel-media', null, '/assets/stove-brand.svg');
   } catch (error) {
     console.warn('CrossFire updates:', error);
 

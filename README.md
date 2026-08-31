@@ -1,10 +1,15 @@
-# QORVO CFPH — WEB v6.8
-## WEB v6.8 — Auto-refresh Latest Facebook Post
+# QORVO CFPH — WEB v6.9
+## WEB v6.9 — Force STOVE visual in Server Intel
+
+- Server Intel now always displays the STOVE branded header visual.
+- Official article images no longer override that section branding.
+
+## WEB v6.9 — Auto-refresh Latest Facebook Post
 
 - Latest Facebook card retries and refreshes automatically every 60 seconds while visible.
 - No manual browser refresh is required when the checker finishes loading.
 
-## WEB v6.8 — Facebook Caption Formatting
+## WEB v6.9 — Facebook Caption Formatting
 
 The Latest From QORVO card now preserves Facebook caption line breaks. If the public Facebook render flattens the caption, the frontend restores QORVO's common stacked LOCK IN. / QORVO UP. / DOMINATE. layout and separates the hashtag block. Stray “Send message” UI text from Facebook is also removed when present.
 
