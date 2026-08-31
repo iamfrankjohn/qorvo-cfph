@@ -72,7 +72,7 @@
               <input class="pin-digit" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" aria-label="PIN digit 6">
             </div>
             <div class="pin-hint">Numbers only • 6 digits</div>
-            <div class="actions pin-actions"><button class="btn primary" id="login-btn">UNLOCK</button><a class="btn secondary" href="/">Back to website</a></div>
+            <div class="actions pin-actions"><a class="btn secondary" href="/">Back to website</a></div>
           </div>
         </section>
 
@@ -223,6 +223,7 @@
   }
 
   const pinDigits = Array.from(document.querySelectorAll('.pin-digit'));
+  let pinUnlocking = false;
 
   function readPin() {
     return pinDigits.map(input => input.value).join('');
@@ -235,7 +236,6 @@
 
   function setPinDisabled(disabled) {
     pinDigits.forEach(input => input.disabled = disabled);
-    $('login-btn').disabled = disabled;
   }
 
   function startPinCooldown(seconds) {
@@ -257,51 +257,30 @@
     }, 1000);
   }
 
-  pinDigits.forEach((input, index) => {
-    input.addEventListener('input', () => {
-      input.value = input.value.replace(/\D/g, '').slice(-1);
-      input.classList.toggle('filled', !!input.value);
-      if (input.value && index < pinDigits.length - 1) pinDigits[index + 1].focus();
-      if (readPin().length === 6) $('login-btn').focus();
-    });
-
-    input.addEventListener('keydown', event => {
-      if (event.key === 'Backspace' && !input.value && index > 0) {
-        pinDigits[index - 1].value = '';
-        pinDigits[index - 1].classList.remove('filled');
-        pinDigits[index - 1].focus();
-      }
-      if (event.key === 'ArrowLeft' && index > 0) pinDigits[index - 1].focus();
-      if (event.key === 'ArrowRight' && index < pinDigits.length - 1) pinDigits[index + 1].focus();
-      if (event.key === 'Enter' && readPin().length === 6) $('login-btn').click();
-    });
-
-    input.addEventListener('paste', event => {
-      const pasted = (event.clipboardData?.getData('text') || '').replace(/\D/g, '').slice(0, 6);
-      if (!pasted) return;
-      event.preventDefault();
-      pinDigits.forEach((box, i) => {
-        box.value = pasted[i] || '';
-        box.classList.toggle('filled', !!box.value);
-      });
-      pinDigits[Math.min(pasted.length, 6) - 1]?.focus();
-      if (pasted.length === 6) $('login-btn').focus();
-    });
-  });
-
-  $('login-btn').addEventListener('click', async () => {
+  async function attemptPinUnlock() {
     const enteredPin = readPin();
-    if (!/^\d{6}$/.test(enteredPin)) return status('Enter all 6 digits of your admin PIN.', 'err');
+    if (!/^\d{6}$/.test(enteredPin) || pinUnlocking) return;
+
+    pinUnlocking = true;
     status('Checking PIN...');
     setPinDisabled(true);
+
     try {
-      const response = await fetch('/api/admin-auth', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({pin:enteredPin}) });
+      const response = await fetch('/api/admin-auth', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({pin:enteredPin})
+      });
       const data = await response.json();
+
       if (response.status === 429) {
+        pinUnlocking = false;
         clearPin(false);
         return startPinCooldown(data.retryAfter || Number(response.headers.get('Retry-After')) || 30);
       }
-      if (!response.ok || !data.ok) throw new Error(data.error || 'Unlock failed');
+
+      if (!response.ok || !data.ok) throw new Error(data.error || 'Incorrect PIN');
+
       adminPin = enteredPin;
       clearPin(false);
       $('login-section').classList.add('hidden');
@@ -313,6 +292,7 @@
       await loadGiveawaysAdmin();
       status('Admin panel unlocked.', 'ok');
     } catch (error) {
+      pinUnlocking = false;
       setPinDisabled(false);
       clearPin(true);
       $('pin-inputs').classList.remove('shake');
@@ -320,6 +300,45 @@
       $('pin-inputs').classList.add('shake');
       status(error.message, 'err');
     }
+  }
+
+  pinDigits.forEach((input, index) => {
+    input.addEventListener('input', () => {
+      input.value = input.value.replace(/\D/g, '').slice(-1);
+      input.classList.toggle('filled', !!input.value);
+
+      if (input.value && index < pinDigits.length - 1) {
+        pinDigits[index + 1].focus();
+      }
+
+      // Lock-screen behavior: submit automatically as soon as digit 6 is entered.
+      if (readPin().length === 6) attemptPinUnlock();
+    });
+
+    input.addEventListener('keydown', event => {
+      if (event.key === 'Backspace' && !input.value && index > 0) {
+        pinDigits[index - 1].value = '';
+        pinDigits[index - 1].classList.remove('filled');
+        pinDigits[index - 1].focus();
+      }
+      if (event.key === 'ArrowLeft' && index > 0) pinDigits[index - 1].focus();
+      if (event.key === 'ArrowRight' && index < pinDigits.length - 1) pinDigits[index + 1].focus();
+      if (event.key === 'Enter' && readPin().length === 6) attemptPinUnlock();
+    });
+
+    input.addEventListener('paste', event => {
+      const pasted = (event.clipboardData?.getData('text') || '').replace(/\D/g, '').slice(0, 6);
+      if (!pasted) return;
+      event.preventDefault();
+
+      pinDigits.forEach((box, i) => {
+        box.value = pasted[i] || '';
+        box.classList.toggle('filled', !!box.value);
+      });
+
+      pinDigits[Math.min(pasted.length, 6) - 1]?.focus();
+      if (pasted.length === 6) attemptPinUnlock();
+    });
   });
 
   pinDigits[0]?.focus();

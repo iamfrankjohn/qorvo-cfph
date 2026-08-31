@@ -1,4 +1,4 @@
-# QORVO Control — WEB v6.4 Admin PIN Setup
+# QORVO Control — WEB v6.5 Admin PIN Setup
 
 The QORVO Control Panel now uses a 6-digit server-side PIN.
 
@@ -16,7 +16,7 @@ After saving the environment variable, redeploy the latest production deployment
 
 ## Old variable
 
-WEB v6.4 no longer uses `QORVO_ADMIN_PASSWORD` for the QORVO Control write APIs. After WEB v6.4 is deployed and the new PIN is confirmed working, the old `QORVO_ADMIN_PASSWORD` variable may be removed from Vercel if no other private service uses it.
+WEB v6.5 no longer uses `QORVO_ADMIN_PASSWORD` for the QORVO Control write APIs. After WEB v6.5 is deployed and the new PIN is confirmed working, the old `QORVO_ADMIN_PASSWORD` variable may be removed from Vercel if no other private service uses it.
 
 ## Lock-screen behavior
 
@@ -29,3 +29,7 @@ WEB v6.4 no longer uses `QORVO_ADMIN_PASSWORD` for the QORVO Control write APIs.
 - Five failed authentication attempts trigger a 30-second cooldown
 
 Note: the cooldown is best-effort in a serverless environment because individual Vercel function instances can restart. A 6-digit PIN is also inherently weaker than a long password, so keep the control-panel URL private and choose a non-obvious PIN.
+
+## Auto-unlock behavior
+
+There is no Unlock button in WEB v6.5. Once all six PIN digits are entered, authentication starts automatically. An incorrect PIN clears the six boxes and returns focus to the first digit.

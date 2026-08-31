@@ -1,4 +1,12 @@
-## WEB v6.4 — Admin PIN Lock Screen
+## WEB v6.5 — Auto-Unlock Admin PIN
+
+- Removed the manual UNLOCK button from the QORVO Control PIN screen.
+- The admin PIN now submits automatically as soon as all 6 digits are entered.
+- Pasting a valid 6-digit PIN also triggers automatic authentication.
+- Incorrect PINs clear the boxes, shake the PIN row, and return focus to the first digit.
+- Existing server-side PIN validation and failed-attempt cooldown remain unchanged.
+
+## WEB v6.5 — Admin PIN Lock Screen
 - 6-digit server-side admin PIN using `QORVO_ADMIN_PIN`.
 - 5 failed authentication attempts trigger a 30-second cooldown.
 - Updated all admin write requests to send `pin` instead of `password`.
@@ -36,12 +44,12 @@
 - Preserved the WEB v5.16 in-site Facebook Reel player and existing integrations.
 
 
-## WEB v6.4
+## WEB v6.5
 - Removed the redundant DEVELOPED BY label beside the FRNK.sys footer logo.
-- Updated visible website version to WEB v6.4.
+- Updated visible website version to WEB v6.5.
 
 
-## WEB v6.4
+## WEB v6.5
 - Removed the separate QORVO / CFPH text from the footer branding group.
-- Positioned WEB v6.4 directly below the QORVO logo.
+- Positioned WEB v6.5 directly below the QORVO logo.
 - Kept the FRNK.sys logo beside QORVO with the existing divider.
