@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">STOVE</title>
+  <desc id="desc">STOVE branded visual for the official CrossFire Philippines news section</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff6a2b"/>
+      <stop offset="1" stop-color="#ff3f20"/>
+    </linearGradient>
+    <pattern id="grid" width="42" height="42" patternUnits="userSpaceOnUse">
+      <path d="M42 0H0V42" fill="none" stroke="#fff" stroke-opacity=".055" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="675" fill="url(#bg)"/>
+  <rect width="1200" height="675" fill="url(#grid)"/>
+  <path d="M-80 510 450 30 820 675H120Z" fill="#fff" opacity=".045"/>
+  <path d="M520-80 1280 300 1040 720 310 280Z" fill="#fff" opacity=".035"/>
+  <g fill="#fff" text-anchor="middle" font-family="Arial, Helvetica, sans-serif">
+    <text x="600" y="355" font-size="150" font-weight="900" letter-spacing="-8">STOVE</text>
+    <text x="600" y="420" font-size="24" font-weight="700" letter-spacing="8" opacity=".82">OFFICIAL NEWS SOURCE</text>
+  </g>
+</svg>

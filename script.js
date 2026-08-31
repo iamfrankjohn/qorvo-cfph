@@ -153,7 +153,7 @@ async function loadServerIntel() {
     }
 
     const firstImage = posts.find(post => post.image)?.image || data.image;
-    setMedia('server-intel-media', firstImage, '/assets/qorvo-logo.jpg');
+    setMedia('server-intel-media', firstImage, '/assets/stove-brand.svg');
   } catch (error) {
     console.warn('CrossFire updates:', error);
 
@@ -167,7 +167,7 @@ async function loadServerIntel() {
         </article>`;
     }
 
-    setMedia('server-intel-media', null, '/assets/qorvo-logo.jpg');
+    setMedia('server-intel-media', null, '/assets/stove-brand.svg');
   }
 }
 

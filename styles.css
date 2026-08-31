@@ -1336,7 +1336,7 @@ footer p:last-child{text-align:right}
 #server-intel-media:not(.has-image){
   background-image:
     linear-gradient(to bottom,rgba(3,10,7,.08),rgba(3,10,7,.72)),
-    url("assets/qorvo-logo.jpg");
+    url("assets/stove-brand.svg");
   background-size:cover;
   background-position:center 42%;
 }
