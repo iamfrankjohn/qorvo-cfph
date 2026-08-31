@@ -1,4 +1,12 @@
-## WEB v6.6 — Latest Facebook Caption Formatting
+## WEB v6.7 — Auto-refresh Latest Facebook Post
+
+- The Latest From QORVO CFPH card now checks for updates every 60 seconds while the tab is visible.
+- If the first Facebook request is still processing, the card retries automatically instead of requiring a full page refresh.
+- Returning to the browser tab triggers an immediate refresh.
+- After a post loads successfully, temporary checker failures keep the existing post visible instead of replacing it with the fallback.
+- The server-side Facebook post cache remains unchanged; this is only a lightweight website refresh.
+
+## WEB v6.7 — Latest Facebook Caption Formatting
 
 - Preserves real line breaks from the Facebook caption in the Latest From QORVO card.
 - Handles escaped newline characters returned by the checker.

@@ -208,7 +208,11 @@ function formatFacebookCaption(value) {
   return text.trim();
 }
 
-// WEB v5.14 — Latest public QORVO Facebook post
+// WEB v6.7 — Latest public QORVO Facebook post with automatic refresh
+const LATEST_FACEBOOK_REFRESH_MS = 60 * 1000;
+let latestFacebookLoading = false;
+let latestFacebookHasLoaded = false;
+
 async function loadLatestFacebookPost() {
   const card = document.getElementById('latest-facebook-card');
   const image = document.getElementById('latest-facebook-image');
@@ -218,12 +222,17 @@ async function loadLatestFacebookPost() {
   const caption = document.getElementById('latest-facebook-caption');
   const link = document.getElementById('latest-facebook-link');
   if (!card || !image || !author || !age || !status || !caption || !link) return;
+  if (latestFacebookLoading) return;
 
   const fallbackUrl = 'https://www.facebook.com/qorvo.cfph';
   const fallbackImage = new URL('/assets/qorvo-cover.jpg', window.location.href).href;
 
+  latestFacebookLoading = true;
+
   try {
-    const response = await fetch('/api/facebook-latest', { cache: 'no-store' });
+    const response = await fetch(`/api/facebook-latest?t=${Date.now()}`, {
+      cache: 'no-store'
+    });
     const payload = await response.json();
     const post = payload?.post;
 
@@ -239,8 +248,11 @@ async function loadLatestFacebookPost() {
     link.textContent = 'View post →';
 
     if (post.image) {
-      image.alt = post.imageAlt || 'Latest QORVO CFPH Facebook post image';
-      image.src = post.image;
+      const nextImage = post.image;
+      if (image.src !== nextImage) {
+        image.alt = post.imageAlt || 'Latest QORVO CFPH Facebook post image';
+        image.src = nextImage;
+      }
       image.addEventListener('error', () => {
         image.src = fallbackImage;
         image.alt = 'QORVO CFPH';
@@ -248,19 +260,44 @@ async function loadLatestFacebookPost() {
     }
 
     card.classList.add('facebook-latest-ready');
+    latestFacebookHasLoaded = true;
   } catch (error) {
     console.warn('Latest Facebook post:', error);
-    author.textContent = 'QORVO CFPH';
-    age.textContent = 'Official Facebook Page';
-    status.textContent = 'Facebook';
-    caption.textContent = 'The latest post could not be loaded right now. Open QORVO CFPH on Facebook for current updates.';
-    link.href = fallbackUrl;
-    link.textContent = 'Open Facebook Page →';
-    image.src = fallbackImage;
+
+    // On the first failed request, show the normal fallback. After a post has
+    // already loaded successfully, keep it visible during temporary checker
+    // failures and retry automatically on the next interval.
+    if (!latestFacebookHasLoaded) {
+      author.textContent = 'QORVO CFPH';
+      age.textContent = 'Official Facebook Page';
+      status.textContent = 'Facebook';
+      caption.textContent = 'The latest post could not be loaded right now. Retrying automatically…';
+      link.href = fallbackUrl;
+      link.textContent = 'Open Facebook Page →';
+      image.src = fallbackImage;
+    }
+  } finally {
+    latestFacebookLoading = false;
   }
 }
 
 loadLatestFacebookPost();
+
+// Keep the card live without requiring a full website refresh.
+// The self-hosted checker still controls its own server-side post cache, so
+// this lightweight browser poll does not launch Chromium every minute.
+setInterval(() => {
+  if (!document.hidden) {
+    loadLatestFacebookPost();
+  }
+}, LATEST_FACEBOOK_REFRESH_MS);
+
+// Refresh immediately when the visitor returns to the tab.
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) {
+    loadLatestFacebookPost();
+  }
+});
 
 // WEB v5.16 — live QORVO Facebook Reels with in-site player
 async function loadQorvoReels() {

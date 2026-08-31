@@ -1,5 +1,10 @@
-# QORVO CFPH — WEB v6.6
-## WEB v6.6 — Facebook Caption Formatting
+# QORVO CFPH — WEB v6.7
+## WEB v6.7 — Auto-refresh Latest Facebook Post
+
+- Latest Facebook card retries and refreshes automatically every 60 seconds while visible.
+- No manual browser refresh is required when the checker finishes loading.
+
+## WEB v6.7 — Facebook Caption Formatting
 
 The Latest From QORVO card now preserves Facebook caption line breaks. If the public Facebook render flattens the caption, the frontend restores QORVO's common stacked LOCK IN. / QORVO UP. / DOMINATE. layout and separates the hashtag block. Stray “Send message” UI text from Facebook is also removed when present.
 
