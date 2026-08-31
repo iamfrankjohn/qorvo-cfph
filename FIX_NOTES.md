@@ -1,3 +1,8 @@
+## WEB v6.4 — Admin PIN Lock Screen
+- 6-digit server-side admin PIN using `QORVO_ADMIN_PIN`.
+- 5 failed authentication attempts trigger a 30-second cooldown.
+- Updated all admin write requests to send `pin` instead of `password`.
+
 # WEB v5.14 — Live Latest Facebook Post
 
 - Replaced the static “Latest From QORVO” Facebook card with the actual latest public QORVO CFPH post.
@@ -31,12 +36,12 @@
 - Preserved the WEB v5.16 in-site Facebook Reel player and existing integrations.
 
 
-## WEB v6.3
+## WEB v6.4
 - Removed the redundant DEVELOPED BY label beside the FRNK.sys footer logo.
-- Updated visible website version to WEB v6.3.
+- Updated visible website version to WEB v6.4.
 
 
-## WEB v6.3
+## WEB v6.4
 - Removed the separate QORVO / CFPH text from the footer branding group.
-- Positioned WEB v6.3 directly below the QORVO logo.
+- Positioned WEB v6.4 directly below the QORVO logo.
 - Kept the FRNK.sys logo beside QORVO with the existing divider.

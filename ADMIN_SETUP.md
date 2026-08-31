@@ -1,53 +1,31 @@
-# QORVO Control Panel Setup
+# QORVO Control — WEB v6.4 Admin PIN Setup
 
-The public website has no visible Admin button. Click the QORVO brand/logo in the footer **3 times quickly** to open `/qorvo-control`.
+The QORVO Control Panel now uses a 6-digit server-side PIN.
 
-## Required Vercel Environment Variables
+## Vercel environment variable
 
-Add these in Vercel → Project → Settings → Environment Variables, then redeploy once:
+Add this variable to the Vercel project:
 
-- `QORVO_ADMIN_PASSWORD` = the private password you want to use
-- `GITHUB_CONTENT_TOKEN` = a GitHub fine-grained personal access token with **Contents: Read and write** permission for only this repository
-- `GITHUB_REPO_OWNER` = your GitHub username or organization name
-- `GITHUB_REPO_NAME` = your repository name
-- `GITHUB_REPO_BRANCH` = `main` (or your production branch)
+- Name: `QORVO_ADMIN_PIN`
+- Value: exactly 6 digits, for example `482731`
+- Environments: Production, Preview, and Development if you use all three
 
-## GitHub token recommendation
+Do not put the PIN in `qorvo-control.html`, `script.js`, GitHub, or any public file.
 
-Create a fine-grained Personal Access Token and give it access only to the QORVO website repository. Under Repository permissions, set **Contents → Read and write**. Do not put this token in GitHub files or frontend JavaScript.
+After saving the environment variable, redeploy the latest production deployment so the new value is available to the serverless API.
 
-## Using the control panel
+## Old variable
 
-1. Open the public website.
-2. Scroll to the footer.
-3. Click the QORVO logo/brand 3 times quickly.
-4. Enter your admin password.
-5. Paste the Facebook post permalink you want to feature.
-6. Optionally edit the card label and title.
-7. Click **Save Featured Post**.
+WEB v6.4 no longer uses `QORVO_ADMIN_PASSWORD` for the QORVO Control write APIs. After WEB v6.4 is deployed and the new PIN is confirmed working, the old `QORVO_ADMIN_PASSWORD` variable may be removed from Vercel if no other private service uses it.
 
-The API writes `data/featured-post.json` to GitHub. The homepage API also reads the newest value directly from GitHub, so the featured card can update before the next Vercel deployment finishes.
+## Lock-screen behavior
 
-## Security note
+- Six separate PIN boxes
+- Numeric keyboard on mobile
+- Automatic next-box focus
+- Backspace navigation
+- Pasting a 6-digit PIN is supported
+- Enter unlocks when all 6 digits are entered
+- Five failed authentication attempts trigger a 30-second cooldown
 
-The 3-click shortcut is only a convenience feature; it is not the security layer. The admin password is checked on the server and the GitHub token remains in Vercel environment variables.
-
-## Events & Live Schedule Manager
-The same control panel now manages the public **Events & Live** section.
-
-- Add a title, category, badge, date, optional time/note, and optional link.
-- Use **Always open** for ongoing items such as clip submissions.
-- Click **Add Event**, then **Save Schedule** to publish.
-- Dated events automatically disappear from the public website after the event date.
-- The data is stored in `data/events.json` through the same GitHub token already used by Featured Post Manager.
-
-## TikTok LIVE members (self-hosted)
-
-The control panel includes **TIKTOK LIVE MEMBERS**. Add a member display name and TikTok username, then save. The public Events & Live section asks your self-hosted checker whether configured members are live.
-
-Add these Vercel Production environment variables:
-
-- `TIKTOK_CHECKER_URL`
-- `TIKTOK_CHECKER_SECRET`
-
-See `TIKTOK_LIVE_SETUP.md` and `SELF_HOSTED_CHECKER_UPDATE.md`.
+Note: the cooldown is best-effort in a serverless environment because individual Vercel function instances can restart. A 6-digit PIN is also inherently weaker than a long password, so keep the control-panel URL private and choose a non-obvious PIN.

@@ -2534,7 +2534,7 @@ body.reel-player-open{overflow:hidden}
   .reel-player-foot{padding-bottom:max(10px,env(safe-area-inset-bottom))}
 }
 
-/* WEB v6.3 — logo-only QORVO + FRNK.sys footer branding */
+/* WEB v6.4 — logo-only QORVO + FRNK.sys footer branding */
 .footer-branding-row{
   display:flex;
   align-items:center;
@@ -2598,7 +2598,7 @@ body.reel-player-open{overflow:hidden}
 }
 
 
-/* WEB v6.3 — QORVO logo with version directly underneath */
+/* WEB v6.4 — QORVO logo with version directly underneath */
 .footer-brand-logo-only{
   display:flex;
   flex-direction:column;

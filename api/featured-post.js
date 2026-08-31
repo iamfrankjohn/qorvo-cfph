@@ -95,14 +95,14 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
   }
 
-  const configuredPassword = process.env.QORVO_ADMIN_PASSWORD;
-  if (!configuredPassword) {
-    return res.status(500).json({ ok: false, error: 'QORVO_ADMIN_PASSWORD is not configured in Vercel.' });
+  const configuredPin = process.env.QORVO_ADMIN_PIN;
+  if (!configuredPin || !/^\d{6}$/.test(configuredPin)) {
+    return res.status(500).json({ ok: false, error: 'QORVO_ADMIN_PIN must be configured in Vercel as exactly 6 digits.' });
   }
 
-  const { password, url, label, title, enabled } = req.body || {};
-  if (!safeEqual(password, configuredPassword)) {
-    return res.status(401).json({ ok: false, error: 'Incorrect admin password.' });
+  const { pin, url, label, title, enabled } = req.body || {};
+  if (!safeEqual(pin, configuredPin)) {
+    return res.status(401).json({ ok: false, error: 'Incorrect admin PIN.' });
   }
   if (!configured(cfg)) {
     return res.status(500).json({ ok: false, error: 'GitHub storage environment variables are not configured.' });

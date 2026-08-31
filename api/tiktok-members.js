@@ -49,7 +49,9 @@ module.exports=async function handler(req,res){
     }catch(e){ console.error(e); return res.status(200).json({ok:true,...localFallback,source:'fallback',warning:'Could not read TikTok members from GitHub.'}); }
   }
   if(req.method!=='POST'){ res.setHeader('Allow','GET, POST'); return res.status(405).json({ok:false,error:'Method not allowed'}); }
-  if(!safeEqual(req.body?.password,process.env.QORVO_ADMIN_PASSWORD)) return res.status(401).json({ok:false,error:'Incorrect admin password.'});
+  const configuredPin=process.env.QORVO_ADMIN_PIN;
+  if(!configuredPin || !/^\d{6}$/.test(configuredPin)) return res.status(500).json({ok:false,error:'QORVO_ADMIN_PIN must be configured in Vercel as exactly 6 digits.'});
+  if(!safeEqual(req.body?.pin,configuredPin)) return res.status(401).json({ok:false,error:'Incorrect admin PIN.'});
   if(!configured(cfg)) return res.status(500).json({ok:false,error:'GitHub storage environment variables are not configured.'});
   const seen=new Set();
   const members=(Array.isArray(req.body?.members)?req.body.members:[]).map(normalize).filter(m=>m.username && !seen.has(m.username.toLowerCase()) && seen.add(m.username.toLowerCase())).slice(0,12);

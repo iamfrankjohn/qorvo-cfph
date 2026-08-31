@@ -23,6 +23,7 @@
     .content{overflow:hidden}.head{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:22px 24px;border-bottom:1px solid var(--line)}.head h2{margin:0;font-size:1.15rem;letter-spacing:.04em}.head p{margin:5px 0 0;color:var(--muted);font-size:.86rem}.head-badge{font-size:.72rem;letter-spacing:.14em;color:var(--accent);border:1px solid rgba(36,240,90,.35);background:rgba(36,240,90,.08);padding:8px 10px;border-radius:999px;font-weight:900;white-space:nowrap}
     .body{padding:24px}.note{padding:12px 14px;border:1px solid var(--line);border-radius:12px;color:var(--muted);font-size:.9rem;background:#0a0f14}
     .login-card{max-width:560px;margin:20px auto}.login-card .note{margin-bottom:18px}
+    .pin-lock{text-align:center;padding:8px 0 4px}.pin-lock-icon{width:66px;height:66px;margin:0 auto 14px;border-radius:18px;display:grid;place-items:center;border:1px solid rgba(36,240,90,.32);background:linear-gradient(180deg,rgba(36,240,90,.12),rgba(36,240,90,.03));color:var(--accent);font-size:1.8rem;box-shadow:0 0 34px rgba(36,240,90,.08)}.pin-lock h3{margin:0;font-size:1.08rem;letter-spacing:.14em}.pin-lock p{margin:8px auto 20px;color:var(--muted);font-size:.86rem;line-height:1.5;max-width:430px}.pin-inputs{display:flex;justify-content:center;gap:10px;margin:18px 0 8px}.pin-digit{width:58px!important;height:64px;padding:0!important;text-align:center;font-size:1.65rem;font-weight:900;line-height:64px;border-radius:13px!important;caret-color:var(--accent)}.pin-digit.filled{border-color:rgba(36,240,90,.55);background:rgba(36,240,90,.05)}.pin-digit:disabled{opacity:.45}.pin-actions{justify-content:center}.pin-actions .btn{min-width:150px}.pin-hint{font-size:.74rem;color:#6f7b88;letter-spacing:.04em;margin-top:10px}.shake{animation:pin-shake .28s linear}@keyframes pin-shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
     label{display:block;font-weight:800;font-size:.82rem;margin:16px 0 8px;color:#d8dee6}input,select{width:100%;padding:13px 14px;border-radius:11px;border:1px solid var(--line);background:#090d12;color:var(--text);outline:none}input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(36,240,90,.08)}
     .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}.btn{border:0;border-radius:10px;padding:11px 15px;font-weight:900;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}.primary{background:var(--accent);color:#071108}.secondary{background:#202832;color:#fff;border:1px solid #303b47}.danger{background:#35171b;color:#ffd6d8;border:1px solid #6d282d}
     #status{min-height:22px;margin-top:16px;color:var(--muted);font-size:.9rem}.ok{color:#7ee787!important}.err{color:#ff8e93!important}.hidden{display:none!important}
@@ -31,7 +32,7 @@
     .event-admin-item{margin-top:10px;padding:14px;border:1px solid var(--line);border-radius:12px;background:#0a0f14;min-height:58px}.event-admin-item strong{display:block;padding-right:90px}.event-admin-item span{color:var(--muted);font-size:.8rem;display:block;margin-top:5px}.event-admin-item button{float:right;margin-left:10px}.checkline{display:flex;align-items:center;gap:9px;margin-top:14px;color:var(--muted);font-size:.85rem}.checkline input{width:auto}.current{margin-top:20px;border-top:1px solid var(--line);padding-top:16px}.current a{color:#ff9c57;word-break:break-all}
     .mobile-select{display:none;margin-bottom:16px}.mobile-select label{margin-top:0}
     @media(max-width:860px){body{padding:12px}.shell{grid-template-columns:1fr}.sidebar{position:static}.nav{display:none}.sidebar-foot{display:none}.brand{border-bottom:0}.mobile-select{display:block}.overview{grid-template-columns:1fr}.content{border-radius:16px}.body{padding:18px}.head{padding:18px}.head-badge{display:none}}
-    @media(max-width:600px){.row{grid-template-columns:1fr}.actions .btn{flex:1 1 100%}}
+    @media(max-width:600px){.row{grid-template-columns:1fr}.actions .btn{flex:1 1 100%}.pin-inputs{gap:6px}.pin-digit{width:44px!important;height:56px;font-size:1.4rem;line-height:56px}.pin-actions .btn{min-width:0}}
   </style>
 </head>
 <body>
@@ -58,10 +59,21 @@
       </header>
       <div class="body">
         <section id="login-section" class="login-card">
-          <div class="note">Private control panel. Enter the admin password to manage website content.</div>
-          <label for="password">Admin password</label>
-          <input id="password" type="password" autocomplete="current-password" placeholder="Enter admin password">
-          <div class="actions"><button class="btn primary" id="login-btn">Login</button><a class="btn secondary" href="/">Back to website</a></div>
+          <div class="pin-lock">
+            <div class="pin-lock-icon" aria-hidden="true">⌾</div>
+            <h3>QORVO ADMIN LOCK</h3>
+            <p>Enter your 6-digit administrator PIN to unlock website management.</p>
+            <div class="pin-inputs" id="pin-inputs" aria-label="6-digit administrator PIN">
+              <input class="pin-digit" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="one-time-code" aria-label="PIN digit 1">
+              <input class="pin-digit" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" aria-label="PIN digit 2">
+              <input class="pin-digit" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" aria-label="PIN digit 3">
+              <input class="pin-digit" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" aria-label="PIN digit 4">
+              <input class="pin-digit" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" aria-label="PIN digit 5">
+              <input class="pin-digit" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" aria-label="PIN digit 6">
+            </div>
+            <div class="pin-hint">Numbers only • 6 digits</div>
+            <div class="actions pin-actions"><button class="btn primary" id="login-btn">UNLOCK</button><a class="btn secondary" href="/">Back to website</a></div>
+          </div>
         </section>
 
         <section id="editor-section" class="hidden">
@@ -164,7 +176,8 @@
   </main>
 <script>
   const $ = (id) => document.getElementById(id);
-  let adminPassword = '';
+  let adminPin = '';
+  let pinCooldownTimer = null;
 
   const toolMeta = {
     featured: ['FEATURED POST', 'Choose and manage the post pinned on the homepage.'],
@@ -184,7 +197,7 @@
   }
 
   document.querySelectorAll('[data-tool]').forEach(btn => btn.addEventListener('click', () => {
-    if (!adminPassword) return;
+    if (!adminPin) return;
     selectTool(btn.dataset.tool);
   }));
   $('mobile-tool-select')?.addEventListener('change', e => selectTool(e.target.value));
@@ -209,27 +222,107 @@
     } catch { status('Could not load the current featured post.', 'err'); }
   }
 
+  const pinDigits = Array.from(document.querySelectorAll('.pin-digit'));
+
+  function readPin() {
+    return pinDigits.map(input => input.value).join('');
+  }
+
+  function clearPin(focusFirst=true) {
+    pinDigits.forEach(input => { input.value=''; input.classList.remove('filled'); });
+    if (focusFirst) pinDigits[0]?.focus();
+  }
+
+  function setPinDisabled(disabled) {
+    pinDigits.forEach(input => input.disabled = disabled);
+    $('login-btn').disabled = disabled;
+  }
+
+  function startPinCooldown(seconds) {
+    clearInterval(pinCooldownTimer);
+    setPinDisabled(true);
+    let remaining = Math.max(1, Number(seconds) || 30);
+    status(`Too many incorrect attempts. Try again in ${remaining} seconds.`, 'err');
+    pinCooldownTimer = setInterval(() => {
+      remaining -= 1;
+      if (remaining <= 0) {
+        clearInterval(pinCooldownTimer);
+        pinCooldownTimer = null;
+        setPinDisabled(false);
+        clearPin(true);
+        status('You can try again.', '');
+        return;
+      }
+      status(`Too many incorrect attempts. Try again in ${remaining} seconds.`, 'err');
+    }, 1000);
+  }
+
+  pinDigits.forEach((input, index) => {
+    input.addEventListener('input', () => {
+      input.value = input.value.replace(/\D/g, '').slice(-1);
+      input.classList.toggle('filled', !!input.value);
+      if (input.value && index < pinDigits.length - 1) pinDigits[index + 1].focus();
+      if (readPin().length === 6) $('login-btn').focus();
+    });
+
+    input.addEventListener('keydown', event => {
+      if (event.key === 'Backspace' && !input.value && index > 0) {
+        pinDigits[index - 1].value = '';
+        pinDigits[index - 1].classList.remove('filled');
+        pinDigits[index - 1].focus();
+      }
+      if (event.key === 'ArrowLeft' && index > 0) pinDigits[index - 1].focus();
+      if (event.key === 'ArrowRight' && index < pinDigits.length - 1) pinDigits[index + 1].focus();
+      if (event.key === 'Enter' && readPin().length === 6) $('login-btn').click();
+    });
+
+    input.addEventListener('paste', event => {
+      const pasted = (event.clipboardData?.getData('text') || '').replace(/\D/g, '').slice(0, 6);
+      if (!pasted) return;
+      event.preventDefault();
+      pinDigits.forEach((box, i) => {
+        box.value = pasted[i] || '';
+        box.classList.toggle('filled', !!box.value);
+      });
+      pinDigits[Math.min(pasted.length, 6) - 1]?.focus();
+      if (pasted.length === 6) $('login-btn').focus();
+    });
+  });
+
   $('login-btn').addEventListener('click', async () => {
-    adminPassword = $('password').value;
-    if (!adminPassword) return status('Enter your admin password.', 'err');
-    status('Checking password...');
+    const enteredPin = readPin();
+    if (!/^\d{6}$/.test(enteredPin)) return status('Enter all 6 digits of your admin PIN.', 'err');
+    status('Checking PIN...');
+    setPinDisabled(true);
     try {
-      const response = await fetch('/api/admin-auth', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({password:adminPassword}) });
+      const response = await fetch('/api/admin-auth', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({pin:enteredPin}) });
       const data = await response.json();
-      if (!response.ok || !data.ok) throw new Error(data.error || 'Login failed');
+      if (response.status === 429) {
+        clearPin(false);
+        return startPinCooldown(data.retryAfter || Number(response.headers.get('Retry-After')) || 30);
+      }
+      if (!response.ok || !data.ok) throw new Error(data.error || 'Unlock failed');
+      adminPin = enteredPin;
+      clearPin(false);
       $('login-section').classList.add('hidden');
       $('editor-section').classList.remove('hidden');
       document.querySelectorAll('[data-tool]').forEach(btn => btn.disabled = false);
-      $('password').value = '';
       await loadCurrent();
       await loadEvents();
       await loadTikTokMembers();
       await loadGiveawaysAdmin();
-      status('Logged in.', 'ok');
-    } catch (error) { status(error.message, 'err'); }
+      status('Admin panel unlocked.', 'ok');
+    } catch (error) {
+      setPinDisabled(false);
+      clearPin(true);
+      $('pin-inputs').classList.remove('shake');
+      void $('pin-inputs').offsetWidth;
+      $('pin-inputs').classList.add('shake');
+      status(error.message, 'err');
+    }
   });
 
-  $('password').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('login-btn').click(); });
+  pinDigits[0]?.focus();
 
   async function save(enabled) {
     const url = $('post-url').value.trim();
@@ -238,7 +331,7 @@
     try {
       const response = await fetch('/api/featured-post', {
         method:'POST', headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({ password:adminPassword, url, label:$('post-label').value, title:$('post-title').value, enabled })
+        body:JSON.stringify({ pin:adminPin, url, label:$('post-label').value, title:$('post-title').value, enabled })
       });
       const data = await response.json();
       if (!response.ok || !data.ok) throw new Error(data.error || 'Save failed');
@@ -269,7 +362,7 @@
   $('event-admin-list').addEventListener('click',e=>{ const b=e.target.closest('[data-remove-event]'); if(!b)return; events.splice(Number(b.dataset.removeEvent),1); renderEventsAdmin(); status('Event removed locally. Click Save Schedule to publish the change.','ok'); });
   $('save-events-btn').addEventListener('click', async()=>{
     status('Saving schedule...');
-    try { const r=await fetch('/api/events',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:adminPassword,events})}); const d=await r.json(); if(!r.ok||!d.ok)throw new Error(d.error||'Save failed'); events=d.events||events; renderEventsAdmin(); status('Event schedule saved. The website will update automatically.','ok'); }
+    try { const r=await fetch('/api/events',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pin:adminPin,events})}); const d=await r.json(); if(!r.ok||!d.ok)throw new Error(d.error||'Save failed'); events=d.events||events; renderEventsAdmin(); status('Event schedule saved. The website will update automatically.','ok'); }
     catch(e){status(e.message,'err');}
   });
 
@@ -297,7 +390,7 @@
   $('tiktok-admin-list').addEventListener('click',e=>{ const b=e.target.closest('[data-remove-tiktok]'); if(!b)return; tiktokMembers.splice(Number(b.dataset.removeTiktok),1); renderTikTokMembers(); });
   $('save-tiktok-btn').addEventListener('click',async()=>{
     status('Saving TikTok members...');
-    try{ const r=await fetch('/api/tiktok-members',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:adminPassword,members:tiktokMembers})}); const d=await r.json(); if(!r.ok||!d.ok) throw new Error(d.error||'Save failed'); tiktokMembers=d.members||[]; renderTikTokMembers(); status('TikTok members saved. LIVE detection is active.','ok'); }
+    try{ const r=await fetch('/api/tiktok-members',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pin:adminPin,members:tiktokMembers})}); const d=await r.json(); if(!r.ok||!d.ok) throw new Error(d.error||'Save failed'); tiktokMembers=d.members||[]; renderTikTokMembers(); status('TikTok members saved. LIVE detection is active.','ok'); }
     catch(e){ status(e.message,'err'); }
   });
 
@@ -315,7 +408,7 @@
     ['giveaway-title','giveaway-prize','giveaway-winners','giveaway-start','giveaway-end','giveaway-url','giveaway-description'].forEach(id=>$(id).value='');renderGiveawaysAdmin();status('Giveaway added locally. Click Save Giveaways to publish it.','ok');
   });
   $('giveaway-admin-list').addEventListener('click',e=>{const b=e.target.closest('[data-remove-giveaway]');if(!b)return;giveaways.splice(Number(b.dataset.removeGiveaway),1);renderGiveawaysAdmin();});
-  $('save-giveaways-btn').addEventListener('click',async()=>{status('Saving giveaways...');try{const r=await fetch('/api/giveaways',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:adminPassword,giveaways})});const d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||'Save failed');giveaways=d.giveaways||giveaways;renderGiveawaysAdmin();status('Giveaways saved. QORVO Rewards will update automatically.','ok');}catch(e){status(e.message,'err');}});
+  $('save-giveaways-btn').addEventListener('click',async()=>{status('Saving giveaways...');try{const r=await fetch('/api/giveaways',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pin:adminPin,giveaways})});const d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||'Save failed');giveaways=d.giveaways||giveaways;renderGiveawaysAdmin();status('Giveaways saved. QORVO Rewards will update automatically.','ok');}catch(e){status(e.message,'err');}});
 
   $('save-btn').addEventListener('click', () => save(true));
   $('clear-btn').addEventListener('click', () => save(false));
