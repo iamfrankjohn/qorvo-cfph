@@ -3558,3 +3558,62 @@ body.reel-player-open{overflow:hidden}
   max-height:88vh;
   object-fit:contain;
 }
+
+
+/* WEB v6.23 — Command gallery is display-only: no zoom/viewer, show full portraits */
+.command-image-hint{
+  display:none !important;
+}
+
+/* Command photos are no longer interactive. */
+.command-section .command-image-button{
+  cursor:default !important;
+  pointer-events:none !important;
+}
+
+/* Remove all hover zoom/glow/brightness behavior from Command portraits. */
+.command-section .command-image-button,
+.command-section .command-image-button:hover,
+.command-section .command-image-button:focus,
+.command-section .command-image-button:focus-visible{
+  transform:none !important;
+  box-shadow:none !important;
+}
+
+.command-section .command-image-button img,
+.command-section .command-image-button:hover img,
+.command-section .command-image-button:focus img,
+.command-section .command-image-button:focus-visible img{
+  transform:none !important;
+  filter:none !important;
+}
+
+/* Show each officer's complete source image instead of cropping it to fill the card. */
+.command-carousel .command-image-button{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  overflow:hidden !important;
+  background:#020604 !important;
+}
+
+.command-carousel .command-image-button img{
+  width:100% !important;
+  height:100% !important;
+  object-fit:contain !important;
+  object-position:center center !important;
+}
+
+/* Group image also remains fully visible inside its frame. */
+.command-showcase-image img{
+  object-fit:contain !important;
+  object-position:center center !important;
+  transform:none !important;
+  filter:none !important;
+}
+
+/* The old Command lightbox remains in markup only for compatibility,
+   but is not reachable from the Command gallery and is kept hidden. */
+.command-lightbox{
+  display:none !important;
+}
