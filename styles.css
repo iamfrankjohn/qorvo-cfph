@@ -3498,3 +3498,63 @@ body.reel-player-open{overflow:hidden}
     transform:none;
   }
 }
+
+
+/* WEB v6.22 — Simple clickable officer portraits, no magnifier UI */
+.command-zoom-cue,
+.command-zoom-glass,
+.command-zoom-plus{
+  display:none !important;
+}
+
+/* Remove the v6.21 dark hover wash; use a minimal clickable-card treatment instead. */
+.command-carousel .command-image-button::after{
+  display:none !important;
+}
+
+.command-carousel .command-image-button{
+  cursor:zoom-in;
+  transition:border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+.command-carousel .command-image-button img{
+  transition:transform .18s ease, filter .18s ease;
+  transform-origin:center center;
+}
+
+@media(hover:hover) and (pointer:fine){
+  .command-carousel .command-image-button:hover{
+    border-color:rgba(76,255,89,.55) !important;
+    box-shadow:0 0 18px rgba(76,255,89,.14);
+  }
+
+  .command-carousel .command-image-button:hover img{
+    transform:scale(1.03) !important;
+    filter:brightness(1.06) !important;
+  }
+}
+
+/* On touch devices the portrait remains directly tappable with no extra icon. */
+@media(max-width:768px){
+  .command-carousel .command-image-button{
+    cursor:pointer;
+  }
+}
+
+
+/* Officer-only modal presentation */
+.command-lightbox.command-lightbox-officer-only .command-lightbox-prev,
+.command-lightbox.command-lightbox-officer-only .command-lightbox-next,
+.command-lightbox.command-lightbox-officer-only figcaption{
+  display:none !important;
+}
+
+.command-lightbox.command-lightbox-officer-only figure{
+  max-width:min(92vw,1100px);
+}
+
+.command-lightbox.command-lightbox-officer-only img{
+  max-width:92vw;
+  max-height:88vh;
+  object-fit:contain;
+}
