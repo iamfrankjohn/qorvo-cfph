@@ -3137,3 +3137,17 @@ body.reel-player-open{overflow:hidden}
     line-height:1.7 !important;
   }
 }
+
+
+/* WEB v6.18 — Restore Command eyebrow label, keep large heading removed */
+.command-showcase-copy-minimal .kicker{
+  margin:0 0 14px !important;
+  color:#4cff59 !important;
+  font-size:10px !important;
+  line-height:1.2 !important;
+  font-weight:900 !important;
+  letter-spacing:.16em !important;
+}
+.command-showcase-copy-minimal .kicker + p{
+  margin:0 !important;
+}
