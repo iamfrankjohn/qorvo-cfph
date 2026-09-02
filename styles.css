@@ -2943,3 +2943,100 @@ body.reel-player-open{overflow:hidden}
   .command-carousel-dots{bottom:14px}
   .command-carousel-dot{width:22px}
 }
+
+
+/* WEB v6.15 — Match approved QORVO Command layout */
+.command-showcase{
+  grid-template-columns:minmax(250px,330px) minmax(0,1fr) !important;
+  min-height:460px !important;
+}
+.command-showcase-copy{
+  grid-column:1 !important;
+  grid-row:1 !important;
+  align-self:stretch;
+  justify-content:center;
+  padding:42px 20px 42px 28px !important;
+}
+.command-showcase-image{
+  grid-column:1 / -1 !important;
+  grid-row:1 !important;
+  min-height:460px !important;
+}
+.command-showcase-image img{
+  object-fit:cover !important;
+  object-position:center center !important;
+}
+.command-showcase::after{
+  background:
+    linear-gradient(90deg,
+      rgba(2,6,4,.99) 0%,
+      rgba(2,6,4,.94) 12%,
+      rgba(2,6,4,.75) 23%,
+      rgba(2,6,4,.24) 36%,
+      rgba(2,6,4,0) 52%) !important;
+}
+.command-showcase-copy .kicker{
+  color:#4cff59 !important;
+  font-size:10px !important;
+}
+.command-showcase-copy h2{
+  color:#fff !important;
+  font-size:clamp(38px,3vw,56px) !important;
+  line-height:.94 !important;
+  text-shadow:0 2px 20px rgba(0,0,0,.6);
+}
+.command-showcase-copy h2 span{color:#4cff59 !important}
+.command-showcase-copy>p:last-child{
+  color:#c0c8c3 !important;
+  font-size:13px !important;
+  line-height:1.65 !important;
+}
+
+/* Keep the individual portraits in one continuous horizontal strip */
+.command-carousel-shell{
+  padding:20px 58px 42px !important;
+}
+.command-carousel{
+  display:flex !important;
+  flex-wrap:nowrap !important;
+  overflow-x:auto !important;
+}
+.command-carousel .command-card,
+.command-carousel .command-card-master{
+  flex:0 0 clamp(150px,12.9vw,205px) !important;
+  width:clamp(150px,12.9vw,205px) !important;
+}
+
+/* On wide desktop screens, show as many roster cards as possible in one line */
+@media(min-width:1200px){
+  .command-carousel .command-card,
+  .command-carousel .command-card-master{
+    flex-basis:calc((100% - 96px) / 9) !important;
+    width:calc((100% - 96px) / 9) !important;
+    min-width:138px !important;
+  }
+}
+
+/* Mobile/tablet: retain the same visual hierarchy, but make the hero readable */
+@media(max-width:700px){
+  .command-showcase{
+    display:grid !important;
+    grid-template-columns:1fr !important;
+    min-height:0 !important;
+  }
+  .command-showcase-image{
+    grid-column:1 !important;
+    grid-row:1 !important;
+    aspect-ratio:3/2 !important;
+    min-height:0 !important;
+  }
+  .command-showcase-copy{
+    grid-column:1 !important;
+    grid-row:1 !important;
+    align-self:end !important;
+    padding:18px 18px 20px !important;
+  }
+  .command-showcase::after{
+    background:linear-gradient(180deg,rgba(2,6,4,.02) 35%,rgba(2,6,4,.9) 100%) !important;
+  }
+}
