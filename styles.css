@@ -3040,3 +3040,74 @@ body.reel-player-open{overflow:hidden}
     background:linear-gradient(180deg,rgba(2,6,4,.02) 35%,rgba(2,6,4,.9) 100%) !important;
   }
 }
+
+
+/* WEB v6.16 — Give QORVO Command hero more breathing room so all members remain visible */
+@media(min-width:701px){
+  .command-showcase{
+    display:grid !important;
+    grid-template-columns:290px minmax(0,1fr) !important;
+    min-height:520px !important;
+    background:#020604 !important;
+  }
+
+  .command-showcase::after{
+    display:none !important;
+  }
+
+  .command-showcase-copy{
+    position:relative !important;
+    grid-column:1 !important;
+    grid-row:1 !important;
+    z-index:2 !important;
+    align-self:stretch !important;
+    justify-content:center !important;
+    padding:42px 26px !important;
+    background:
+      linear-gradient(rgba(65,255,80,.025) 1px,transparent 1px),
+      #030704 !important;
+    background-size:100% 26px,auto !important;
+    border-right:1px solid rgba(76,255,89,.18) !important;
+  }
+
+  .command-showcase-image{
+    grid-column:2 !important;
+    grid-row:1 !important;
+    min-height:520px !important;
+    height:520px !important;
+    background:#020604 !important;
+  }
+
+  .command-showcase-image img{
+    width:100% !important;
+    height:100% !important;
+    object-fit:contain !important;
+    object-position:center center !important;
+    transform:none !important;
+    filter:none !important;
+  }
+
+  .command-showcase-image:hover img{
+    transform:none !important;
+    filter:none !important;
+  }
+}
+
+@media(min-width:1200px){
+  .command-showcase{
+    grid-template-columns:320px minmax(0,1fr) !important;
+    min-height:560px !important;
+  }
+
+  .command-showcase-image{
+    min-height:560px !important;
+    height:560px !important;
+  }
+}
+
+@media(max-width:700px){
+  .command-showcase-image img{
+    object-fit:contain !important;
+    object-position:center center !important;
+  }
+}
