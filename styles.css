@@ -3630,3 +3630,130 @@ body.reel-player-open{overflow:hidden}
 .officer-photo-modal-close:hover{background:#4cff59;color:#041006}
 body.officer-photo-modal-open{overflow:hidden}
 @media(max-width:700px){.officer-photo-modal{padding:12px}.officer-photo-modal-dialog img{max-width:96vw;max-height:90vh}}
+
+
+/* WEB v6.28 — Reel-style QORVO Officer image viewer */
+body.officer-photo-modal-open{overflow:hidden}
+
+.officer-viewer-modal{
+  position:fixed;
+  z-index:10020;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+  background:rgba(0,3,1,.9);
+  backdrop-filter:blur(12px);
+}
+.officer-viewer-modal.is-open{display:flex}
+
+.officer-viewer-shell{
+  width:min(94vw,820px);
+  max-height:94vh;
+  overflow:hidden;
+  border:1px solid rgba(87,255,104,.42);
+  background:#030805;
+  box-shadow:0 35px 110px rgba(0,0,0,.78),0 0 55px rgba(47,255,66,.1);
+}
+
+.officer-viewer-head,
+.officer-viewer-foot{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  background:#061009;
+}
+
+.officer-viewer-head{
+  height:48px;
+  padding:0 12px 0 16px;
+  border-bottom:1px solid rgba(91,255,106,.18);
+  color:#b6c7ba;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.16em;
+}
+
+.officer-photo-modal-close{
+  display:grid !important;
+  place-items:center;
+  position:static !important;
+  width:30px !important;
+  height:30px !important;
+  border:1px solid rgba(112,255,125,.25) !important;
+  border-radius:50% !important;
+  background:#030805 !important;
+  color:#d9e6dc !important;
+  font-size:22px !important;
+  line-height:1 !important;
+  cursor:pointer;
+}
+.officer-photo-modal-close:hover{
+  border-color:var(--accent) !important;
+  color:var(--accent) !important;
+}
+
+.officer-viewer-frame{
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  height:min(76vh,780px);
+  background:#000;
+  overflow:hidden;
+}
+.officer-viewer-frame img{
+  display:block;
+  width:100%;
+  height:100%;
+  max-width:none !important;
+  max-height:none !important;
+  object-fit:contain !important;
+  object-position:center center !important;
+  background:#000;
+}
+
+.officer-viewer-foot{
+  min-height:46px;
+  padding:10px 15px;
+  border-top:1px solid rgba(91,255,106,.18);
+  color:#64756a;
+  font-size:8px;
+  font-weight:800;
+  letter-spacing:.12em;
+}
+
+@media(max-width:520px){
+  .officer-viewer-modal{
+    padding:0;
+    align-items:stretch;
+  }
+  .officer-viewer-shell{
+    width:100%;
+    max-height:none;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    border:0;
+  }
+  .officer-viewer-head{
+    flex:0 0 auto;
+    padding-top:env(safe-area-inset-top);
+    height:calc(48px + env(safe-area-inset-top));
+  }
+  .officer-viewer-frame{
+    flex:1;
+    min-height:0;
+    height:auto;
+  }
+  .officer-viewer-foot{
+    flex:0 0 auto;
+    padding-bottom:max(10px,env(safe-area-inset-bottom));
+  }
+  .officer-viewer-foot span:last-child{
+    display:none;
+  }
+}

@@ -1065,5 +1065,55 @@ document.addEventListener('DOMContentLoaded',loadGiveaways);
   rebuildDots();
 })();
 
-// WEB v6.27 — One-click With_IGN officer viewer
-(()=>{const m=document.getElementById("officer-photo-modal"),i=document.getElementById("officer-photo-modal-image"),c=m?.querySelector(".officer-photo-modal-close"),b=[...document.querySelectorAll(".command-officer-view[data-command-view-src]")];if(!m||!i||!c||!b.length)return;const x=()=>{m.classList.remove("is-open");m.setAttribute("aria-hidden","true");document.body.classList.remove("officer-photo-modal-open");i.removeAttribute("src")};b.forEach(e=>e.addEventListener("click",()=>{i.src=e.dataset.commandViewSrc;i.alt=`${e.dataset.commandViewLabel||"QORVO officer"} full photo`;m.classList.add("is-open");m.setAttribute("aria-hidden","false");document.body.classList.add("officer-photo-modal-open")}));c.addEventListener("click",x);m.addEventListener("click",e=>{if(e.target===m)x()});document.addEventListener("keydown",e=>{if(e.key==="Escape"&&m.classList.contains("is-open"))x()})})();
+
+
+// WEB v6.28 — Reel-style one-click officer image viewer
+(() => {
+  const modal = document.getElementById('officer-photo-modal');
+  const modalImage = document.getElementById('officer-photo-modal-image');
+  const modalClose = modal?.querySelector('.officer-photo-modal-close');
+  const modalTitle = document.getElementById('officer-viewer-title');
+  const cards = [...document.querySelectorAll('.command-officer-view[data-command-view-src]')];
+
+  if (!modal || !modalImage || !modalClose || !cards.length) return;
+
+  let lastTrigger = null;
+
+  const openOfficerImage = card => {
+    lastTrigger = card;
+    const name = card.dataset.commandViewLabel || 'QORVO OFFICER';
+    modalImage.src = card.dataset.commandViewSrc;
+    modalImage.alt = `${name} officer image`;
+    if (modalTitle) modalTitle.textContent = `QORVO // ${name.toUpperCase()}`;
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('officer-photo-modal-open');
+    modalClose.focus({preventScroll:true});
+  };
+
+  const closeOfficerImage = () => {
+    if (!modal.classList.contains('is-open')) return;
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('officer-photo-modal-open');
+    modalImage.removeAttribute('src');
+    if (modalTitle) modalTitle.textContent = 'QORVO // OFFICER VIEWER';
+    lastTrigger?.focus({preventScroll:true});
+  };
+
+  cards.forEach(card => {
+    card.addEventListener('click', () => openOfficerImage(card));
+  });
+
+  modalClose.addEventListener('click', closeOfficerImage);
+
+  modal.addEventListener('click', event => {
+    if (event.target === modal) closeOfficerImage();
+  });
+
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && modal.classList.contains('is-open')) {
+      closeOfficerImage();
+    }
+  });
+})();
