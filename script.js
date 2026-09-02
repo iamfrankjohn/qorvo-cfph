@@ -1064,3 +1064,6 @@ document.addEventListener('DOMContentLoaded',loadGiveaways);
 
   rebuildDots();
 })();
+
+// WEB v6.27 — One-click With_IGN officer viewer
+(()=>{const m=document.getElementById("officer-photo-modal"),i=document.getElementById("officer-photo-modal-image"),c=m?.querySelector(".officer-photo-modal-close"),b=[...document.querySelectorAll(".command-officer-view[data-command-view-src]")];if(!m||!i||!c||!b.length)return;const x=()=>{m.classList.remove("is-open");m.setAttribute("aria-hidden","true");document.body.classList.remove("officer-photo-modal-open");i.removeAttribute("src")};b.forEach(e=>e.addEventListener("click",()=>{i.src=e.dataset.commandViewSrc;i.alt=`${e.dataset.commandViewLabel||"QORVO officer"} full photo`;m.classList.add("is-open");m.setAttribute("aria-hidden","false");document.body.classList.add("officer-photo-modal-open")}));c.addEventListener("click",x);m.addEventListener("click",e=>{if(e.target===m)x()});document.addEventListener("keydown",e=>{if(e.key==="Escape"&&m.classList.contains("is-open"))x()})})();
