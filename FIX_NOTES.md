@@ -1,4 +1,12 @@
-## WEB v6.12 — QORVO Command Gallery
+## WEB v6.13 — Uniform QORVO Command Cards
+
+- Clan Master portrait no longer spans two rows on desktop.
+- All Clan Master and Officer portraits use the same card size and 2:3 portrait ratio.
+- Desktop uses a clean 3-column roster; tablet uses 2 columns.
+- Clan Master remains subtly highlighted with a stronger green border.
+- Mobile keeps the existing swipeable portrait carousel.
+
+## WEB v6.13 — QORVO Command Gallery
 
 - Added the QORVO Clan Master & Officers group photo after WHO WE ARE.
 - Added the Clan Master and eight Officer portraits.
@@ -6,33 +14,33 @@
 - Added swipeable mobile roster.
 - Optimized uploaded artwork to WebP.
 
-## WEB v6.12 — Desktop Join Section Readability
+## WEB v6.13 — Desktop Join Section Readability
 
 - Keeps the left-panel paragraph inside the safe area of the diagonal green shape so text is no longer clipped on desktop.
 - Makes HOW TO JOIN descriptions brighter and slightly larger on desktop.
 - Makes the application notice at the bottom brighter, larger, and easier to read.
 - Mobile readability fixes from WEB v6.10 are retained.
 
-## WEB v6.12 — Mobile Join Section Readability
+## WEB v6.13 — Mobile Join Section Readability
 
 - The green JOIN panel and dark HOW TO JOIN panel are fully separated on mobile/tablet.
 - The diagonal green shape can no longer wash over the application steps.
 - Step descriptions and the footer notice use higher-contrast text.
 - Mobile step copy is slightly larger for easier reading.
 
-## WEB v6.12 — Force STOVE visual in Server Intel
+## WEB v6.13 — Force STOVE visual in Server Intel
 
 - The Server Intel hero visual now always uses the STOVE branded artwork.
 - Article/post images are no longer allowed to replace the STOVE visual.
 - This fixes the QORVO artwork appearing again when an official news item contains a QORVO image.
 
-## WEB v6.12 — STOVE Server Intel Branding
+## WEB v6.13 — STOVE Server Intel Branding
 
 - Replaced the QORVO fallback artwork in Server Intel with a dedicated STOVE-branded visual.
 - Server Intel continues to use official CFPH/STOVE news data and article images when available.
 - QORVO branding elsewhere on the website is unchanged.
 
-## WEB v6.12 — Auto-refresh Latest Facebook Post
+## WEB v6.13 — Auto-refresh Latest Facebook Post
 
 - The Latest From QORVO CFPH card now checks for updates every 60 seconds while the tab is visible.
 - If the first Facebook request is still processing, the card retries automatically instead of requiring a full page refresh.
@@ -40,7 +48,7 @@
 - After a post loads successfully, temporary checker failures keep the existing post visible instead of replacing it with the fallback.
 - The server-side Facebook post cache remains unchanged; this is only a lightweight website refresh.
 
-## WEB v6.12 — Latest Facebook Caption Formatting
+## WEB v6.13 — Latest Facebook Caption Formatting
 
 - Preserves real line breaks from the Facebook caption in the Latest From QORVO card.
 - Handles escaped newline characters returned by the checker.
