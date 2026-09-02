@@ -3358,3 +3358,143 @@ body.reel-player-open{overflow:hidden}
     line-height:1.5 !important;
   }
 }
+
+
+/* WEB v6.21 — Officers lead-in + portrait hover-to-view */
+.command-subheading{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin:24px 0 12px;
+  color:#4cff59;
+}
+.command-subheading::before{
+  content:"";
+  width:28px;
+  height:1px;
+  flex:0 0 auto;
+  background:#4cff59;
+  box-shadow:0 0 10px rgba(76,255,89,.42);
+}
+.command-subheading span{
+  font-size:10px;
+  line-height:1;
+  font-weight:900;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+}
+
+/* The existing image button already opens the shared Command lightbox.
+   Add a dark hover wash and a green magnify-plus cue without changing that behavior. */
+.command-carousel .command-image-button::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:2;
+  background:rgba(0,0,0,.34);
+  opacity:0;
+  transition:opacity .18s ease;
+  pointer-events:none;
+}
+.command-zoom-cue{
+  position:absolute;
+  left:50%;
+  top:50%;
+  z-index:3;
+  width:46px;
+  height:46px;
+  transform:translate(-50%,-50%) scale(.9);
+  border:1px solid rgba(76,255,89,.7);
+  border-radius:50%;
+  background:rgba(2,9,5,.82);
+  box-shadow:0 0 22px rgba(76,255,89,.14);
+  opacity:0;
+  transition:opacity .18s ease,transform .18s ease;
+  pointer-events:none;
+}
+.command-zoom-glass{
+  position:absolute;
+  left:12px;
+  top:11px;
+  width:16px;
+  height:16px;
+  border:2px solid #4cff59;
+  border-radius:50%;
+}
+.command-zoom-glass::after{
+  content:"";
+  position:absolute;
+  width:9px;
+  height:2px;
+  right:-7px;
+  bottom:-4px;
+  background:#4cff59;
+  transform:rotate(45deg);
+  transform-origin:left center;
+}
+.command-zoom-plus{
+  position:absolute;
+  right:7px;
+  top:4px;
+  color:#4cff59;
+  font-size:17px;
+  line-height:1;
+  font-weight:900;
+}
+.command-carousel .command-image-button:hover::after,
+.command-carousel .command-image-button:focus-visible::after{
+  opacity:1;
+}
+.command-carousel .command-image-button:hover .command-zoom-cue,
+.command-carousel .command-image-button:focus-visible .command-zoom-cue{
+  opacity:1;
+  transform:translate(-50%,-50%) scale(1);
+}
+
+/* Keep lightbox captions clearly readable as NAME // ROLE. */
+.command-lightbox figcaption{
+  padding:8px 14px;
+  border-left:2px solid #4cff59;
+  background:rgba(2,9,5,.88);
+  color:#fff;
+}
+
+/* Mobile has no hover: keep a compact persistent affordance in the photo corner. */
+@media(max-width:768px){
+  .command-subheading{
+    margin:20px 0 10px;
+  }
+  .command-subheading span{
+    font-size:9px;
+  }
+  .command-zoom-cue{
+    left:auto;
+    top:auto;
+    right:10px;
+    bottom:10px;
+    width:36px;
+    height:36px;
+    transform:none;
+    opacity:1;
+  }
+  .command-zoom-glass{
+    left:9px;
+    top:9px;
+    width:13px;
+    height:13px;
+  }
+  .command-zoom-glass::after{
+    width:7px;
+    right:-6px;
+    bottom:-4px;
+  }
+  .command-zoom-plus{
+    right:5px;
+    top:3px;
+    font-size:14px;
+  }
+  .command-carousel .command-image-button:hover .command-zoom-cue,
+  .command-carousel .command-image-button:focus-visible .command-zoom-cue{
+    transform:none;
+  }
+}
