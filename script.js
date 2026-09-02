@@ -992,3 +992,75 @@ document.addEventListener('DOMContentLoaded',loadGiveaways);
 
 // WEB v6.12 — QORVO Command photo lightbox
 (()=>{const items=[['/assets/command/qorvo-command-group.webp','QORVO CFPH Clan Master and Officers group portrait','QORVO CFPH // CLAN MASTER & OFFICERS'],['/assets/command/iox-q-clan-master.webp','IOX.Q — QORVO Clan Master','IOX.Q // CLAN MASTER'],['/assets/command/t3r-q-officer.webp','T3r.Q — QORVO Officer','T3r.Q // OFFICER'],['/assets/command/daichi-q-officer.webp','Daichi.Q — QORVO Officer','DAICHI.Q // OFFICER'],['/assets/command/haeqt-officer.webp','HaeQt. — QORVO Officer','HAEQT. // OFFICER'],['/assets/command/reed-q-officer.webp','Reed.Q — QORVO Officer','REED.Q // OFFICER'],['/assets/command/jvra-q-officer.webp','JVRA.Q — QORVO Officer','JVRA.Q // OFFICER'],['/assets/command/neonqt-officer.webp','NeonQt. — QORVO Officer','NEONQT. // OFFICER'],['/assets/command/pynouc-q-officer.webp','Pynouc.Q — QORVO Officer','PYNOUC.Q // OFFICER'],['/assets/command/grim-q-officer.webp','Grim.Q — QORVO Officer','GRIM.Q // OFFICER']];const m=document.getElementById('command-lightbox'),im=document.getElementById('command-lightbox-image'),cap=document.getElementById('command-lightbox-caption'),cl=document.getElementById('command-lightbox-close'),pr=document.getElementById('command-lightbox-prev'),nx=document.getElementById('command-lightbox-next');if(!m||!im)return;let a=0;const r=()=>{im.src=items[a][0];im.alt=items[a][1];cap.textContent=items[a][2]},o=i=>{a=Number(i)||0;r();m.classList.add('is-open');m.setAttribute('aria-hidden','false');document.body.classList.add('command-lightbox-open')},s=()=>{m.classList.remove('is-open');m.setAttribute('aria-hidden','true');document.body.classList.remove('command-lightbox-open')},mv=d=>{a=(a+d+items.length)%items.length;r()};document.querySelectorAll('[data-command-index]').forEach(b=>b.addEventListener('click',()=>o(b.dataset.commandIndex)));cl.addEventListener('click',s);pr.addEventListener('click',()=>mv(-1));nx.addEventListener('click',()=>mv(1));m.addEventListener('click',e=>{if(e.target===m)s()});document.addEventListener('keydown',e=>{if(!m.classList.contains('is-open'))return;if(e.key==='Escape')s();if(e.key==='ArrowLeft')mv(-1);if(e.key==='ArrowRight')mv(1)})})();
+
+
+// WEB v6.14 — one-line QORVO Command carousel
+(() => {
+  const track = document.getElementById('command-carousel');
+  const prev = document.getElementById('command-carousel-prev');
+  const next = document.getElementById('command-carousel-next');
+  const dotsWrap = document.getElementById('command-carousel-dots');
+  if (!track || !prev || !next || !dotsWrap) return;
+
+  const cards = [...track.querySelectorAll('.command-card')];
+  if (!cards.length) return;
+
+  const getStep = () => {
+    const card = cards[0];
+    const styles = getComputedStyle(track);
+    const gap = parseFloat(styles.columnGap || styles.gap || 0) || 0;
+    return card.getBoundingClientRect().width + gap;
+  };
+
+  const visibleCount = () => Math.max(1, Math.floor((track.clientWidth + 1) / getStep()));
+  const pageCount = () => Math.max(1, cards.length - visibleCount() + 1);
+
+  const rebuildDots = () => {
+    const count = pageCount();
+    dotsWrap.innerHTML = '';
+    for (let i = 0; i < count; i++) {
+      const dot = document.createElement('button');
+      dot.className = 'command-carousel-dot';
+      dot.type = 'button';
+      dot.tabIndex = -1;
+      dot.addEventListener('click', () => {
+        track.scrollTo({ left: i * getStep(), behavior: 'smooth' });
+      });
+      dotsWrap.appendChild(dot);
+    }
+    updateDots();
+  };
+
+  const updateDots = () => {
+    const dots = [...dotsWrap.children];
+    if (!dots.length) return;
+    const index = Math.max(0, Math.min(dots.length - 1, Math.round(track.scrollLeft / getStep())));
+    dots.forEach((dot, i) => dot.classList.toggle('is-active', i === index));
+  };
+
+  prev.addEventListener('click', () => {
+    track.scrollBy({ left: -getStep(), behavior: 'smooth' });
+  });
+  next.addEventListener('click', () => {
+    track.scrollBy({ left: getStep(), behavior: 'smooth' });
+  });
+  track.addEventListener('scroll', () => requestAnimationFrame(updateDots), { passive:true });
+  track.addEventListener('keydown', event => {
+    if (event.key === 'ArrowLeft') {
+      event.preventDefault();
+      track.scrollBy({ left: -getStep(), behavior:'smooth' });
+    }
+    if (event.key === 'ArrowRight') {
+      event.preventDefault();
+      track.scrollBy({ left: getStep(), behavior:'smooth' });
+    }
+  });
+
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(rebuildDots, 120);
+  });
+
+  rebuildDots();
+})();
