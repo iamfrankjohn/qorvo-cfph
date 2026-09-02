@@ -3111,3 +3111,29 @@ body.reel-player-open{overflow:hidden}
     object-position:center center !important;
   }
 }
+
+
+/* WEB v6.17 — Minimal QORVO Command copy */
+.command-showcase-copy-minimal{
+  justify-content:center !important;
+}
+.command-showcase-copy-minimal>p{
+  margin:0 !important;
+  color:#d7dfda !important;
+  font-size:15px !important;
+  line-height:1.8 !important;
+  font-weight:600 !important;
+}
+@media(max-width:700px){
+  .command-showcase-copy-minimal{
+    position:relative !important;
+    grid-column:1 !important;
+    grid-row:2 !important;
+    padding:16px 18px 18px !important;
+    background:#030704 !important;
+  }
+  .command-showcase-copy-minimal>p{
+    font-size:13px !important;
+    line-height:1.7 !important;
+  }
+}
