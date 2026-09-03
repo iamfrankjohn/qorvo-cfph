@@ -3966,3 +3966,33 @@ body.site-opening-modal-open{overflow:hidden}
 .site-opening-modal-track.is-single .site-opening-modal-slide{
   flex-basis:100%;
 }
+
+
+/* WEB v6.35 — Clean event modal carousel: one full image at a time, no adjacent preview */
+.site-opening-modal-viewport{
+  overflow:hidden !important;
+}
+
+.site-opening-modal-track{
+  gap:0 !important;
+  padding-left:0 !important;
+}
+
+.site-opening-modal-slide,
+.site-opening-modal-track.is-single .site-opening-modal-slide{
+  flex:0 0 100% !important;
+  width:100% !important;
+}
+
+/* Keep navigation outside the actual poster so no event details are covered. */
+.site-opening-modal-carousel{
+  grid-template-columns:48px minmax(0,1fr) 48px !important;
+  gap:10px !important;
+}
+
+@media(max-width:600px){
+  .site-opening-modal-carousel{
+    grid-template-columns:38px minmax(0,1fr) 38px !important;
+    gap:5px !important;
+  }
+}
