@@ -1118,5 +1118,62 @@ document.addEventListener('DOMContentLoaded',loadGiveaways);
   });
 })();
 
-// WEB v6.30 — Civil War announcement on every main-page load.
-(()=>{const m=document.getElementById("civil-war-opening-modal"),c=m?.querySelector(".site-opening-modal-close");if(!m||!c)return;const open=()=>{m.classList.add("is-open");m.setAttribute("aria-hidden","false");document.body.classList.add("site-opening-modal-open");c.focus({preventScroll:true})};const close=()=>{m.classList.remove("is-open");m.setAttribute("aria-hidden","true");document.body.classList.remove("site-opening-modal-open")};setTimeout(open,4000);c.addEventListener("click",close);m.addEventListener("click",e=>{if(e.target===m)close()});document.addEventListener("keydown",e=>{if(e.key==="Escape"&&m.classList.contains("is-open"))close()})})();
+
+// WEB v6.31 — Admin-managed event announcement modal.
+(() => {
+  const modal = document.getElementById('event-opening-modal');
+  const image = document.getElementById('event-opening-modal-image');
+  const closeButton = modal?.querySelector('.site-opening-modal-close');
+  if (!modal || !image || !closeButton) return;
+
+  let timer = null;
+
+  const closeAnnouncement = () => {
+    if (timer) {
+      clearTimeout(timer);
+      timer = null;
+    }
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('site-opening-modal-open');
+  };
+
+  const openAnnouncement = () => {
+    if (!image.src) return;
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('site-opening-modal-open');
+    closeButton.focus({ preventScroll: true });
+  };
+
+  const loadAnnouncement = async () => {
+    try {
+      const response = await fetch(`/api/event-modal?t=${Date.now()}`, { cache: 'no-store' });
+      const payload = await response.json();
+      const config = payload?.modal;
+
+      if (!response.ok || !config?.enabled || !config?.imageUrl) return;
+
+      image.alt = config.title || 'QORVO event announcement';
+      image.src = `${config.imageUrl}${config.imageUrl.includes('?') ? '&' : '?'}v=${encodeURIComponent(config.updatedAt || Date.now())}`;
+
+      // Do not open a broken image.
+      image.addEventListener('error', closeAnnouncement, { once: true });
+
+      const delayMs = Math.max(0, Math.min(30000, Number(config.delaySeconds || 0) * 1000));
+      timer = window.setTimeout(openAnnouncement, delayMs);
+    } catch {
+      // Event announcement is optional; silently keep the site usable if it cannot load.
+    }
+  };
+
+  closeButton.addEventListener('click', closeAnnouncement);
+  modal.addEventListener('click', event => {
+    if (event.target === modal) closeAnnouncement();
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && modal.classList.contains('is-open')) closeAnnouncement();
+  });
+
+  loadAnnouncement();
+})();
