@@ -3806,3 +3806,6 @@ body.site-opening-modal-open{overflow:hidden}
   .site-opening-modal-action{padding:10px}
   .site-opening-modal-cta{min-height:44px;font-size:11px}
 }
+
+/* WEB v6.33 — manual multi-image event modal */
+.site-opening-modal-media{position:relative}.site-opening-modal-nav{position:absolute;z-index:4;top:50%;transform:translateY(-50%);width:42px;height:52px;border:1px solid rgba(76,255,89,.48);background:rgba(2,8,4,.82);color:#fff;font-size:34px;cursor:pointer}.site-opening-modal-prev{left:10px}.site-opening-modal-next{right:10px}.site-opening-modal-nav[hidden]{display:none!important}.site-opening-modal-count{position:absolute;right:10px;bottom:10px;padding:6px 8px;background:rgba(2,8,4,.82);color:#b8c7bb;font-size:9px}.site-opening-modal-count:empty{display:none}.site-opening-modal-dots{display:flex;justify-content:center;gap:7px;padding:10px;background:#030805}.site-opening-modal-dots:empty{display:none}.site-opening-modal-dot{width:7px;height:7px;padding:0;border:0;border-radius:50%;background:#354239;cursor:pointer}.site-opening-modal-dot.is-active{background:#4cff59;box-shadow:0 0 9px rgba(76,255,89,.5)}

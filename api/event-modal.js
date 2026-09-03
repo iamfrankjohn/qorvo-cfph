@@ -145,6 +145,7 @@ async function legacyModal(cfg) {
         title: 'QORVO Civil War 3v3',
         imagePath: path,
         imageUrl: `/${path}`,
+        images: [{imagePath:path,imageUrl:`/${path}`}],
         delaySeconds: 4,
         buttonLabel: '',
         buttonUrl: '',
@@ -158,19 +159,13 @@ async function legacyModal(cfg) {
 
 async function currentModal(cfg) {
   const config = await readConfig(cfg);
-  if (config?.data?.imagePath) {
-    const data = config.data;
-    return {
-      enabled: data.enabled !== false,
-      title: cleanText(data.title, 120) || 'QORVO Event Announcement',
-      imagePath: cleanText(data.imagePath, 220),
-      imageUrl: cleanText(data.imageUrl, 240) || `/${cleanText(data.imagePath, 220)}`,
-      delaySeconds: clampDelay(data.delaySeconds),
-      buttonLabel: cleanText(data.buttonLabel, 40),
-      buttonUrl: cleanUrl(data.buttonUrl),
-      updatedAt: data.updatedAt || null,
-      legacy: false
-    };
+  if (config?.data) {
+    const data=config.data, images=normalizeImages(data);
+    if (!images.length) return legacyModal(cfg);
+    return {enabled:data.enabled!==false,title:cleanText(data.title,120)||'QORVO Event Announcement',
+      imagePath:images[0].imagePath,imageUrl:images[0].imageUrl,images,
+      delaySeconds:clampDelay(data.delaySeconds),buttonLabel:cleanText(data.buttonLabel,40),
+      buttonUrl:cleanUrl(data.buttonUrl),updatedAt:data.updatedAt||null,legacy:false};
   }
   return legacyModal(cfg);
 }
@@ -199,33 +194,22 @@ function isManagedImagePath(path) {
   const value = String(path || '');
   return value.startsWith(`${MODAL_DIR}/`) || LEGACY_PATHS.includes(value);
 }
+function normalizeImages(data) {
+  if (Array.isArray(data?.images)) return data.images.map(x => {
+    const imagePath=cleanText(x?.imagePath||x?.path,220);
+    return imagePath ? {imagePath,imageUrl:cleanText(x?.imageUrl,240)||`/${imagePath}`} : null;
+  }).filter(Boolean).slice(0,12);
+  const imagePath=cleanText(data?.imagePath,220);
+  return imagePath ? [{imagePath,imageUrl:cleanText(data?.imageUrl,240)||`/${imagePath}`}] : [];
+}
 
-async function cleanupUnusedImages(cfg, keepPath = '') {
-  const errors = [];
-
-  try {
-    const files = await getDirectory(cfg, MODAL_DIR);
-    for (const file of files) {
-      if (file?.type !== 'file' || !file.path || file.path === keepPath) continue;
-      try {
-        await deleteFile(cfg, file.path, 'Remove unused QORVO event modal image', file.sha);
-      } catch (error) {
-        errors.push(file.path);
-      }
-    }
-  } catch {
-    // Directory may not exist yet.
-  }
-
-  for (const path of LEGACY_PATHS) {
-    if (path === keepPath) continue;
-    try {
-      await deleteFile(cfg, path, 'Remove old QORVO event modal image');
-    } catch {
-      errors.push(path);
-    }
-  }
-
+async function cleanupUnusedImages(cfg, keepPaths=[]) {
+  const keep=new Set(Array.isArray(keepPaths)?keepPaths:[keepPaths].filter(Boolean)), errors=[];
+  try { for (const file of await getDirectory(cfg,MODAL_DIR)) {
+    if(file?.type!=='file'||!file.path||keep.has(file.path)) continue;
+    try{await deleteFile(cfg,file.path,'Remove unused QORVO event modal image',file.sha)}catch{errors.push(file.path)}
+  }} catch {}
+  for(const path of LEGACY_PATHS){if(keep.has(path))continue;try{await deleteFile(cfg,path,'Remove old QORVO event modal image')}catch{errors.push(path)}}
   return errors;
 }
 
@@ -274,7 +258,7 @@ module.exports = async function handler(req, res) {
       const config = await readConfig(cfg);
 
       // Delete the images first so removing a modal cannot leave unused event photos behind.
-      await cleanupUnusedImages(cfg, '');
+      await cleanupUnusedImages(cfg, []);
 
       if (config?.sha) {
         await deleteFile(cfg, CONFIG_PATH, 'Remove QORVO event modal', config.sha);
@@ -289,33 +273,15 @@ module.exports = async function handler(req, res) {
 
   try {
     const existingConfig = await readConfig(cfg);
-    const existing = existingConfig?.data?.imagePath
-      ? existingConfig.data
-      : await legacyModal(cfg);
-
-    let imagePath = existing?.imagePath || '';
-    const imageData = String(req.body?.imageData || '');
-
-    if (imageData) {
-      const { bytes, ext } = parseImageData(imageData);
-      imagePath = `${MODAL_DIR}/event-modal-${Date.now()}.${ext}`;
-      await putFile(cfg, imagePath, bytes, 'Upload QORVO event modal image');
-    }
-
-    if (!imagePath) {
-      return res.status(400).json({ ok: false, error: 'Choose an event image before publishing the modal.' });
-    }
-
-    const next = {
-      enabled: true,
-      title: cleanText(req.body?.title, 120) || 'QORVO Event Announcement',
-      imagePath,
-      imageUrl: `/${imagePath}`,
-      delaySeconds: clampDelay(req.body?.delaySeconds),
-      buttonLabel: cleanText(req.body?.buttonLabel, 40),
-      buttonUrl: cleanUrl(req.body?.buttonUrl),
-      updatedAt: new Date().toISOString()
-    };
+    const existingData = existingConfig?.data || await legacyModal(cfg);
+    const existingImages = normalizeImages(existingData || {});
+    const requestedKeep = Array.isArray(req.body?.keepImagePaths) ? req.body.keepImagePaths.map(x=>cleanText(x,220)).filter(isManagedImagePath) : existingImages.map(x=>x.imagePath);
+    const existingMap=new Map(existingImages.map(x=>[x.imagePath,x]));
+    const images=requestedKeep.map(x=>existingMap.get(x)).filter(Boolean).slice(0,12);
+    const uploads=Array.isArray(req.body?.imageDataList)?req.body.imageDataList.slice(0,12-images.length):(req.body?.imageData?[req.body.imageData]:[]);
+    for(let i=0;i<uploads.length;i++){const {bytes,ext}=parseImageData(String(uploads[i]||''));const imagePath=`${MODAL_DIR}/event-modal-${Date.now()}-${i+1}.${ext}`;await putFile(cfg,imagePath,bytes,'Upload QORVO event modal image');images.push({imagePath,imageUrl:`/${imagePath}`});}
+    if(!images.length)return res.status(400).json({ok:false,error:'Choose at least one event image before publishing the modal.'});
+    const next={enabled:true,title:cleanText(req.body?.title,120)||'QORVO Event Announcement',imagePath:images[0].imagePath,imageUrl:images[0].imageUrl,images,delaySeconds:clampDelay(req.body?.delaySeconds),buttonLabel:cleanText(req.body?.buttonLabel,40),buttonUrl:cleanUrl(req.body?.buttonUrl),updatedAt:new Date().toISOString()};
 
     await putFile(
       cfg,
@@ -326,7 +292,7 @@ module.exports = async function handler(req, res) {
     );
 
     // Keep only the active image. This also removes the old Civil War hardcoded asset after migration.
-    const cleanupErrors = await cleanupUnusedImages(cfg, imagePath);
+    const cleanupErrors = await cleanupUnusedImages(cfg, images.map(x=>x.imagePath));
 
     return res.status(200).json({
       ok: true,

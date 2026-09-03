@@ -47,6 +47,11 @@
     #event-modal-file{padding:9px}
     @media(max-width:620px){.event-modal-current{grid-template-columns:1fr}.event-modal-preview-wrap img{height:min(54vh,420px)}}
 
+
+    .event-modal-current{display:block}.event-modal-image-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-top:12px}
+    .event-modal-image-item{position:relative;border:1px solid rgba(78,255,96,.16);background:#020604}.event-modal-image-item img{display:block;width:100%;height:150px;object-fit:contain;background:#000}
+    .event-modal-image-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:6px}.event-modal-image-actions button{min-height:30px;border:1px solid rgba(78,255,96,.18);background:#071009;color:#b7c7bb;cursor:pointer}
+    .event-modal-image-number{position:absolute;top:6px;left:6px;padding:5px 8px;background:#020804;color:#4cff59;border:1px solid rgba(76,255,89,.45);font-size:10px;font-weight:900}
 </style>
 </head>
 <body>
@@ -152,14 +157,8 @@
               <p>Upload a poster or event photo that appears as a modal on the homepage. Replacing or removing the modal automatically cleans up the old uploaded image from GitHub.</p>
 
               <div class="event-modal-current" id="event-modal-current">
-                <div class="event-modal-preview-wrap">
-                  <img id="event-modal-preview" alt="Current event modal preview">
-                  <div class="event-modal-empty" id="event-modal-empty">NO EVENT MODAL PUBLISHED</div>
-                </div>
-                <div class="event-modal-current-meta">
-                  <strong id="event-modal-current-title">No active modal</strong>
-                  <span id="event-modal-current-file">Upload an image below to publish one.</span>
-                </div>
+                <div class="event-modal-current-meta"><strong id="event-modal-current-title">No active modal</strong><span id="event-modal-current-file">Upload one or more images below.</span></div>
+                <div class="event-modal-image-list" id="event-modal-image-list"></div>
               </div>
 
               <label for="event-modal-title">Announcement title</label>
@@ -167,8 +166,8 @@
 
               <div class="row">
                 <div>
-                  <label for="event-modal-file">Poster / event image</label>
-                  <input id="event-modal-file" type="file" accept="image/png,image/jpeg,image/webp">
+                  <label for="event-modal-file">Poster / event images</label>
+                  <input id="event-modal-file" type="file" accept="image/png,image/jpeg,image/webp" multiple>
                 </div>
                 <div>
                   <label for="event-modal-delay">Display delay (seconds)</label>
@@ -450,162 +449,22 @@
   });
 
 
-  let eventModal = null;
-
-  function renderEventModalAdmin() {
-    const wrap = $('event-modal-preview')?.parentElement;
-    const preview = $('event-modal-preview');
-    const title = $('event-modal-current-title');
-    const file = $('event-modal-current-file');
-    const remove = $('remove-event-modal-btn');
-
-    if (!preview || !wrap || !title || !file || !remove) return;
-
-    if (eventModal?.imageUrl) {
-      wrap.classList.add('has-image');
-      preview.src = `${eventModal.imageUrl}${eventModal.imageUrl.includes('?') ? '&' : '?'}admin=${Date.now()}`;
-      preview.alt = eventModal.title || 'Current event modal';
-      title.textContent = eventModal.title || 'QORVO Event Announcement';
-      file.textContent = `${eventModal.imagePath || eventModal.imageUrl} · ${Number(eventModal.delaySeconds || 0)}s delay`;
-      $('event-modal-title').value = eventModal.title || '';
-      $('event-modal-delay').value = Number.isFinite(Number(eventModal.delaySeconds)) ? Number(eventModal.delaySeconds) : 4;
-      $('event-modal-button-label').value = eventModal.buttonLabel || '';
-      $('event-modal-button-url').value = eventModal.buttonUrl || '';
-      remove.disabled = false;
-    } else {
-      wrap.classList.remove('has-image');
-      preview.removeAttribute('src');
-      title.textContent = 'No active modal';
-      file.textContent = 'Upload an image below to publish one.';
-      $('event-modal-button-label').value = '';
-      $('event-modal-button-url').value = '';
-      remove.disabled = true;
-    }
+  let eventModal=null,eventModalItems=[];
+  const modalImages=m=>Array.isArray(m?.images)&&m.images.length?m.images:(m?.imageUrl?[{imagePath:m.imagePath,imageUrl:m.imageUrl}]:[]);
+  function renderEventModalAdmin(){
+    const list=$('event-modal-image-list');list.innerHTML='';
+    if(!eventModalItems.length)list.innerHTML='<div class="event-modal-empty">NO EVENT MODAL IMAGES</div>';
+    eventModalItems.forEach((item,i)=>{const card=document.createElement('div');card.className='event-modal-image-item';card.innerHTML=`<span class="event-modal-image-number">${i+1}</span><img alt="Event image ${i+1}"><div class="event-modal-image-actions"><button type="button">←</button><button type="button">→</button><button type="button">×</button></div>`;card.querySelector('img').src=item.previewUrl;const b=card.querySelectorAll('button');b[0].disabled=i===0;b[1].disabled=i===eventModalItems.length-1;b[0].onclick=()=>{[eventModalItems[i-1],eventModalItems[i]]=[eventModalItems[i],eventModalItems[i-1]];renderEventModalAdmin()};b[1].onclick=()=>{[eventModalItems[i],eventModalItems[i+1]]=[eventModalItems[i+1],eventModalItems[i]];renderEventModalAdmin()};b[2].onclick=()=>{if(item.type==='new')URL.revokeObjectURL(item.previewUrl);eventModalItems.splice(i,1);renderEventModalAdmin()};list.appendChild(card)});
+    $('event-modal-current-title').textContent=eventModal?.title||'Event modal';$('event-modal-current-file').textContent=`${eventModalItems.length} image${eventModalItems.length===1?'':'s'}`;
+    $('remove-event-modal-btn').disabled=!eventModal?.imageUrl;
+    if(eventModal){$('event-modal-title').value=eventModal.title||'';$('event-modal-delay').value=eventModal.delaySeconds??4;$('event-modal-button-label').value=eventModal.buttonLabel||'';$('event-modal-button-url').value=eventModal.buttonUrl||''}
   }
-
-  async function loadEventModalAdmin() {
-    try {
-      const response = await fetch(`/api/event-modal?t=${Date.now()}`, { cache:'no-store' });
-      const data = await response.json();
-      eventModal = data?.modal || null;
-      renderEventModalAdmin();
-    } catch {
-      status('Could not load the current event modal.', 'err');
-    }
-  }
-
-  function readFileAsDataUrl(blob) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = () => reject(new Error('Could not read the selected image.'));
-      reader.readAsDataURL(blob);
-    });
-  }
-
-  async function optimizeEventModalImage(file) {
-    if (!file) return '';
-    if (!/^image\/(png|jpeg|webp)$/.test(file.type)) throw new Error('Choose a PNG, JPG, or WebP image.');
-
-    const objectUrl = URL.createObjectURL(file);
-    try {
-      const img = new Image();
-      await new Promise((resolve, reject) => {
-        img.onload = resolve;
-        img.onerror = () => reject(new Error('Could not decode the selected image.'));
-        img.src = objectUrl;
-      });
-
-      const maxDimension = 1800;
-      const scale = Math.min(1, maxDimension / Math.max(img.naturalWidth, img.naturalHeight));
-      const width = Math.max(1, Math.round(img.naturalWidth * scale));
-      const height = Math.max(1, Math.round(img.naturalHeight * scale));
-      const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
-
-      const ctx = canvas.getContext('2d', { alpha:false });
-      ctx.fillStyle = '#000';
-      ctx.fillRect(0, 0, width, height);
-      ctx.drawImage(img, 0, 0, width, height);
-
-      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/webp', .9));
-      if (!blob) throw new Error('Could not optimize the selected image.');
-      if (blob.size > 3 * 1024 * 1024) throw new Error('The optimized image is still over 3 MB. Please choose a smaller image.');
-
-      return readFileAsDataUrl(blob);
-    } finally {
-      URL.revokeObjectURL(objectUrl);
-    }
-  }
-
-  $('save-event-modal-btn').addEventListener('click', async () => {
-    const file = $('event-modal-file').files?.[0] || null;
-    if (!file && !eventModal?.imageUrl) return status('Choose an event image first.', 'err');
-
-    const button = $('save-event-modal-btn');
-    button.disabled = true;
-    status(file ? 'Optimizing and uploading event modal...' : 'Updating event modal...');
-
-    try {
-      const imageData = file ? await optimizeEventModalImage(file) : '';
-      const response = await fetch('/api/event-modal', {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({
-          pin:adminPin,
-          title:$('event-modal-title').value.trim(),
-          delaySeconds:Number($('event-modal-delay').value || 4),
-          buttonLabel:$('event-modal-button-label').value.trim(),
-          buttonUrl:$('event-modal-button-url').value.trim(),
-          imageData
-        })
-      });
-      const data = await response.json();
-      if (!response.ok || !data.ok) throw new Error(data.error || 'Could not publish event modal.');
-
-      eventModal = data.modal || null;
-      $('event-modal-file').value = '';
-      renderEventModalAdmin();
-      status(data.warning || 'Event modal published. Old unused modal photos were cleaned up.', data.warning ? '' : 'ok');
-    } catch (error) {
-      status(error.message, 'err');
-    } finally {
-      button.disabled = false;
-    }
-  });
-
-  $('remove-event-modal-btn').addEventListener('click', async () => {
-    if (!eventModal?.imageUrl) return;
-    if (!confirm('Remove this event modal and permanently delete its uploaded photo from the repository?')) return;
-
-    const button = $('remove-event-modal-btn');
-    button.disabled = true;
-    status('Removing modal and deleting its photo...');
-
-    try {
-      const response = await fetch('/api/event-modal', {
-        method:'DELETE',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({pin:adminPin})
-      });
-      const data = await response.json();
-      if (!response.ok || !data.ok) throw new Error(data.error || 'Could not remove event modal.');
-
-      eventModal = null;
-      $('event-modal-title').value = '';
-      $('event-modal-file').value = '';
-      $('event-modal-delay').value = '4';
-      $('event-modal-button-label').value = '';
-      $('event-modal-button-url').value = '';
-      renderEventModalAdmin();
-      status('Event modal and its photo were deleted from GitHub.', 'ok');
-    } catch (error) {
-      status(error.message, 'err');
-      button.disabled = false;
-    }
-  });
-
+  async function loadEventModalAdmin(){try{const r=await fetch(`/api/event-modal?t=${Date.now()}`,{cache:'no-store'}),d=await r.json();eventModal=d.modal||null;eventModalItems=modalImages(eventModal).map(x=>({type:'existing',imagePath:x.imagePath,imageUrl:x.imageUrl,previewUrl:x.imageUrl}));renderEventModalAdmin()}catch{status('Could not load event modal.','err')}}
+  function readFileAsDataUrl(b){return new Promise((r,j)=>{const x=new FileReader();x.onload=()=>r(x.result);x.onerror=j;x.readAsDataURL(b)})}
+  async function optimizeEventModalImage(file){if(!/^image\/(png|jpeg|webp)$/.test(file.type))throw new Error('Use PNG, JPG, or WebP.');const u=URL.createObjectURL(file);try{const im=new Image();await new Promise((r,j)=>{im.onload=r;im.onerror=j;im.src=u});const sc=Math.min(1,1800/Math.max(im.naturalWidth,im.naturalHeight)),c=document.createElement('canvas');c.width=Math.round(im.naturalWidth*sc);c.height=Math.round(im.naturalHeight*sc);const x=c.getContext('2d',{alpha:false});x.fillStyle='#000';x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);const b=await new Promise(r=>c.toBlob(r,'image/webp',.9));return readFileAsDataUrl(b)}finally{URL.revokeObjectURL(u)}}
+  $('event-modal-file').addEventListener('change',e=>{const fs=[...(e.target.files||[])],room=12-eventModalItems.length;fs.slice(0,room).forEach(file=>eventModalItems.push({type:'new',file,previewUrl:URL.createObjectURL(file)}));e.target.value='';renderEventModalAdmin()});
+  $('save-event-modal-btn').addEventListener('click',async()=>{if(!eventModalItems.length)return status('Choose at least one image.','err');const btn=$('save-event-modal-btn');btn.disabled=true;try{const keepImagePaths=eventModalItems.filter(x=>x.type==='existing').map(x=>x.imagePath),imageDataList=[];for(const x of eventModalItems.filter(x=>x.type==='new'))imageDataList.push(await optimizeEventModalImage(x.file));const r=await fetch('/api/event-modal',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pin:adminPin,title:$('event-modal-title').value.trim(),delaySeconds:Number($('event-modal-delay').value||4),buttonLabel:$('event-modal-button-label').value.trim(),buttonUrl:$('event-modal-button-url').value.trim(),keepImagePaths,imageDataList})}),d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||'Could not publish.');eventModal=d.modal;eventModalItems=modalImages(eventModal).map(x=>({type:'existing',imagePath:x.imagePath,imageUrl:x.imageUrl,previewUrl:x.imageUrl}));renderEventModalAdmin();status('Multi-image event modal published.','ok')}catch(e){status(e.message,'err')}finally{btn.disabled=false}});
+  $('remove-event-modal-btn').addEventListener('click',async()=>{if(!eventModal?.imageUrl||!confirm('Remove this modal and permanently delete all its photos?'))return;const r=await fetch('/api/event-modal',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({pin:adminPin})}),d=await r.json();if(!r.ok||!d.ok)return status(d.error||'Could not remove.','err');eventModal=null;eventModalItems=[];renderEventModalAdmin();status('Modal and all photos deleted.','ok')});
 
   let tiktokMembers = [];
   function escHtml(v='') { return String(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c])); }
