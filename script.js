@@ -1119,5 +1119,164 @@ document.addEventListener('DOMContentLoaded',loadGiveaways);
 })();
 
 
-// WEB v6.33 — manual multi-image event modal (no autoplay).
-(()=>{const m=document.getElementById('event-opening-modal'),img=document.getElementById('event-opening-modal-image'),close=m?.querySelector('.site-opening-modal-close'),act=document.getElementById('event-opening-modal-action'),cta=document.getElementById('event-opening-modal-cta'),prev=document.getElementById('event-opening-modal-prev'),next=document.getElementById('event-opening-modal-next'),dots=document.getElementById('event-opening-modal-dots'),count=document.getElementById('event-opening-modal-count');if(!m||!img||!close)return;let images=[],i=0,t=null;const show=n=>{i=(n+images.length)%images.length;const x=images[i],u=x.imageUrl||`/${x.imagePath}`;img.src=`${u}${u.includes('?')?'&':'?'}v=${Date.now()}`;img.alt=`Event image ${i+1} of ${images.length}`;prev.hidden=next.hidden=images.length<2;count.textContent=images.length>1?`${i+1} / ${images.length}`:'';[...dots.children].forEach((d,k)=>d.classList.toggle('is-active',k===i))};const shut=()=>{clearTimeout(t);m.classList.remove('is-open');m.setAttribute('aria-hidden','true');document.body.classList.remove('site-opening-modal-open')};prev.onclick=()=>show(i-1);next.onclick=()=>show(i+1);close.onclick=shut;m.onclick=e=>{if(e.target===m)shut()};document.addEventListener('keydown',e=>{if(!m.classList.contains('is-open'))return;if(e.key==='Escape')shut();if(e.key==='ArrowLeft'&&images.length>1)show(i-1);if(e.key==='ArrowRight'&&images.length>1)show(i+1)});(async()=>{try{const r=await fetch(`/api/event-modal?t=${Date.now()}`,{cache:'no-store'}),d=await r.json(),c=d.modal;if(!r.ok||!c?.enabled)return;images=Array.isArray(c.images)&&c.images.length?c.images:(c.imageUrl?[{imagePath:c.imagePath,imageUrl:c.imageUrl}]:[]);if(!images.length)return;dots.innerHTML='';if(images.length>1)images.forEach((_,k)=>{const b=document.createElement('button');b.className='site-opening-modal-dot';b.type='button';b.onclick=()=>show(k);dots.appendChild(b)});const label=String(c.buttonLabel||'').trim(),url=String(c.buttonUrl||'').trim();if(act&&cta&&label&&/^https?:\/\//i.test(url)){cta.textContent=label;cta.href=url;act.hidden=false}else if(act)act.hidden=true;show(0);t=setTimeout(()=>{m.classList.add('is-open');m.setAttribute('aria-hidden','false');document.body.classList.add('site-opening-modal-open')},Math.max(0,Math.min(30000,Number(c.delaySeconds||0)*1000)))}catch{}})()})();
+// WEB v6.34 — Reel-style manual event modal with external arrows and adjacent-card peek.
+(() => {
+  const modal = document.getElementById('event-opening-modal');
+  const close = modal?.querySelector('.site-opening-modal-close');
+  const viewport = document.getElementById('event-opening-modal-viewport');
+  const track = document.getElementById('event-opening-modal-track');
+  const prev = document.getElementById('event-opening-modal-prev');
+  const next = document.getElementById('event-opening-modal-next');
+  const dots = document.getElementById('event-opening-modal-dots');
+  const count = document.getElementById('event-opening-modal-count');
+  const action = document.getElementById('event-opening-modal-action');
+  const cta = document.getElementById('event-opening-modal-cta');
+
+  if (!modal || !close || !viewport || !track || !prev || !next || !dots || !count) return;
+
+  let images = [];
+  let index = 0;
+  let timer = null;
+  let touchStartX = null;
+
+  const imageUrl = item => {
+    const url = item.imageUrl || `/${item.imagePath}`;
+    return `${url}${url.includes('?') ? '&' : '?'}v=${Date.now()}`;
+  };
+
+  const updatePosition = () => {
+    const slides = [...track.children];
+    if (!slides.length) return;
+
+    if (images.length <= 1) {
+      track.style.transform = 'translateX(0)';
+      prev.hidden = true;
+      next.hidden = true;
+      count.textContent = '';
+    } else {
+      const first = slides[0];
+      const gap = parseFloat(getComputedStyle(track).gap || 0) || 0;
+      const step = first.getBoundingClientRect().width + gap;
+      track.style.transform = `translateX(${-index * step}px)`;
+      prev.hidden = false;
+      next.hidden = false;
+      count.textContent = `${index + 1} / ${images.length}`;
+    }
+
+    [...dots.children].forEach((dot, dotIndex) => {
+      dot.classList.toggle('is-active', dotIndex === index);
+      dot.setAttribute('aria-current', dotIndex === index ? 'true' : 'false');
+    });
+  };
+
+  const show = nextIndex => {
+    if (!images.length) return;
+    index = (nextIndex + images.length) % images.length;
+    updatePosition();
+  };
+
+  const buildSlides = title => {
+    track.innerHTML = '';
+    dots.innerHTML = '';
+    track.classList.toggle('is-single', images.length === 1);
+
+    images.forEach((item, itemIndex) => {
+      const slide = document.createElement('div');
+      slide.className = 'site-opening-modal-slide';
+
+      const img = document.createElement('img');
+      img.src = imageUrl(item);
+      img.alt = `${title || 'QORVO event announcement'} — image ${itemIndex + 1} of ${images.length}`;
+      img.loading = itemIndex === 0 ? 'eager' : 'lazy';
+
+      slide.appendChild(img);
+      track.appendChild(slide);
+
+      if (images.length > 1) {
+        const dot = document.createElement('button');
+        dot.className = 'site-opening-modal-dot';
+        dot.type = 'button';
+        dot.setAttribute('aria-label', `View event image ${itemIndex + 1}`);
+        dot.addEventListener('click', () => show(itemIndex));
+        dots.appendChild(dot);
+      }
+    });
+
+    requestAnimationFrame(updatePosition);
+  };
+
+  const shut = () => {
+    if (timer) clearTimeout(timer);
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('site-opening-modal-open');
+  };
+
+  prev.addEventListener('click', () => show(index - 1));
+  next.addEventListener('click', () => show(index + 1));
+  close.addEventListener('click', shut);
+
+  modal.addEventListener('click', event => {
+    if (event.target === modal) shut();
+  });
+
+  viewport.addEventListener('touchstart', event => {
+    touchStartX = event.touches[0]?.clientX ?? null;
+  }, { passive:true });
+
+  viewport.addEventListener('touchend', event => {
+    if (touchStartX == null || images.length < 2) return;
+    const endX = event.changedTouches[0]?.clientX ?? touchStartX;
+    const delta = endX - touchStartX;
+    touchStartX = null;
+    if (Math.abs(delta) < 42) return;
+    show(delta < 0 ? index + 1 : index - 1);
+  }, { passive:true });
+
+  document.addEventListener('keydown', event => {
+    if (!modal.classList.contains('is-open')) return;
+    if (event.key === 'Escape') shut();
+    if (event.key === 'ArrowLeft' && images.length > 1) show(index - 1);
+    if (event.key === 'ArrowRight' && images.length > 1) show(index + 1);
+  });
+
+  window.addEventListener('resize', () => {
+    if (modal.classList.contains('is-open')) requestAnimationFrame(updatePosition);
+  });
+
+  (async () => {
+    try {
+      const response = await fetch(`/api/event-modal?t=${Date.now()}`, { cache:'no-store' });
+      const payload = await response.json();
+      const config = payload.modal;
+      if (!response.ok || !config?.enabled) return;
+
+      images = Array.isArray(config.images) && config.images.length
+        ? config.images
+        : (config.imageUrl ? [{ imagePath:config.imagePath, imageUrl:config.imageUrl }] : []);
+      if (!images.length) return;
+
+      buildSlides(config.title);
+
+      const label = String(config.buttonLabel || '').trim();
+      const url = String(config.buttonUrl || '').trim();
+      if (action && cta && label && /^https?:\/\//i.test(url)) {
+        cta.textContent = label;
+        cta.href = url;
+        action.hidden = false;
+      } else if (action) {
+        action.hidden = true;
+      }
+
+      // Manual navigation only. No automatic slide timer.
+      timer = setTimeout(() => {
+        modal.classList.add('is-open');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('site-opening-modal-open');
+        requestAnimationFrame(updatePosition);
+      }, Math.max(0, Math.min(30000, Number(config.delaySeconds || 0) * 1000)));
+    } catch {
+      // Event announcement is optional.
+    }
+  })();
+})();

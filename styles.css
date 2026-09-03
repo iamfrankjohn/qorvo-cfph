@@ -3809,3 +3809,160 @@ body.site-opening-modal-open{overflow:hidden}
 
 /* WEB v6.33 — manual multi-image event modal */
 .site-opening-modal-media{position:relative}.site-opening-modal-nav{position:absolute;z-index:4;top:50%;transform:translateY(-50%);width:42px;height:52px;border:1px solid rgba(76,255,89,.48);background:rgba(2,8,4,.82);color:#fff;font-size:34px;cursor:pointer}.site-opening-modal-prev{left:10px}.site-opening-modal-next{right:10px}.site-opening-modal-nav[hidden]{display:none!important}.site-opening-modal-count{position:absolute;right:10px;bottom:10px;padding:6px 8px;background:rgba(2,8,4,.82);color:#b8c7bb;font-size:9px}.site-opening-modal-count:empty{display:none}.site-opening-modal-dots{display:flex;justify-content:center;gap:7px;padding:10px;background:#030805}.site-opening-modal-dots:empty{display:none}.site-opening-modal-dot{width:7px;height:7px;padding:0;border:0;border-radius:50%;background:#354239;cursor:pointer}.site-opening-modal-dot.is-active{background:#4cff59;box-shadow:0 0 9px rgba(76,255,89,.5)}
+
+
+/* WEB v6.34 — Reel-style event modal: external arrows + adjacent image peek */
+.site-opening-modal-shell{
+  width:min(96vw,760px) !important;
+  overflow:visible !important;
+}
+
+.site-opening-modal-carousel{
+  position:relative;
+  display:grid;
+  grid-template-columns:48px minmax(0,1fr) 48px;
+  align-items:center;
+  gap:10px;
+  width:100%;
+  padding:12px 10px 0;
+  background:#020604;
+}
+
+.site-opening-modal-viewport{
+  position:relative;
+  width:100%;
+  overflow:hidden;
+  background:#000;
+}
+
+.site-opening-modal-track{
+  display:flex;
+  align-items:stretch;
+  gap:12px;
+  width:100%;
+  transform:translateX(0);
+  transition:transform .28s ease;
+  will-change:transform;
+}
+
+.site-opening-modal-slide{
+  flex:0 0 86%;
+  min-width:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:min(72vh,720px);
+  background:#000;
+  border:1px solid rgba(76,255,89,.12);
+  overflow:hidden;
+}
+
+.site-opening-modal-slide img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain !important;
+  object-position:center center !important;
+  background:#000;
+}
+
+.site-opening-modal-nav{
+  position:static !important;
+  inset:auto !important;
+  transform:none !important;
+  width:44px !important;
+  height:58px !important;
+  display:grid;
+  place-items:center;
+  padding:0;
+  border:1px solid rgba(76,255,89,.48);
+  background:#061009;
+  color:#e8f1ea;
+  font-size:34px;
+  line-height:1;
+  cursor:pointer;
+  z-index:2;
+}
+
+.site-opening-modal-nav:hover,
+.site-opening-modal-nav:focus-visible{
+  border-color:#4cff59;
+  color:#4cff59;
+  box-shadow:0 0 18px rgba(76,255,89,.13);
+}
+
+.site-opening-modal-nav[hidden]{
+  visibility:hidden !important;
+  display:grid !important;
+}
+
+.site-opening-modal-carousel-meta{
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:34px;
+  padding:8px 56px;
+  background:#030805;
+  border-top:1px solid rgba(76,255,89,.12);
+}
+
+.site-opening-modal-dots{
+  padding:0 !important;
+  background:transparent !important;
+}
+
+.site-opening-modal-count{
+  position:absolute !important;
+  right:14px !important;
+  bottom:auto !important;
+  top:50% !important;
+  transform:translateY(-50%);
+  padding:0 !important;
+  border:0 !important;
+  background:transparent !important;
+}
+
+/* Give the active card a little left breathing room so the following card peeks in. */
+.site-opening-modal-track{
+  padding-left:7%;
+}
+
+@media(max-width:600px){
+  .site-opening-modal{
+    padding:8px !important;
+  }
+  .site-opening-modal-shell{
+    width:100% !important;
+    max-height:96vh;
+  }
+  .site-opening-modal-carousel{
+    grid-template-columns:38px minmax(0,1fr) 38px;
+    gap:5px;
+    padding:8px 4px 0;
+  }
+  .site-opening-modal-nav{
+    width:36px !important;
+    height:50px !important;
+    font-size:29px !important;
+  }
+  .site-opening-modal-slide{
+    flex-basis:88%;
+    height:min(72vh,650px);
+  }
+  .site-opening-modal-track{
+    gap:8px;
+    padding-left:6%;
+  }
+  .site-opening-modal-carousel-meta{
+    padding:8px 48px;
+  }
+}
+
+/* Single-image modal remains centered and uses the available width. */
+.site-opening-modal-track.is-single{
+  padding-left:0;
+}
+.site-opening-modal-track.is-single .site-opening-modal-slide{
+  flex-basis:100%;
+}
