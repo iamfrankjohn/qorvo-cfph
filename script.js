@@ -1118,5 +1118,5 @@ document.addEventListener('DOMContentLoaded',loadGiveaways);
   });
 })();
 
-// WEB v6.29 — Civil War announcement on every main-page load.
-(()=>{const m=document.getElementById("civil-war-opening-modal"),c=m?.querySelector(".site-opening-modal-close");if(!m||!c)return;const open=()=>{m.classList.add("is-open");m.setAttribute("aria-hidden","false");document.body.classList.add("site-opening-modal-open");c.focus({preventScroll:true})};const close=()=>{m.classList.remove("is-open");m.setAttribute("aria-hidden","true");document.body.classList.remove("site-opening-modal-open")};requestAnimationFrame(open);c.addEventListener("click",close);m.addEventListener("click",e=>{if(e.target===m)close()});document.addEventListener("keydown",e=>{if(e.key==="Escape"&&m.classList.contains("is-open"))close()})})();
+// WEB v6.30 — Civil War announcement on every main-page load.
+(()=>{const m=document.getElementById("civil-war-opening-modal"),c=m?.querySelector(".site-opening-modal-close");if(!m||!c)return;const open=()=>{m.classList.add("is-open");m.setAttribute("aria-hidden","false");document.body.classList.add("site-opening-modal-open");c.focus({preventScroll:true})};const close=()=>{m.classList.remove("is-open");m.setAttribute("aria-hidden","true");document.body.classList.remove("site-opening-modal-open")};setTimeout(open,4000);c.addEventListener("click",close);m.addEventListener("click",e=>{if(e.target===m)close()});document.addEventListener("keydown",e=>{if(e.key==="Escape"&&m.classList.contains("is-open"))close()})})();
