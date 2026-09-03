@@ -1119,11 +1119,13 @@ document.addEventListener('DOMContentLoaded',loadGiveaways);
 })();
 
 
-// WEB v6.31 — Admin-managed event announcement modal.
+// WEB v6.32 — Admin-managed event announcement modal.
 (() => {
   const modal = document.getElementById('event-opening-modal');
   const image = document.getElementById('event-opening-modal-image');
   const closeButton = modal?.querySelector('.site-opening-modal-close');
+  const action = document.getElementById('event-opening-modal-action');
+  const cta = document.getElementById('event-opening-modal-cta');
   if (!modal || !image || !closeButton) return;
 
   let timer = null;
@@ -1156,6 +1158,16 @@ document.addEventListener('DOMContentLoaded',loadGiveaways);
 
       image.alt = config.title || 'QORVO event announcement';
       image.src = `${config.imageUrl}${config.imageUrl.includes('?') ? '&' : '?'}v=${encodeURIComponent(config.updatedAt || Date.now())}`;
+
+      const buttonLabel = String(config.buttonLabel || '').trim();
+      const buttonUrl = String(config.buttonUrl || '').trim();
+      if (action && cta && buttonLabel && /^https?:\/\//i.test(buttonUrl)) {
+        cta.textContent = buttonLabel;
+        cta.href = buttonUrl;
+        action.hidden = false;
+      } else if (action) {
+        action.hidden = true;
+      }
 
       // Do not open a broken image.
       image.addEventListener('error', closeAnnouncement, { once: true });

@@ -3768,3 +3768,41 @@ body.site-opening-modal-open{overflow:hidden}
 .site-opening-modal-close{position:absolute;top:10px;right:10px;z-index:3;display:grid;place-items:center;width:38px;height:38px;padding:0;border:1px solid rgba(76,255,89,.55);border-radius:50%;background:rgba(2,8,4,.9);color:#e8f1ea;font:400 27px/1 system-ui,sans-serif;cursor:pointer;box-shadow:0 5px 20px rgba(0,0,0,.45)}
 .site-opening-modal-close:hover{border-color:#4cff59;color:#4cff59}
 @media(max-width:600px){.site-opening-modal{padding:10px}.site-opening-modal-shell{width:min(96vw,560px);max-height:96vh}.site-opening-modal-media,.site-opening-modal-media img{max-height:96vh}.site-opening-modal-close{top:8px;right:8px;width:36px;height:36px}}
+
+
+/* WEB v6.32 — Optional custom CTA for admin-managed event modal */
+.site-opening-modal-action{
+  width:100%;
+  padding:12px;
+  border-top:1px solid rgba(76,255,89,.22);
+  background:#030805;
+}
+.site-opening-modal-action[hidden]{display:none !important}
+.site-opening-modal-cta{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  min-height:46px;
+  padding:11px 18px;
+  border:1px solid rgba(76,255,89,.68);
+  background:linear-gradient(180deg,rgba(76,255,89,.16),rgba(76,255,89,.07));
+  color:#4cff59;
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  text-decoration:none;
+  transition:background .18s ease,color .18s ease,box-shadow .18s ease;
+}
+.site-opening-modal-cta:hover,
+.site-opening-modal-cta:focus-visible{
+  background:#4cff59;
+  color:#031006;
+  box-shadow:0 0 24px rgba(76,255,89,.2);
+}
+.site-opening-modal-shell{flex-direction:column}
+@media(max-width:600px){
+  .site-opening-modal-action{padding:10px}
+  .site-opening-modal-cta{min-height:44px;font-size:11px}
+}

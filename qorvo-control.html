@@ -176,6 +176,18 @@
                 </div>
               </div>
 
+              <div class="row">
+                <div>
+                  <label for="event-modal-button-label">Button text (optional)</label>
+                  <input id="event-modal-button-label" maxlength="40" placeholder="Register Here">
+                </div>
+                <div>
+                  <label for="event-modal-button-url">Button link (optional)</label>
+                  <input id="event-modal-button-url" type="url" placeholder="https://forms.gle/...">
+                </div>
+              </div>
+              <div class="note">Leave the button fields blank if you only want to show the poster. If used, the button will appear below the event image inside the modal.</div>
+
               <div class="note">Images are optimized in your browser before upload. Only the currently active event-modal image is kept; replaced and deleted images are removed automatically.</div>
 
               <div class="actions">
@@ -457,12 +469,16 @@
       file.textContent = `${eventModal.imagePath || eventModal.imageUrl} · ${Number(eventModal.delaySeconds || 0)}s delay`;
       $('event-modal-title').value = eventModal.title || '';
       $('event-modal-delay').value = Number.isFinite(Number(eventModal.delaySeconds)) ? Number(eventModal.delaySeconds) : 4;
+      $('event-modal-button-label').value = eventModal.buttonLabel || '';
+      $('event-modal-button-url').value = eventModal.buttonUrl || '';
       remove.disabled = false;
     } else {
       wrap.classList.remove('has-image');
       preview.removeAttribute('src');
       title.textContent = 'No active modal';
       file.textContent = 'Upload an image below to publish one.';
+      $('event-modal-button-label').value = '';
+      $('event-modal-button-url').value = '';
       remove.disabled = true;
     }
   }
@@ -540,6 +556,8 @@
           pin:adminPin,
           title:$('event-modal-title').value.trim(),
           delaySeconds:Number($('event-modal-delay').value || 4),
+          buttonLabel:$('event-modal-button-label').value.trim(),
+          buttonUrl:$('event-modal-button-url').value.trim(),
           imageData
         })
       });
@@ -578,6 +596,8 @@
       $('event-modal-title').value = '';
       $('event-modal-file').value = '';
       $('event-modal-delay').value = '4';
+      $('event-modal-button-label').value = '';
+      $('event-modal-button-url').value = '';
       renderEventModalAdmin();
       status('Event modal and its photo were deleted from GitHub.', 'ok');
     } catch (error) {

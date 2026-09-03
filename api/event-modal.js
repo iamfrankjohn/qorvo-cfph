@@ -27,6 +27,17 @@ function cleanText(value, max = 120) {
   return String(value || '').trim().slice(0, max);
 }
 
+function cleanUrl(value) {
+  const text = String(value || '').trim();
+  if (!text) return '';
+  try {
+    const url = new URL(text);
+    return /^https?:$/.test(url.protocol) ? url.toString() : '';
+  } catch {
+    return '';
+  }
+}
+
 function clampDelay(value) {
   const seconds = Number(value);
   if (!Number.isFinite(seconds)) return 4;
@@ -135,6 +146,8 @@ async function legacyModal(cfg) {
         imagePath: path,
         imageUrl: `/${path}`,
         delaySeconds: 4,
+        buttonLabel: '',
+        buttonUrl: '',
         updatedAt: null,
         legacy: true
       };
@@ -153,6 +166,8 @@ async function currentModal(cfg) {
       imagePath: cleanText(data.imagePath, 220),
       imageUrl: cleanText(data.imageUrl, 240) || `/${cleanText(data.imagePath, 220)}`,
       delaySeconds: clampDelay(data.delaySeconds),
+      buttonLabel: cleanText(data.buttonLabel, 40),
+      buttonUrl: cleanUrl(data.buttonUrl),
       updatedAt: data.updatedAt || null,
       legacy: false
     };
@@ -297,6 +312,8 @@ module.exports = async function handler(req, res) {
       imagePath,
       imageUrl: `/${imagePath}`,
       delaySeconds: clampDelay(req.body?.delaySeconds),
+      buttonLabel: cleanText(req.body?.buttonLabel, 40),
+      buttonUrl: cleanUrl(req.body?.buttonUrl),
       updatedAt: new Date().toISOString()
     };
 
