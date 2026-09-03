@@ -4,5 +4,7 @@
   "imagePath": "assets/event-modals/event-modal-1788428426328.webp",
   "imageUrl": "/assets/event-modals/event-modal-1788428426328.webp",
   "delaySeconds": 1,
-  "updatedAt": "2026-09-03T09:40:27.442Z"
+  "buttonLabel": "More Details",
+  "buttonUrl": "https://www.facebook.com/qorvo.cfph/",
+  "updatedAt": "2026-09-03T09:53:39.051Z"
 }
