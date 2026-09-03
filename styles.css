@@ -3757,3 +3757,14 @@ body.officer-photo-modal-open{overflow:hidden}
     display:none;
   }
 }
+
+/* WEB v6.29 — Civil War opening modal */
+body.site-opening-modal-open{overflow:hidden}
+.site-opening-modal{position:fixed;inset:0;z-index:11000;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(0,3,1,.91);backdrop-filter:blur(12px)}
+.site-opening-modal.is-open{display:flex}
+.site-opening-modal-shell{position:relative;width:min(92vw,560px);max-height:94vh;display:flex;align-items:center;justify-content:center;border:1px solid rgba(76,255,89,.42);background:#020604;box-shadow:0 35px 110px rgba(0,0,0,.82),0 0 55px rgba(47,255,66,.12)}
+.site-opening-modal-media{width:100%;max-height:94vh;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#000}
+.site-opening-modal-media img{display:block;width:auto;height:auto;max-width:100%;max-height:94vh;object-fit:contain;object-position:center}
+.site-opening-modal-close{position:absolute;top:10px;right:10px;z-index:3;display:grid;place-items:center;width:38px;height:38px;padding:0;border:1px solid rgba(76,255,89,.55);border-radius:50%;background:rgba(2,8,4,.9);color:#e8f1ea;font:400 27px/1 system-ui,sans-serif;cursor:pointer;box-shadow:0 5px 20px rgba(0,0,0,.45)}
+.site-opening-modal-close:hover{border-color:#4cff59;color:#4cff59}
+@media(max-width:600px){.site-opening-modal{padding:10px}.site-opening-modal-shell{width:min(96vw,560px);max-height:96vh}.site-opening-modal-media,.site-opening-modal-media img{max-height:96vh}.site-opening-modal-close{top:8px;right:8px;width:36px;height:36px}}
