@@ -1773,7 +1773,7 @@ a{color:inherit}
 
 
 <style>
-/* WEB v7.29 — Final match midpoint alignment */
+/* WEB v7.30 — Final match midpoint alignment */
 .final-round > .matches > .match{
   will-change:transform;
 }
@@ -1849,9 +1849,13 @@ a{color:inherit}
 
     const rs=br.rounds||[];
     for(let r=0;r<rs.length-1;r++){
-      const winners=(rs[r].matches||[]).map(effectiveWinner).filter(v=>v!=null);
+      const winners=(rs[r].matches||[]).map(effectiveWinner);
       const next=rs[r+1]?.matches||[];
       winners.forEach((winner,i)=>{
+        // Preserve the original upstream match index. A pending match must
+        // leave its downstream feeder slot empty instead of shifting later
+        // winners into an earlier match.
+        if(winner==null)return;
         const target=next[Math.floor(i/2)];
         if(!target)return;
         if(i%2===0){
