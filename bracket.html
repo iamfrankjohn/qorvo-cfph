@@ -1106,6 +1106,140 @@ a{color:inherit}
 }
 </style>
 
+
+<style>
+/* WEB v7.18 — Battle for 3rd above Final Standings */
+
+/* Lower area remains inside the same Official Match Bracket shell. */
+.bracket-lower{
+  width:100%;
+  box-sizing:border-box;
+  margin-top:18px;
+  padding:30px 24px 38px;
+  border-top:1px solid rgba(76,255,89,.16);
+}
+
+/* Battle for 3rd comes first and sits toward the Semifinal/Final side on desktop. */
+.bracket-lower .third-match{
+  width:100%;
+  box-sizing:border-box;
+  display:flex !important;
+  justify-content:center !important;
+  margin:0 0 42px !important;
+}
+
+.bracket-lower .third-block{
+  margin-left:auto !important;
+  margin-right:auto !important;
+}
+
+/* Final Standings is the final element in the container, full-width and centered. */
+.bracket-lower .standings-section{
+  width:100%;
+  box-sizing:border-box;
+  display:flex !important;
+  justify-content:center !important;
+  padding:34px 0 8px !important;
+  border-top:1px solid rgba(76,255,89,.10);
+}
+
+/* Restore the v7.15/v7.16 centered square podium layout. */
+.bracket-lower .standings-section .podium-round{
+  position:static !important;
+  width:min(100%,860px) !important;
+  min-width:0 !important;
+  flex:none !important;
+  align-self:auto !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+}
+
+.bracket-lower .standings-section .podium-inner{
+  position:static !important;
+  inset:auto !important;
+  width:100% !important;
+  transform:none !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+}
+
+.bracket-lower .standings-section .round-head{
+  width:100% !important;
+  justify-content:center !important;
+  margin:0 0 40px !important;
+  text-align:center !important;
+}
+
+.bracket-lower .standings-section .podium-stack{
+  width:100% !important;
+  min-height:0 !important;
+  display:flex !important;
+  flex-direction:row !important;
+  justify-content:center !important;
+  align-items:flex-end !important;
+  gap:28px !important;
+}
+
+.bracket-lower .standings-section .podium-card.second{order:1}
+.bracket-lower .standings-section .podium-card.champion{order:2}
+.bracket-lower .standings-section .podium-card.third{order:3}
+
+.bracket-lower .standings-section .podium-card{
+  width:220px !important;
+  height:220px !important;
+  min-height:220px !important;
+  flex:none !important;
+}
+
+.bracket-lower .standings-section .podium-card.champion{
+  width:240px !important;
+  height:240px !important;
+  min-height:240px !important;
+  transform:translateY(-24px) !important;
+}
+
+/* Mobile/tablet order: bracket flow → Battle for 3rd → Final Standings. */
+@media(max-width:760px){
+  .bracket-lower{
+    margin-top:12px;
+    padding:26px 16px 30px;
+  }
+
+  .bracket-lower .third-match{
+    margin-bottom:30px !important;
+    justify-content:center !important;
+  }
+
+  .bracket-lower .standings-section{
+    padding:28px 0 4px !important;
+  }
+
+  .bracket-lower .standings-section .round-head{
+    margin-bottom:30px !important;
+  }
+
+  .bracket-lower .standings-section .podium-stack{
+    flex-direction:column !important;
+    align-items:center !important;
+    gap:22px !important;
+  }
+
+  .bracket-lower .standings-section .podium-card,
+  .bracket-lower .standings-section .podium-card.champion{
+    width:220px !important;
+    height:220px !important;
+    min-height:220px !important;
+    transform:none !important;
+  }
+
+  .bracket-lower .standings-section .podium-card.champion{order:1}
+  .bracket-lower .standings-section .podium-card.second{order:2}
+  .bracket-lower .standings-section .podium-card.third{order:3}
+}
+</style>
+
 </head>
 <body>
 <header class="site-head">
@@ -1262,7 +1396,6 @@ function drawConnections(){
                     ${round.matches.map((m,mi)=>matchHTML(m,t.teams,`MATCH ${mi+1}`,ri,mi,ri===rounds.length-1)).join('')}
                   </div>
                 </section>`).join('')}
-                <div class="final-standings-side">${podium}</div>
               </div>
             </div>
           </div>
@@ -1273,6 +1406,7 @@ function drawConnections(){
                 ${matchHTML(t.bracket.thirdPlace,t.teams,'3RD PLACE MATCH',rounds.length,0,true)}
               </div>
             </div>` : ''}
+            <div class="standings-section">${podium}</div>
           </div>
         </div>`;
 
