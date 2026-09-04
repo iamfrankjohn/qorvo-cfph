@@ -1339,6 +1339,57 @@ a{color:inherit}
 }
 </style>
 
+
+<style>
+/* WEB v7.20 — Battle for 3rd in the open space directly BELOW Final */
+
+/* The lower area spans the bracket shell, but the third-place match is
+   positioned on the same horizontal centerline as the Final column. */
+.bracket-lower{
+  position:relative;
+  width:100%;
+  box-sizing:border-box;
+}
+
+/* On desktop, align the 250px third-place box directly under the 250px Final
+   column shown above. The bracket's desktop geometry is:
+   shell padding/scroll origin + Round1(250) + gap(78) + Semi(250) + gap(78),
+   so the Final column begins at 656px from the bracket content origin. */
+.bracket-lower .final-under-third{
+  width:250px !important;
+  margin:0 0 44px 656px !important;
+  display:flex !important;
+  justify-content:center !important;
+}
+
+.bracket-lower .final-under-third .third-block{
+  width:250px !important;
+  margin:0 !important;
+}
+
+/* Final Standings stays below, centered, unchanged. */
+.bracket-lower .standings-section{
+  width:100%;
+  margin:0 !important;
+}
+
+/* At narrower widths, stop forcing the desktop column offset.
+   Battle for 3rd stacks after the bracket flow and before Final Standings. */
+@media(max-width:980px){
+  .bracket-lower .final-under-third{
+    width:100% !important;
+    margin:0 0 36px !important;
+    justify-content:center !important;
+  }
+}
+
+@media(max-width:760px){
+  .bracket-lower .final-under-third{
+    margin-bottom:30px !important;
+  }
+}
+</style>
+
 </head>
 <body>
 <header class="site-head">
@@ -1495,16 +1546,16 @@ function drawConnections(){
                     ${round.matches.map((m,mi)=>matchHTML(m,t.teams,`MATCH ${mi+1}`,ri,mi,ri===rounds.length-1)).join('')}
                   </div>
                 </section>`).join('')}
-                ${t.bracket.thirdPlace ? `<section class="third-place-side">
-                  <div class="third-side-inner">
-                    <div class="third-title">BATTLE FOR 3RD</div>
-                    ${matchHTML(t.bracket.thirdPlace,t.teams,'3RD PLACE MATCH',rounds.length,0,true)}
-                  </div>
-                </section>` : ''}
               </div>
             </div>
           </div>
           <div class="bracket-lower">
+            ${t.bracket.thirdPlace ? `<div class="third-match final-under-third">
+              <div class="third-block">
+                <div class="third-title">BATTLE FOR 3RD</div>
+                ${matchHTML(t.bracket.thirdPlace,t.teams,'3RD PLACE MATCH',rounds.length,0,true)}
+              </div>
+            </div>` : ''}
             <div class="standings-section">${podium}</div>
           </div>
         </div>`;
