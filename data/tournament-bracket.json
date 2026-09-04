@@ -139,12 +139,12 @@
       "index": 0,
       "teamA": "team-1788511120322-4",
       "teamB": "team-1788511120322-7",
-      "scoreA": null,
-      "scoreB": null,
-      "winner": null,
-      "completed": false
+      "scoreA": 3,
+      "scoreB": 2,
+      "winner": "team-1788511120322-4",
+      "completed": true
     },
     "generatedAt": "2026-09-04T08:38:45.444Z"
   },
-  "updatedAt": "2026-09-04T08:39:54.531Z"
+  "updatedAt": "2026-09-04T08:39:59.317Z"
 }
