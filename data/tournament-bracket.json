@@ -2,7 +2,7 @@
   "title": "QORVO Civil War 3v3",
   "subtitle": "In-Clan Tournament",
   "status": "completed",
-  "thirdPlace": true,
+  "thirdPlace": false,
   "teams": [
     {
       "id": "team-1788523142276-1",
@@ -146,5 +146,5 @@
     },
     "generatedAt": "2026-09-04T11:59:15.908Z"
   },
-  "updatedAt": "2026-09-04T12:10:13.238Z"
+  "updatedAt": "2026-09-04T12:21:11.097Z"
 }
