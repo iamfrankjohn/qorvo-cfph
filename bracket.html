@@ -711,6 +711,39 @@ a{color:inherit}
 }
 </style>
 
+
+<style>
+/* WEB v7.11 — bracket alignment/spacing only */
+
+/* Vertically center the complete Final Standings block in its bracket column. */
+.podium-round{
+  align-self:stretch !important;
+  justify-content:center !important;
+}
+
+.podium-round .round-head{
+  flex:0 0 auto !important;
+}
+
+.podium-stack{
+  flex:0 0 auto !important;
+  justify-content:center !important;
+}
+
+/* Keep each round's match count close to its title instead of pushing it away. */
+.round-head{
+  justify-content:flex-start !important;
+  gap:10px !important;
+}
+
+.round-head .match-count,
+.round-head .round-count,
+.round-head > span:last-child{
+  margin-left:6px !important;
+  margin-right:0 !important;
+}
+</style>
+
 </head>
 <body>
 <header class="site-head">
