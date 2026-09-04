@@ -1715,6 +1715,62 @@ a{color:inherit}
 }
 </style>
 
+
+<style>
+/* WEB v7.27 — compact centered desktop bracket */
+@media(min-width:1024px){
+  /* Outer page can remain full width, while the bracket itself stays compact. */
+  .bracket-shell{
+    width:100% !important;
+    max-width:none !important;
+  }
+
+  .scroller{
+    overflow-x:visible !important;
+    padding-left:24px !important;
+    padding-right:24px !important;
+  }
+
+  .bracket-stage{
+    width:100% !important;
+    max-width:1180px !important;
+    min-width:0 !important;
+    margin-left:auto !important;
+    margin-right:auto !important;
+  }
+
+  .bracket{
+    width:max-content !important;
+    min-width:0 !important;
+    margin-left:auto !important;
+    margin-right:auto !important;
+    justify-content:flex-start !important;
+    gap:78px !important;
+  }
+
+  .round{
+    flex:0 0 250px !important;
+    min-width:250px !important;
+  }
+}
+
+/* Tablet/mobile keep the original horizontal scrolling behavior. */
+@media(max-width:1023px){
+  .scroller{
+    overflow-x:auto !important;
+  }
+
+  .bracket-stage,
+  .bracket{
+    width:max-content !important;
+    max-width:none !important;
+    min-width:100% !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+  }
+}
+</style>
+
 </head>
 <body>
 <header class="site-head">
@@ -1746,7 +1802,69 @@ a{color:inherit}
 (()=>{
   const $=id=>document.getElementById(id);
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const teamName=(id,teams)=>teams.find(t=>t.id===id)?.name||'TBD';
+
+  // Resolve team IDs consistently even if older/saved bracket data contains
+  // string-vs-number ID differences.
+  const sameId=(a,b)=>a!=null&&b!=null&&String(a)===String(b);
+  const teamName=(id,teams)=>{
+    if(id==null)return 'TBD';
+    const found=teams.find(t=>sameId(t.id,id)||String(t.name)===String(id));
+    return found?.name||String(id);
+  };
+
+  // Determine a winner from the saved winner field first, then scores, then BYE.
+  // This is used for display hydration only; it does NOT modify persisted data.
+  function effectiveWinner(m){
+    if(!m)return null;
+    if(m.winner!=null)return m.winner;
+    const a=Number(m.scoreA),b=Number(m.scoreB);
+    if(m.teamA&&m.teamB&&Number.isFinite(a)&&Number.isFinite(b)&&a!==b){
+      return a>b?m.teamA:m.teamB;
+    }
+    if(m.completed&&((m.teamA&&!m.teamB)||(!m.teamA&&m.teamB))){
+      return m.teamA||m.teamB;
+    }
+    return null;
+  }
+
+  // Rebuild only MISSING downstream team references for display from the
+  // completed upstream results. Existing team IDs, scores and winners are
+  // preserved. This protects finalized brackets from appearing as TBD/TBD
+  // when a downstream slot was omitted/stale in stored JSON.
+  function hydrateBracketForDisplay(source){
+    if(!source)return source;
+    const br=typeof structuredClone==='function'
+      ? structuredClone(source)
+      : JSON.parse(JSON.stringify(source));
+
+    const rs=br.rounds||[];
+    for(let r=0;r<rs.length-1;r++){
+      const winners=(rs[r].matches||[]).map(effectiveWinner).filter(v=>v!=null);
+      const next=rs[r+1]?.matches||[];
+      winners.forEach((winner,i)=>{
+        const target=next[Math.floor(i/2)];
+        if(!target)return;
+        if(i%2===0){
+          if(target.teamA==null)target.teamA=winner;
+        }else{
+          if(target.teamB==null)target.teamB=winner;
+        }
+      });
+    }
+
+    if(br.thirdPlace&&rs.length>=3){
+      const semis=rs[rs.length-2]?.matches||[];
+      const loser=m=>{
+        const w=effectiveWinner(m);
+        if(!m||w==null||m.teamA==null||m.teamB==null)return null;
+        return sameId(w,m.teamA)?m.teamB:m.teamA;
+      };
+      if(br.thirdPlace.teamA==null)br.thirdPlace.teamA=loser(semis[0]);
+      if(br.thirdPlace.teamB==null)br.thirdPlace.teamB=loser(semis[1]);
+    }
+
+    return br;
+  }
 
   function teamRow(id,score,winner,teams){
     return `<div class="team ${winner?'winner':''} ${!id?'tbd':''}">
@@ -1767,7 +1885,7 @@ a{color:inherit}
     const hasScores=m.teamA&&m.teamB&&Number.isFinite(scoreA)&&Number.isFinite(scoreB)&&scoreA!==scoreB;
     const derivedWinner=hasScores?(scoreA>scoreB?String(m.teamA):String(m.teamB)):null;
     const winnerId=savedWinner||derivedWinner;
-    const isWinner=id=>id!=null&&winnerId!=null&&String(id)===winnerId;
+    const isWinner=id=>id!=null&&winnerId!=null&&sameId(id,winnerId);
 
     return `<div class="match" data-round="${roundIndex}" data-match="${matchIndex}" data-completed="${m.completed?'1':'0'}">
       <div class="match-label">${label||esc(m.id.toUpperCase())}${bye?' · BYE':''}</div>
@@ -1840,11 +1958,12 @@ function drawConnections(){
             :'The official bracket has not been generated yet.'}</p>
         </div>`;
       }else{
-        const rounds=t.bracket.rounds||[];
+        const displayBracket=hydrateBracketForDisplay(t.bracket);
+        const rounds=displayBracket.rounds||[];
         const final=rounds.at(-1)?.matches?.[0];
         const champion=final?.completed?teamName(final.winner,t.teams):'TBD';
         const second=final?.completed?teamName(final.winner===final.teamA?final.teamB:final.teamA,t.teams):'TBD';
-        const third=t.bracket.thirdPlace?.completed?teamName(t.bracket.thirdPlace.winner,t.teams):'TBD';
+        const third=displayBracket.thirdPlace?.completed?teamName(displayBracket.thirdPlace.winner,t.teams):'TBD';
 
         const podium=`<section class="podium-round">
           <div class="podium-inner">
@@ -1884,10 +2003,10 @@ function drawConnections(){
                   <div class="matches">
                     ${round.matches.map((m,mi)=>matchHTML(m,t.teams,`MATCH ${mi+1}`,ri,mi,ri===rounds.length-1)).join('')}
                   </div>
-                  ${ri===rounds.length-1 && t.bracket.thirdPlace ? `<div class="third-in-final-column">
+                  ${ri===rounds.length-1 && displayBracket.thirdPlace ? `<div class="third-in-final-column">
                     <div class="third-block">
                       <div class="third-title">BATTLE FOR 3RD</div>
-                      ${matchHTML(t.bracket.thirdPlace,t.teams,'3RD PLACE MATCH',rounds.length,0,true)}
+                      ${matchHTML(displayBracket.thirdPlace,t.teams,'3RD PLACE MATCH',rounds.length,0,true)}
                     </div>
                   </div>` : ''}
                 </section>`).join('')}
