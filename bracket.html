@@ -1773,12 +1773,24 @@ a{color:inherit}
 
 
 <style>
-/* WEB v7.30 — Final match midpoint alignment */
+/* WEB v7.31 — Final match midpoint alignment */
 .final-round > .matches > .match{
   will-change:transform;
 }
 
 /* Battle for 3rd intentionally remains untouched. */
+</style>
+
+
+<style>
+/* WEB v7.31 — hide Round 1 bye matches without collapsing bracket geometry */
+.match.match-ghost{
+  visibility:hidden !important;
+  pointer-events:none !important;
+  border-color:transparent !important;
+  background:transparent !important;
+  box-shadow:none !important;
+}
 </style>
 
 </head>
@@ -1887,8 +1899,22 @@ a{color:inherit}
     </div>`;
   }
 
+  function isByeMatch(m){
+    return !!(m&&m.completed&&m.winner&&((m.teamA&&!m.teamB)||(!m.teamA&&m.teamB)));
+  }
+
+  function byeGhostHTML(m,roundIndex,matchIndex){
+    // Preserve the exact Round 1 match slot in layout without displaying
+    // a fake game. Keeping the .match element preserves index-based pairing.
+    return `<div class="match match-ghost" data-round="${roundIndex}" data-match="${matchIndex}" data-completed="1" data-bye="1" aria-hidden="true">
+      <div class="match-label">&nbsp;</div>
+      <div class="team"></div>
+      <div class="team"></div>
+    </div>`;
+  }
+
   function matchHTML(m,teams,label='',roundIndex=0,matchIndex=0,lastRound=false){
-    const bye=m.completed&&m.winner&&((m.teamA&&!m.teamB)||(!m.teamA&&m.teamB));
+    const bye=isByeMatch(m);
 
     // Use the saved winner when available, but also fall back to score comparison.
     // Normalizing IDs prevents a string-vs-number mismatch from breaking the
@@ -1961,6 +1987,9 @@ function drawConnections(){
       const nextRound=[...rounds[r+1].querySelectorAll(':scope > .matches > .match')];
 
       current.forEach((match,mi)=>{
+        // A Round 1 bye keeps its DOM slot for pairing math, but represents
+        // no played match, so it must not have a visible connector.
+        if(match.dataset.bye==='1')return;
         const target=nextRound[Math.floor(mi/2)];
         if(!target)return;
 
@@ -2045,7 +2074,7 @@ function drawConnections(){
                     <span class="round-count">${round.matches.length} MATCH${round.matches.length===1?'':'ES'}</span>
                   </div>
                   <div class="matches">
-                    ${round.matches.map((m,mi)=>matchHTML(m,t.teams,`MATCH ${mi+1}`,ri,mi,ri===rounds.length-1)).join('')}
+                    ${round.matches.map((m,mi)=>ri===0&&isByeMatch(m)?byeGhostHTML(m,ri,mi):matchHTML(m,t.teams,`MATCH ${mi+1}`,ri,mi,ri===rounds.length-1)).join('')}
                   </div>
                   ${ri===rounds.length-1 && displayBracket.thirdPlace ? `<div class="third-in-final-column">
                     <div class="third-block">
