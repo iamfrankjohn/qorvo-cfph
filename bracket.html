@@ -1498,6 +1498,67 @@ a{color:inherit}
 }
 </style>
 
+
+<style>
+/* WEB v7.23 — responsive Battle for 3rd spacing fix
+   Desktop remains unchanged. Mobile removes the oversized fixed vertical gap. */
+
+@media(max-width:768px){
+  /*
+    BEFORE:
+      .third-in-bracket used a fixed top offset (345px on mobile)
+      while .bracket-stage reserved extra bottom padding.
+    On narrow screens this made the third-place card feel detached from Final.
+
+    AFTER:
+      Keep the card in the same Final-column x-position, but use a compact
+      top offset tied to the actual final-card region and reduce reserved space.
+  */
+
+  .bracket-stage{
+    padding-bottom:72px !important;
+  }
+
+  .third-in-bracket{
+    top:305px !important;
+    left:656px !important;
+    margin-top:0 !important;
+    transform:none !important;
+  }
+
+  .third-in-bracket .third-title{
+    margin-bottom:8px !important;
+  }
+
+  .bracket-lower{
+    padding-top:16px !important;
+  }
+
+  .bracket-lower .standings-section{
+    padding-top:18px !important;
+  }
+}
+
+/* Extra-tight phones */
+@media(max-width:480px){
+  .bracket-stage{
+    padding-bottom:58px !important;
+  }
+
+  .third-in-bracket{
+    top:292px !important;
+  }
+
+  .bracket-lower{
+    padding-top:12px !important;
+  }
+
+  .bracket-lower .standings-section{
+    padding-top:14px !important;
+  }
+}
+</style>
+
 </head>
 <body>
 <header class="site-head">
