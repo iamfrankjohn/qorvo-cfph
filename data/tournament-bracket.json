@@ -3,7 +3,40 @@
   "subtitle": "In-Clan Tournament",
   "status": "registration",
   "thirdPlace": true,
-  "teams": [],
+  "teams": [
+    {
+      "id": "team-1788516599217-1",
+      "name": "Team A"
+    },
+    {
+      "id": "team-1788516599217-2",
+      "name": "Team B"
+    },
+    {
+      "id": "team-1788516599217-3",
+      "name": "Team C"
+    },
+    {
+      "id": "team-1788516599217-4",
+      "name": "Team D"
+    },
+    {
+      "id": "team-1788516599217-5",
+      "name": "Team E"
+    },
+    {
+      "id": "team-1788516599217-6",
+      "name": "Team F"
+    },
+    {
+      "id": "team-1788516599217-7",
+      "name": "Team G"
+    },
+    {
+      "id": "team-1788516599217-8",
+      "name": "Team H"
+    }
+  ],
   "bracket": null,
-  "updatedAt": "2026-09-04T10:09:02.226Z"
+  "updatedAt": "2026-09-04T10:09:59.217Z"
 }
