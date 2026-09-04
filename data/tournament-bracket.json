@@ -82,10 +82,10 @@
             "index": 3,
             "teamA": "team-1788524680126-7",
             "teamB": "team-1788524680126-8",
-            "scoreA": null,
-            "scoreB": null,
-            "winner": null,
-            "completed": false
+            "scoreA": 2,
+            "scoreB": 3,
+            "winner": "team-1788524680126-8",
+            "completed": true
           }
         ]
       },
@@ -108,7 +108,7 @@
             "round": 1,
             "index": 1,
             "teamA": "team-1788524680126-5",
-            "teamB": null,
+            "teamB": "team-1788524680126-8",
             "scoreA": null,
             "scoreB": null,
             "winner": null,
@@ -146,5 +146,5 @@
     },
     "generatedAt": "2026-09-04T12:24:44.370Z"
   },
-  "updatedAt": "2026-09-04T12:52:47.324Z"
+  "updatedAt": "2026-09-04T12:52:51.484Z"
 }
