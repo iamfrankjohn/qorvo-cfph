@@ -1,23 +1,23 @@
-# QORVO CFPH — WEB v7.9
-## WEB v7.9 — Desktop Join Section Readability
+# QORVO CFPH — WEB v7.10
+## WEB v7.10 — Desktop Join Section Readability
 
 - Prevents desktop Join copy from being clipped by the diagonal panel and increases contrast in How To Join.
 
-## WEB v7.9 — Mobile Join Section Readability
+## WEB v7.10 — Mobile Join Section Readability
 
 - Fixes low-contrast text and green overlap in the mobile Join / How To Join section.
 
-## WEB v7.9 — Force STOVE visual in Server Intel
+## WEB v7.10 — Force STOVE visual in Server Intel
 
 - Server Intel now always displays the STOVE branded header visual.
 - Official article images no longer override that section branding.
 
-## WEB v7.9 — Auto-refresh Latest Facebook Post
+## WEB v7.10 — Auto-refresh Latest Facebook Post
 
 - Latest Facebook card retries and refreshes automatically every 60 seconds while visible.
 - No manual browser refresh is required when the checker finishes loading.
 
-## WEB v7.9 — Facebook Caption Formatting
+## WEB v7.10 — Facebook Caption Formatting
 
 The Latest From QORVO card now preserves Facebook caption line breaks. If the public Facebook render flattens the caption, the frontend restores QORVO's common stacked LOCK IN. / QORVO UP. / DOMINATE. layout and separates the hashtag block. Stray “Send message” UI text from Facebook is also removed when present.
 
