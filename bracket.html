@@ -326,6 +326,150 @@ a{color:inherit}
   .bracket-toolbar span{display:none}
 }
 </style>
+
+<style>
+/* WEB v7.6 — podium-style Final Standings */
+.podium-round{
+  min-width:760px !important;
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:center !important;
+}
+
+.podium-round .round-head{
+  justify-content:center !important;
+  margin-bottom:26px !important;
+}
+
+.podium-round .round-num{
+  display:none !important;
+}
+
+.podium-round .round-name{
+  color:#dbe5de !important;
+  font-size:11px !important;
+  letter-spacing:.20em !important;
+}
+
+.podium-stack{
+  display:grid !important;
+  grid-template-columns:repeat(3,minmax(210px,1fr)) !important;
+  gap:18px !important;
+  align-items:stretch !important;
+  min-height:0 !important;
+}
+
+.podium-card{
+  position:relative !important;
+  min-height:190px !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:52px 20px 22px !important;
+  text-align:center !important;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.008)),
+    #050806 !important;
+  clip-path:polygon(12px 0,calc(100% - 12px) 0,100% 12px,100% calc(100% - 12px),calc(100% - 12px) 100%,12px 100%,0 calc(100% - 12px),0 12px) !important;
+  box-shadow:none !important;
+}
+
+.podium-card::before{
+  content:"♛";
+  position:absolute;
+  top:-26px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:3;
+  font-family:Georgia,serif;
+  font-size:64px;
+  line-height:1;
+  text-shadow:0 4px 18px rgba(0,0,0,.65);
+}
+
+.podium-card::after{
+  content:"";
+  position:absolute;
+  inset:7px;
+  pointer-events:none;
+  clip-path:inherit;
+  border:1px solid currentColor;
+  opacity:.45;
+}
+
+.podium-card small{
+  margin:0 0 14px !important;
+  font-size:16px !important;
+  line-height:1.05 !important;
+  font-weight:900 !important;
+  letter-spacing:.08em !important;
+  font-style:italic !important;
+  text-transform:uppercase !important;
+}
+
+.podium-card strong{
+  width:100% !important;
+  font-size:25px !important;
+  line-height:1.05 !important;
+  font-weight:950 !important;
+  letter-spacing:.02em !important;
+  white-space:normal !important;
+  overflow:visible !important;
+  text-overflow:clip !important;
+  text-transform:uppercase !important;
+}
+
+.podium-card.champion{
+  color:#e6c126 !important;
+  border:2px solid #c5a51c !important;
+  background:
+    radial-gradient(circle at 50% 0,rgba(230,193,38,.16),transparent 42%),
+    linear-gradient(180deg,#171503,#060702 72%) !important;
+}
+
+.podium-card.champion::before{color:#ffd72f !important}
+.podium-card.champion small{color:#f0d652 !important}
+.podium-card.champion strong{color:#fff7cf !important}
+
+.podium-card.second{
+  color:#cfd6d2 !important;
+  border:2px solid #9ea9a3 !important;
+  background:
+    radial-gradient(circle at 50% 0,rgba(207,214,210,.13),transparent 42%),
+    linear-gradient(180deg,#151918,#070908 72%) !important;
+}
+
+.podium-card.second::before{color:#e8eeeb !important}
+.podium-card.second small{color:#e0e6e2 !important}
+.podium-card.second strong{color:#f4f6f5 !important}
+
+.podium-card.third{
+  color:#d27625 !important;
+  border:2px solid #a85a18 !important;
+  background:
+    radial-gradient(circle at 50% 0,rgba(210,118,37,.14),transparent 42%),
+    linear-gradient(180deg,#1a0d04,#080503 72%) !important;
+}
+
+.podium-card.third::before{color:#f28a26 !important}
+.podium-card.third small{color:#e39654 !important}
+.podium-card.third strong{color:#ffe3cc !important}
+
+.podium-card.pending strong{
+  color:#68746c !important;
+}
+
+@media(max-width:900px){
+  .podium-round{min-width:680px !important}
+  .podium-stack{grid-template-columns:repeat(3,minmax(190px,1fr)) !important}
+  .podium-card{min-height:170px !important;padding:46px 14px 18px !important}
+  .podium-card::before{font-size:54px !important;top:-22px !important}
+  .podium-card small{font-size:13px !important}
+  .podium-card strong{font-size:20px !important}
+}
+</style>
+
 </head>
 <body>
 <header class="site-head">
@@ -451,10 +595,10 @@ a{color:inherit}
               <small>CHAMPION</small><strong>${esc(champion)}</strong>
             </div>
             <div class="podium-card second ${second==='TBD'?'pending':''}">
-              <small>2ND RUNNER-UP</small><strong>${esc(second)}</strong>
+              <small>1ST RUNNER-UP</small><strong>${esc(second)}</strong>
             </div>
             <div class="podium-card third ${third==='TBD'?'pending':''}">
-              <small>3RD RUNNER-UP</small><strong>${esc(third)}</strong>
+              <small>2ND RUNNER-UP</small><strong>${esc(third)}</strong>
             </div>
           </div>
         </section>`;
