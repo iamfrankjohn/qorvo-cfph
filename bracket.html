@@ -1559,6 +1559,28 @@ a{color:inherit}
 }
 </style>
 
+
+<style>
+/* WEB v7.24 — mobile Battle for 3rd dynamically follows Final */
+@media(max-width:768px){
+  .third-in-bracket{
+    left:656px !important;
+    margin-top:0 !important;
+    transform:none !important;
+  }
+  .third-in-bracket .third-title{
+    margin-bottom:8px !important;
+  }
+  .bracket-lower{
+    margin-top:0 !important;
+    padding-top:14px !important;
+  }
+  .bracket-lower .standings-section{
+    padding-top:16px !important;
+  }
+}
+</style>
+
 </head>
 <body>
 <header class="site-head">
@@ -1609,6 +1631,31 @@ a{color:inherit}
   }
 
   
+
+
+function positionThirdPlaceResponsive(){
+  const third=document.querySelector('.third-in-bracket');
+  const stage=document.getElementById('bracket-stage');
+  const finalMatch=document.querySelector('.final-round .match');
+  if(!third||!stage||!finalMatch)return;
+
+  if(window.innerWidth<=768){
+    const stageRect=stage.getBoundingClientRect();
+    const finalRect=finalMatch.getBoundingClientRect();
+    const gap=18;
+    const top=(finalRect.bottom-stageRect.top)+gap;
+    third.style.top=`${top}px`;
+
+    const thirdHeight=third.offsetHeight||130;
+    const rounds=Array.from(stage.querySelectorAll('.round'));
+    const naturalHeight=rounds.reduce((max,el)=>Math.max(max,el.offsetTop+el.offsetHeight),0);
+    const neededBottom=top+thirdHeight+24;
+    stage.style.paddingBottom=`${Math.max(28,neededBottom-naturalHeight)}px`;
+  }else{
+    third.style.top='';
+    stage.style.paddingBottom='';
+  }
+}
 
 function drawConnections(){
     const stage=document.getElementById('bracket-stage');
@@ -1730,7 +1777,7 @@ function drawConnections(){
         </div>`;
 
         $('content').innerHTML=html;
-        requestAnimationFrame(()=>requestAnimationFrame(drawConnections));
+        requestAnimationFrame(()=>requestAnimationFrame(()=>{positionThirdPlaceResponsive();drawConnections();}));
       }
 
       if(t.updatedAt)$('updated').textContent=`LAST UPDATED ${new Date(t.updatedAt).toLocaleString()}`;
@@ -1742,7 +1789,7 @@ function drawConnections(){
   let resizeTimer;
   window.addEventListener('resize',()=>{
     clearTimeout(resizeTimer);
-    resizeTimer=setTimeout(drawConnections,120);
+    resizeTimer=setTimeout(()=>{positionThirdPlaceResponsive();drawConnections();},120);
   });
 
   load();
