@@ -1771,6 +1771,16 @@ a{color:inherit}
 }
 </style>
 
+
+<style>
+/* WEB v7.28 — Final match midpoint alignment */
+.final-round > .matches > .match{
+  will-change:transform;
+}
+
+/* Battle for 3rd intentionally remains untouched. */
+</style>
+
 </head>
 <body>
 <header class="site-head">
@@ -1898,6 +1908,36 @@ a{color:inherit}
 
 
 
+
+function alignFinalMatchToSemifinals(){
+  const rounds=[...document.querySelectorAll('.round')];
+  if(rounds.length<2)return;
+
+  const finalRound=rounds[rounds.length-1];
+  const semifinalRound=rounds[rounds.length-2];
+
+  // IMPORTANT: select only the real Final match, not the nested 3rd-place match.
+  const finalMatch=finalRound.querySelector(':scope > .matches > .match');
+  const semifinalMatches=[...semifinalRound.querySelectorAll(':scope > .matches > .match')];
+
+  if(!finalMatch||semifinalMatches.length<2)return;
+
+  // Reset only the Final match visual offset before re-measuring.
+  finalMatch.style.transform='';
+
+  const first=semifinalMatches[0].getBoundingClientRect();
+  const last=semifinalMatches[semifinalMatches.length-1].getBoundingClientRect();
+  const finalRect=finalMatch.getBoundingClientRect();
+
+  const semifinalMidpoint=((first.top+first.height/2)+(last.top+last.height/2))/2;
+  const finalCenter=finalRect.top+finalRect.height/2;
+  const delta=semifinalMidpoint-finalCenter;
+
+  // Transform changes only the Final card's painted position, so the
+  // Battle for 3rd block keeps its existing layout position unchanged.
+  finalMatch.style.transform=`translateY(${delta}px)`;
+}
+
 function drawConnections(){
     const stage=document.getElementById('bracket-stage');
     const svg=document.getElementById('bracket-connections');
@@ -1913,8 +1953,8 @@ function drawConnections(){
     svg.innerHTML='';
 
     for(let r=0;r<rounds.length-1;r++){
-      const current=[...rounds[r].querySelectorAll('.match')];
-      const nextRound=[...rounds[r+1].querySelectorAll('.match')];
+      const current=[...rounds[r].querySelectorAll(':scope > .matches > .match')];
+      const nextRound=[...rounds[r+1].querySelectorAll(':scope > .matches > .match')];
 
       current.forEach((match,mi)=>{
         const target=nextRound[Math.floor(mi/2)];
@@ -2019,7 +2059,7 @@ function drawConnections(){
         </div>`;
 
         $('content').innerHTML=html;
-        requestAnimationFrame(()=>requestAnimationFrame(drawConnections));
+        requestAnimationFrame(()=>requestAnimationFrame(()=>{alignFinalMatchToSemifinals();drawConnections();}));
       }
 
       if(t.updatedAt)$('updated').textContent=`LAST UPDATED ${new Date(t.updatedAt).toLocaleString()}`;
@@ -2031,7 +2071,7 @@ function drawConnections(){
   let resizeTimer;
   window.addEventListener('resize',()=>{
     clearTimeout(resizeTimer);
-    resizeTimer=setTimeout(drawConnections,120);
+    resizeTimer=setTimeout(()=>{alignFinalMatchToSemifinals();drawConnections();},120);
   });
 
   load();
