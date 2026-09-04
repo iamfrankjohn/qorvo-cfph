@@ -793,6 +793,23 @@ a{color:inherit}
 }
 </style>
 
+
+<style>
+/* WEB v7.14 — exact Final Standings alignment with the Final match */
+.podium-round{
+  position:relative !important;
+  align-self:stretch !important;
+}
+
+.podium-inner{
+  position:absolute !important;
+  left:0 !important;
+  top:50% !important; /* safe fallback until JS measures the Final match */
+  width:100% !important;
+  transform:translateY(-50%) !important;
+}
+</style>
+
 </head>
 <body>
 <header class="site-head">
@@ -842,7 +859,23 @@ a{color:inherit}
     </div>`;
   }
 
-  function drawConnections(){
+  
+function positionFinalStandings(){
+  const podiumRound=document.querySelector('.podium-round');
+  const podiumInner=document.querySelector('.podium-inner');
+  const finalMatch=document.querySelector('.final-round .match');
+  if(!podiumRound||!podiumInner||!finalMatch)return;
+
+  const roundRect=podiumRound.getBoundingClientRect();
+  const finalRect=finalMatch.getBoundingClientRect();
+
+  /* Put the CENTER of the complete standings block (title + all 3 cards)
+     on the exact same horizontal axis as the CENTER of the Final match. */
+  const targetCenter=(finalRect.top + finalRect.height/2) - roundRect.top;
+  podiumInner.style.top=`${targetCenter}px`;
+}
+
+function drawConnections(){
     const stage=document.getElementById('bracket-stage');
     const svg=document.getElementById('bracket-connections');
     const rounds=[...document.querySelectorAll('.round')];
@@ -963,7 +996,7 @@ a{color:inherit}
         }
 
         $('content').innerHTML=html;
-        requestAnimationFrame(()=>requestAnimationFrame(drawConnections));
+        requestAnimationFrame(()=>requestAnimationFrame(()=>{positionFinalStandings();drawConnections();}));
       }
 
       if(t.updatedAt)$('updated').textContent=`LAST UPDATED ${new Date(t.updatedAt).toLocaleString()}`;
@@ -975,7 +1008,7 @@ a{color:inherit}
   let resizeTimer;
   window.addEventListener('resize',()=>{
     clearTimeout(resizeTimer);
-    resizeTimer=setTimeout(drawConnections,120);
+    resizeTimer=setTimeout(()=>{positionFinalStandings();drawConnections();},120);
   });
 
   load();
