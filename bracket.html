@@ -975,6 +975,137 @@ a{color:inherit}
 }
 </style>
 
+
+<style>
+/* WEB v7.17 — Final Standings beside Final match */
+
+.final-standings-side{
+  min-width:760px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  align-self:stretch;
+  padding-left:10px;
+  box-sizing:border-box;
+}
+
+/* Reuse the existing square podium cards without changing their visual design. */
+.final-standings-side .podium-round{
+  position:static !important;
+  width:100% !important;
+  min-width:0 !important;
+  flex:none !important;
+  align-self:auto !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+
+.final-standings-side .podium-inner{
+  position:static !important;
+  inset:auto !important;
+  width:100% !important;
+  transform:none !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+}
+
+.final-standings-side .round-head{
+  width:100% !important;
+  justify-content:center !important;
+  margin:0 0 34px !important;
+  text-align:center !important;
+}
+
+.final-standings-side .podium-stack{
+  width:100% !important;
+  min-height:0 !important;
+  display:flex !important;
+  flex-direction:row !important;
+  justify-content:center !important;
+  align-items:flex-end !important;
+  gap:22px !important;
+}
+
+/* Desktop order: 1st Runner-Up | Champion | 2nd Runner-Up */
+.final-standings-side .podium-card.second{order:1}
+.final-standings-side .podium-card.champion{order:2}
+.final-standings-side .podium-card.third{order:3}
+
+/* Keep the exact square sizes/styles from v7.15/v7.16 */
+.final-standings-side .podium-card{
+  width:220px !important;
+  height:220px !important;
+  min-height:220px !important;
+  flex:none !important;
+}
+
+.final-standings-side .podium-card.champion{
+  width:240px !important;
+  height:240px !important;
+  min-height:240px !important;
+  transform:translateY(-24px) !important;
+}
+
+/* Lower section now contains Battle for 3rd only. */
+.bracket-lower{
+  margin-top:18px;
+  padding-top:30px;
+  padding-bottom:34px;
+}
+
+.bracket-lower .third-match{
+  width:100%;
+  margin:0 !important;
+  justify-content:center !important;
+}
+
+/* Smaller screens: standings move below the Final match within the same bracket flow,
+   then Battle for 3rd remains below the whole flow. */
+@media(max-width:980px){
+  .final-standings-side{
+    min-width:520px;
+    padding-left:0;
+  }
+
+  .final-standings-side .podium-stack{
+    flex-direction:column !important;
+    align-items:center !important;
+    gap:20px !important;
+  }
+
+  .final-standings-side .podium-card,
+  .final-standings-side .podium-card.champion{
+    order:initial;
+    width:220px !important;
+    height:220px !important;
+    min-height:220px !important;
+    transform:none !important;
+  }
+
+  .final-standings-side .podium-card.champion{order:1}
+  .final-standings-side .podium-card.second{order:2}
+  .final-standings-side .podium-card.third{order:3}
+}
+
+@media(max-width:760px){
+  .final-standings-side{
+    min-width:220px;
+    width:220px;
+  }
+
+  .final-standings-side .round-head{
+    margin-bottom:28px !important;
+  }
+
+  .final-standings-side .podium-stack{
+    gap:18px !important;
+  }
+}
+</style>
+
 </head>
 <body>
 <header class="site-head">
@@ -1131,11 +1262,11 @@ function drawConnections(){
                     ${round.matches.map((m,mi)=>matchHTML(m,t.teams,`MATCH ${mi+1}`,ri,mi,ri===rounds.length-1)).join('')}
                   </div>
                 </section>`).join('')}
+                <div class="final-standings-side">${podium}</div>
               </div>
             </div>
           </div>
           <div class="bracket-lower">
-            <div class="standings-section">${podium}</div>
             ${t.bracket.thirdPlace ? `<div class="third-match">
               <div class="third-block">
                 <div class="third-title">BATTLE FOR 3RD</div>
