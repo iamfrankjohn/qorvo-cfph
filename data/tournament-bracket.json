@@ -1,7 +1,7 @@
 {
   "title": "QORVO Civil War 3v3",
   "subtitle": "In-Clan Tournament",
-  "status": "finalized",
+  "status": "registration",
   "thirdPlace": true,
   "teams": [
     {
@@ -29,103 +29,6 @@
       "name": "Team F"
     }
   ],
-  "bracket": {
-    "size": 6,
-    "rounds": [
-      {
-        "name": "ROUND 1",
-        "matches": [
-          {
-            "id": "r1m1",
-            "round": 0,
-            "index": 0,
-            "teamA": "team-1788526485765-1",
-            "teamB": "team-1788526485765-2",
-            "scoreA": null,
-            "scoreB": null,
-            "winner": null,
-            "completed": false
-          },
-          {
-            "id": "r1m2",
-            "round": 0,
-            "index": 1,
-            "teamA": "team-1788526485765-3",
-            "teamB": "team-1788526485765-4",
-            "scoreA": null,
-            "scoreB": null,
-            "winner": null,
-            "completed": false
-          },
-          {
-            "id": "r1m3",
-            "round": 0,
-            "index": 2,
-            "teamA": "team-1788526485765-5",
-            "teamB": "team-1788526485765-6",
-            "scoreA": null,
-            "scoreB": null,
-            "winner": null,
-            "completed": false
-          }
-        ]
-      },
-      {
-        "name": "SEMIFINALS",
-        "matches": [
-          {
-            "id": "r2m1",
-            "round": 1,
-            "index": 0,
-            "teamA": null,
-            "teamB": null,
-            "scoreA": null,
-            "scoreB": null,
-            "winner": null,
-            "completed": false
-          },
-          {
-            "id": "r2m2",
-            "round": 1,
-            "index": 1,
-            "teamA": null,
-            "teamB": null,
-            "scoreA": null,
-            "scoreB": null,
-            "winner": null,
-            "completed": false
-          }
-        ]
-      },
-      {
-        "name": "FINAL",
-        "matches": [
-          {
-            "id": "r3m1",
-            "round": 2,
-            "index": 0,
-            "teamA": null,
-            "teamB": null,
-            "scoreA": null,
-            "scoreB": null,
-            "winner": null,
-            "completed": false
-          }
-        ]
-      }
-    ],
-    "thirdPlace": {
-      "id": "third-place",
-      "round": 3,
-      "index": 0,
-      "teamA": null,
-      "teamB": null,
-      "scoreA": null,
-      "scoreB": null,
-      "winner": null,
-      "completed": false
-    },
-    "generatedAt": "2026-09-04T12:54:50.483Z"
-  },
-  "updatedAt": "2026-09-04T12:54:50.483Z"
+  "bracket": null,
+  "updatedAt": "2026-09-04T13:10:21.405Z"
 }
