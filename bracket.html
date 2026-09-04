@@ -929,6 +929,52 @@ a{color:inherit}
 }
 </style>
 
+
+<style>
+/* WEB v7.16 — Final Standings + Battle for 3rd inside bracket-shell */
+.bracket-lower{
+  width:100%;
+  box-sizing:border-box;
+  margin-top:18px;
+  padding:34px 24px 36px;
+  border-top:1px solid rgba(76,255,89,.16);
+  background:linear-gradient(180deg,rgba(76,255,89,.012),rgba(0,0,0,0));
+}
+
+.bracket-lower .standings-section{
+  width:100%;
+  padding:18px 0 30px !important;
+  display:flex;
+  justify-content:center;
+  box-sizing:border-box;
+}
+
+.bracket-lower .third-match{
+  width:100%;
+  margin:16px 0 0 !important;
+  display:flex !important;
+  justify-content:center !important;
+}
+
+.bracket-lower .third-block{
+  margin-left:auto !important;
+  margin-right:auto !important;
+}
+
+@media(max-width:760px){
+  .bracket-lower{
+    margin-top:12px;
+    padding:28px 16px 30px;
+  }
+  .bracket-lower .standings-section{
+    padding:12px 0 24px !important;
+  }
+  .bracket-lower .third-match{
+    margin-top:12px !important;
+  }
+}
+</style>
+
 </head>
 <body>
 <header class="site-head">
@@ -1088,17 +1134,16 @@ function drawConnections(){
               </div>
             </div>
           </div>
-        </div>
-        <div class="standings-section">${podium}</div>`;
-
-        if(t.bracket.thirdPlace){
-          html+=`<div class="third-match">
-            <div class="third-block">
-              <div class="third-title">BATTLE FOR 3RD</div>
-              ${matchHTML(t.bracket.thirdPlace,t.teams,'3RD PLACE MATCH',rounds.length,0,true)}
-            </div>
-          </div>`;
-        }
+          <div class="bracket-lower">
+            <div class="standings-section">${podium}</div>
+            ${t.bracket.thirdPlace ? `<div class="third-match">
+              <div class="third-block">
+                <div class="third-title">BATTLE FOR 3RD</div>
+                ${matchHTML(t.bracket.thirdPlace,t.teams,'3RD PLACE MATCH',rounds.length,0,true)}
+              </div>
+            </div>` : ''}
+          </div>
+        </div>`;
 
         $('content').innerHTML=html;
         requestAnimationFrame(()=>requestAnimationFrame(drawConnections));
