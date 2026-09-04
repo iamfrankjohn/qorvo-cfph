@@ -503,6 +503,72 @@ a{color:inherit}
 }
 </style>
 
+
+<style>
+/* WEB v7.8 — shorter Final Standings + narrower Battle for 3rd */
+.podium-round{
+  align-self:center !important;
+  min-width:560px !important;
+  flex:0 0 auto !important;
+}
+
+.podium-stack{
+  flex:none !important;
+  min-height:0 !important;
+  align-items:stretch !important;
+}
+
+.podium-card{
+  min-height:118px !important;
+  padding:30px 12px 12px !important;
+}
+
+.podium-card::before{
+  top:-14px !important;
+  font-size:38px !important;
+}
+
+.podium-card small{
+  margin-bottom:7px !important;
+  font-size:10px !important;
+}
+
+.podium-card strong{
+  font-size:16px !important;
+}
+
+.third-block{
+  width:min(100%,380px) !important;
+  padding:10px !important;
+}
+
+.third-block .match-label{
+  padding:5px 8px !important;
+}
+
+.third-block .team{
+  height:34px !important;
+  padding:0 9px !important;
+}
+
+.third-block .team-name{
+  font-size:10px !important;
+}
+
+.third-block .score{
+  font-size:11px !important;
+}
+
+@media(max-width:900px){
+  .podium-round{min-width:520px !important}
+  .podium-card{min-height:110px !important;padding:28px 10px 11px !important}
+  .podium-card::before{font-size:34px !important;top:-12px !important}
+  .podium-card small{font-size:9px !important}
+  .podium-card strong{font-size:15px !important}
+  .third-block{width:min(100%,340px) !important}
+}
+</style>
+
 </head>
 <body>
 <header class="site-head">
