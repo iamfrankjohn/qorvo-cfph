@@ -71,10 +71,10 @@
             "index": 2,
             "teamA": "team-1788523142276-5",
             "teamB": "team-1788523142276-6",
-            "scoreA": null,
-            "scoreB": null,
-            "winner": null,
-            "completed": false
+            "scoreA": 3,
+            "scoreB": 2,
+            "winner": "team-1788523142276-5",
+            "completed": true
           },
           {
             "id": "r1m4",
@@ -107,7 +107,7 @@
             "id": "r2m2",
             "round": 1,
             "index": 1,
-            "teamA": null,
+            "teamA": "team-1788523142276-5",
             "teamB": null,
             "scoreA": null,
             "scoreB": null,
@@ -146,5 +146,5 @@
     },
     "generatedAt": "2026-09-04T11:59:15.908Z"
   },
-  "updatedAt": "2026-09-04T12:09:26.106Z"
+  "updatedAt": "2026-09-04T12:09:30.838Z"
 }
