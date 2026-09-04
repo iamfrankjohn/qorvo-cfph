@@ -1463,6 +1463,41 @@ a{color:inherit}
 }
 </style>
 
+
+<style>
+/* WEB v7.22 — Mobile spacing fix for Battle for 3rd */
+
+@media(max-width:760px){
+  /* The previous absolute top:430px + 170px reserved bottom space created
+     an oversized vertical gap on phones. Pull the card upward and tighten
+     the stage height while keeping it inside the upper bracket area. */
+  .bracket-stage{
+    padding-bottom:95px !important;
+  }
+
+  .third-in-bracket{
+    top:345px !important;
+    left:656px !important;
+    width:220px !important;
+  }
+
+  .third-in-bracket .third-block,
+  .third-in-bracket .match{
+    width:220px !important;
+  }
+
+  /* Keep Final Standings closer to the bracket section on mobile. */
+  .bracket-lower{
+    margin-top:0 !important;
+    padding-top:22px !important;
+  }
+
+  .bracket-lower .standings-section{
+    padding-top:24px !important;
+  }
+}
+</style>
+
 </head>
 <body>
 <header class="site-head">
