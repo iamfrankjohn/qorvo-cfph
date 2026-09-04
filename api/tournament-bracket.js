@@ -13,6 +13,54 @@ function normalize(raw){const d=blank();d.title=clean(raw?.title)||d.title;d.sub
 function pow2(n){let p=1;while(p<n)p*=2;return p}
 function shuffle(a){const x=[...a];for(let i=x.length-1;i>0;i--){const j=crypto.randomInt(i+1);[x[i],x[j]]=[x[j],x[i]]}return x}
 const match=(id,r,i,a=null,b=null)=>({id,round:r,index:i,teamA:a,teamB:b,scoreA:null,scoreB:null,winner:null,completed:false});
-function advance(br){const rs=br.rounds||[];for(let pass=0;pass<rs.length+2;pass++){let changed=false;for(let r=0;r<rs.length;r++)for(let m=0;m<rs[r].matches.length;m++){const x=rs[r].matches[m];if(r===0&&!x.completed&&((x.teamA&&!x.teamB)||(!x.teamA&&x.teamB))){x.winner=x.teamA||x.teamB;x.completed=true;changed=true}if(x.completed&&x.winner&&r<rs.length-1){const n=rs[r+1].matches[Math.floor(m/2)],k=m%2?'teamB':'teamA';if(n[k]!==x.winner){n[k]=x.winner;changed=true}}}if(!changed)break}if(br.thirdPlace&&rs.length>=2){const semis=rs[rs.length-2].matches.slice(0,2);const loser=x=>x.completed&&x.winner?(x.winner===x.teamA?x.teamB:x.teamA):null;br.thirdPlace.teamA=loser(semis[0]);br.thirdPlace.teamB=loser(semis[1])}}
-function generate(teams,randomize,third){const seeded=randomize?shuffle(teams):[...teams];if(seeded.length<2)throw new Error('Add at least 2 teams first.');const size=pow2(seeded.length),roundCount=Math.log2(size),slots=Array(size).fill(null);/* Standard seed slots, with byes distributed instead of clustered. */let lo=0,hi=size-1;seeded.forEach((t,i)=>{slots[i%2===0?lo++:hi--]=t.id});const rounds=[];for(let r=0;r<roundCount;r++){const count=size/(2**(r+1)),ms=[];for(let i=0;i<count;i++)ms.push(match(`r${r+1}m${i+1}`,r,i,r===0?slots[i*2]:null,r===0?slots[i*2+1]:null));rounds.push({name:r===roundCount-1?'FINAL':r===roundCount-2?'SEMIFINALS':`ROUND ${r+1}`,matches:ms})}const br={size,rounds,thirdPlace:third&&teams.length>=4?match('third-place',roundCount,0):null,generatedAt:new Date().toISOString()};advance(br);return br}
+function advance(br){
+  const rs=br.rounds||[];
+  if(!rs.length)return;
+  // Round 1 only gets a bye when the total team count itself is odd.
+  for(const x of rs[0].matches){
+    if(!x.completed&&((x.teamA&&!x.teamB)||(!x.teamA&&x.teamB))){x.winner=x.teamA||x.teamB;x.completed=true}
+  }
+  // Populate each later round from the winners of the previous round.
+  for(let r=0;r<rs.length-1;r++){
+    const winners=rs[r].matches.filter(x=>x.completed&&x.winner).map(x=>x.winner);
+    const next=rs[r+1].matches;
+    // Clear only unplayed downstream slots so updates stay deterministic.
+    for(const n of next){if(!n.completed){n.teamA=null;n.teamB=null;n.winner=null;n.scoreA=null;n.scoreB=null}}
+    for(let i=0;i<winners.length;i++){
+      const n=next[Math.floor(i/2)];if(!n)continue;
+      if(i%2===0)n.teamA=winners[i];else n.teamB=winners[i];
+    }
+    // If all previous matches are complete and one winner has no opponent,
+    // that winner gets the bye in this later round.
+    if(rs[r].matches.every(x=>x.completed)){
+      for(const n of next){
+        if(!n.completed&&((n.teamA&&!n.teamB)||(!n.teamA&&n.teamB))){n.winner=n.teamA||n.teamB;n.completed=true}
+      }
+    }
+  }
+  if(br.thirdPlace&&rs.length>=3){
+    const semis=rs[rs.length-2].matches.slice(0,2);
+    const loser=x=>x&&x.completed&&x.winner&&x.teamA&&x.teamB?(x.winner===x.teamA?x.teamB:x.teamA):null;
+    br.thirdPlace.teamA=loser(semis[0]);br.thirdPlace.teamB=loser(semis[1]);
+  }
+}
+function generate(teams,randomize,third){
+  const seeded=randomize?shuffle(teams):[...teams];
+  if(seeded.length<2)throw new Error('Add at least 2 teams first.');
+  const rounds=[];
+  // Pair every available team immediately in Round 1.
+  // Example: 6 teams => 3 matches in Round 1.
+  const first=[];
+  for(let i=0;i<seeded.length;i+=2)first.push(match(`r1m${Math.floor(i/2)+1}`,0,Math.floor(i/2),seeded[i]?.id||null,seeded[i+1]?.id||null));
+  rounds.push({name:'ROUND 1',matches:first});
+  let prev=first.length,r=1;
+  while(prev>1){
+    const count=Math.ceil(prev/2),ms=[];
+    for(let i=0;i<count;i++)ms.push(match(`r${r+1}m${i+1}`,r,i));
+    const name=count===1?'FINAL':(count===2?'SEMIFINALS':`ROUND ${r+1}`);
+    rounds.push({name,matches:ms});prev=count;r++;
+  }
+  const br={size:seeded.length,rounds,thirdPlace:third&&teams.length>=4?match('third-place',rounds.length,0):null,generatedAt:new Date().toISOString()};
+  advance(br);return br;
+}
 module.exports=async(req,res)=>{res.setHeader('Cache-Control','no-store');const c=cfg();if(req.method==='GET'){try{if(!okcfg(c))return res.status(200).json({ok:true,tournament:blank(),source:'local'});const x=await read(c);return res.status(200).json({ok:true,tournament:normalize(x.data),source:'github'})}catch(e){console.error(e);return res.status(200).json({ok:true,tournament:blank(),warning:'Tournament data unavailable.'})}}if(req.method!=='POST'){res.setHeader('Allow','GET, POST');return res.status(405).json({ok:false,error:'Method not allowed'})}const pin=process.env.QORVO_ADMIN_PIN;if(!pin||!/^[0-9]{6}$/.test(pin))return res.status(500).json({ok:false,error:'QORVO_ADMIN_PIN must be exactly 6 digits.'});if(!safe(req.body?.pin,pin))return res.status(401).json({ok:false,error:'Incorrect admin PIN.'});if(!okcfg(c))return res.status(500).json({ok:false,error:'GitHub storage is not configured.'});try{const cur=await read(c);let d=normalize(cur.data),a=clean(req.body?.action,30);if(a==='save-settings'){d.title=clean(req.body?.title)||d.title;d.subtitle=clean(req.body?.subtitle)||d.subtitle;d.status=['registration','finalized','ongoing','completed'].includes(req.body?.status)?req.body.status:d.status;d.thirdPlace=req.body?.thirdPlace!==false}else if(a==='save-teams'){if(d.bracket)throw new Error('Reset the bracket before changing teams.');const names=Array.isArray(req.body?.teams)?req.body.teams.map(x=>clean(x,60)).filter(Boolean):[],seen=new Set();d.teams=names.filter(n=>{const k=n.toLowerCase();if(seen.has(k))return false;seen.add(k);return true}).slice(0,64).map((name,i)=>({id:`team-${Date.now()}-${i+1}`,name}))}else if(a==='generate'){d.thirdPlace=req.body?.thirdPlace!==false;d.bracket=generate(d.teams,Boolean(req.body?.randomize),d.thirdPlace);d.status='finalized'}else if(a==='reset'){d.bracket=null;d.status='registration'}else if(a==='result'){if(!d.bracket)throw new Error('Generate the bracket first.');const id=clean(req.body?.matchId,60),all=d.bracket.rounds.flatMap(r=>r.matches).concat(d.bracket.thirdPlace?[d.bracket.thirdPlace]:[]),m=all.find(x=>x.id===id);if(!m||!m.teamA||!m.teamB)throw new Error('This match is not ready.');const sa=Number(req.body?.scoreA),sb=Number(req.body?.scoreB);if(!Number.isInteger(sa)||!Number.isInteger(sb)||sa<0||sb<0||sa===sb)throw new Error('Enter valid non-tied whole-number scores.');m.scoreA=sa;m.scoreB=sb;m.winner=sa>sb?m.teamA:m.teamB;m.completed=true;advance(d.bracket);d.status='ongoing';const f=d.bracket.rounds.at(-1)?.matches?.[0];if(f?.completed&&(!d.bracket.thirdPlace||d.bracket.thirdPlace.completed))d.status='completed'}else throw new Error('Unknown bracket action.');d.updatedAt=new Date().toISOString();await write(c,d,cur.sha,`Update QORVO tournament bracket: ${a}`);return res.status(200).json({ok:true,tournament:d})}catch(e){console.error(e);return res.status(400).json({ok:false,error:e.message||'Could not update bracket.'})}};
