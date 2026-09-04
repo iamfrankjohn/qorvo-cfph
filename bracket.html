@@ -770,6 +770,29 @@ a{color:inherit}
 }
 </style>
 
+
+<style>
+/* WEB v7.13 — center Final Standings against the bracket MATCH AREA.
+   The round headers occupy the top of each column, so the visual center of
+   the matches sits slightly below 50% of the whole column. */
+.podium-round{
+  position:relative !important;
+  align-self:stretch !important;
+}
+
+.podium-inner{
+  position:absolute !important;
+  left:0 !important;
+  top:calc(50% + 28px) !important;
+  width:100% !important;
+  transform:translateY(-50%) !important;
+}
+
+.podium-inner .round-head{
+  margin-top:0 !important;
+}
+</style>
+
 </head>
 <body>
 <header class="site-head">
