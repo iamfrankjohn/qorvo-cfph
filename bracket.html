@@ -1655,6 +1655,66 @@ a{color:inherit}
 }
 </style>
 
+
+<style>
+/* WEB v7.26 — desktop full-width bracket + consistent winner highlighting */
+@media(min-width:1024px){
+  /* Let the bracket use the complete desktop viewport instead of the old
+     1580px page cap. */
+  .main{
+    width:100% !important;
+    max-width:none !important;
+    box-sizing:border-box;
+    padding-left:clamp(18px,2.25vw,44px) !important;
+    padding-right:clamp(18px,2.25vw,44px) !important;
+  }
+
+  .bracket-shell{
+    width:100%;
+    box-sizing:border-box;
+  }
+
+  /* Desktop should not require horizontal scrolling. */
+  .scroller{
+    overflow-x:visible !important;
+    padding-left:24px;
+    padding-right:24px;
+  }
+
+  .bracket-stage{
+    width:100% !important;
+    min-width:0 !important;
+  }
+
+  .bracket{
+    width:100% !important;
+    min-width:0 !important;
+    justify-content:space-between;
+    gap:clamp(36px,5vw,96px) !important;
+  }
+
+  .round{
+    flex:0 0 250px;
+    min-width:250px;
+  }
+}
+
+/* Tablet/phone retain horizontal scrolling when the full bracket no longer fits. */
+@media(max-width:1023px){
+  .scroller{
+    overflow-x:auto;
+  }
+  .bracket-stage{
+    width:max-content;
+    min-width:100%;
+  }
+  .bracket{
+    width:max-content;
+    min-width:100%;
+  }
+}
+</style>
+
 </head>
 <body>
 <header class="site-head">
@@ -1697,10 +1757,22 @@ a{color:inherit}
 
   function matchHTML(m,teams,label='',roundIndex=0,matchIndex=0,lastRound=false){
     const bye=m.completed&&m.winner&&((m.teamA&&!m.teamB)||(!m.teamA&&m.teamB));
+
+    // Use the saved winner when available, but also fall back to score comparison.
+    // Normalizing IDs prevents a string-vs-number mismatch from breaking the
+    // winner highlight in the Final match.
+    const savedWinner=m.winner!=null?String(m.winner):null;
+    const scoreA=Number(m.scoreA);
+    const scoreB=Number(m.scoreB);
+    const hasScores=m.teamA&&m.teamB&&Number.isFinite(scoreA)&&Number.isFinite(scoreB)&&scoreA!==scoreB;
+    const derivedWinner=hasScores?(scoreA>scoreB?String(m.teamA):String(m.teamB)):null;
+    const winnerId=savedWinner||derivedWinner;
+    const isWinner=id=>id!=null&&winnerId!=null&&String(id)===winnerId;
+
     return `<div class="match" data-round="${roundIndex}" data-match="${matchIndex}" data-completed="${m.completed?'1':'0'}">
       <div class="match-label">${label||esc(m.id.toUpperCase())}${bye?' · BYE':''}</div>
-      ${teamRow(m.teamA,m.scoreA,m.completed&&m.winner===m.teamA,teams)}
-      ${teamRow(m.teamB,m.scoreB,m.completed&&m.winner===m.teamB,teams)}
+      ${teamRow(m.teamA,m.scoreA,isWinner(m.teamA),teams)}
+      ${teamRow(m.teamB,m.scoreB,isWinner(m.teamB),teams)}
     </div>`;
   }
 
