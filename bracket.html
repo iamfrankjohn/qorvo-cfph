@@ -1581,6 +1581,80 @@ a{color:inherit}
 }
 </style>
 
+
+<style>
+/* WEB v7.25 — Battle for 3rd is part of the Final column, not absolutely positioned */
+
+.final-round{
+  position:relative;
+}
+
+/* Keep the Final match where it already is, then place Battle for 3rd naturally below it. */
+.final-round .third-in-final-column{
+  width:250px;
+  margin:72px auto 0;
+  display:flex;
+  justify-content:center;
+  box-sizing:border-box;
+}
+
+.final-round .third-in-final-column .third-block{
+  width:250px !important;
+  margin:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  background:transparent !important;
+}
+
+.final-round .third-in-final-column .third-title{
+  margin:0 0 10px !important;
+  color:var(--bronze) !important;
+  font-size:9px !important;
+  font-weight:900 !important;
+  letter-spacing:.17em !important;
+  text-align:center !important;
+}
+
+/* Preserve the existing third-place match card styling and proportions. */
+.final-round .third-in-final-column .match{
+  width:250px !important;
+}
+
+/* Remove the old extra stage space used only by absolute positioning. */
+.bracket-stage{
+  padding-bottom:0 !important;
+}
+
+/* MOBILE: compact stack under Final; no fixed top/left, no overlap. */
+@media(max-width:768px){
+  .final-round .third-in-final-column{
+    width:220px;
+    margin:28px auto 0 !important;
+  }
+
+  .final-round .third-in-final-column .third-block,
+  .final-round .third-in-final-column .match{
+    width:220px !important;
+  }
+
+  .bracket-lower{
+    margin-top:0 !important;
+    padding-top:16px !important;
+  }
+
+  .bracket-lower .standings-section{
+    padding-top:18px !important;
+  }
+}
+
+/* Very small phones: tighten slightly more. */
+@media(max-width:480px){
+  .final-round .third-in-final-column{
+    margin-top:22px !important;
+  }
+}
+</style>
+
 </head>
 <body>
 <header class="site-head">
@@ -1633,29 +1707,6 @@ a{color:inherit}
   
 
 
-function positionThirdPlaceResponsive(){
-  const third=document.querySelector('.third-in-bracket');
-  const stage=document.getElementById('bracket-stage');
-  const finalMatch=document.querySelector('.final-round .match');
-  if(!third||!stage||!finalMatch)return;
-
-  if(window.innerWidth<=768){
-    const stageRect=stage.getBoundingClientRect();
-    const finalRect=finalMatch.getBoundingClientRect();
-    const gap=18;
-    const top=(finalRect.bottom-stageRect.top)+gap;
-    third.style.top=`${top}px`;
-
-    const thirdHeight=third.offsetHeight||130;
-    const rounds=Array.from(stage.querySelectorAll('.round'));
-    const naturalHeight=rounds.reduce((max,el)=>Math.max(max,el.offsetTop+el.offsetHeight),0);
-    const neededBottom=top+thirdHeight+24;
-    stage.style.paddingBottom=`${Math.max(28,neededBottom-naturalHeight)}px`;
-  }else{
-    third.style.top='';
-    stage.style.paddingBottom='';
-  }
-}
 
 function drawConnections(){
     const stage=document.getElementById('bracket-stage');
@@ -1761,14 +1812,14 @@ function drawConnections(){
                   <div class="matches">
                     ${round.matches.map((m,mi)=>matchHTML(m,t.teams,`MATCH ${mi+1}`,ri,mi,ri===rounds.length-1)).join('')}
                   </div>
+                  ${ri===rounds.length-1 && t.bracket.thirdPlace ? `<div class="third-in-final-column">
+                    <div class="third-block">
+                      <div class="third-title">BATTLE FOR 3RD</div>
+                      ${matchHTML(t.bracket.thirdPlace,t.teams,'3RD PLACE MATCH',rounds.length,0,true)}
+                    </div>
+                  </div>` : ''}
                 </section>`).join('')}
               </div>
-              ${t.bracket.thirdPlace ? `<div class="third-in-bracket">
-                <div class="third-block">
-                  <div class="third-title">BATTLE FOR 3RD</div>
-                  ${matchHTML(t.bracket.thirdPlace,t.teams,'3RD PLACE MATCH',rounds.length,0,true)}
-                </div>
-              </div>` : ''}
             </div>
           </div>
           <div class="bracket-lower">
@@ -1777,7 +1828,7 @@ function drawConnections(){
         </div>`;
 
         $('content').innerHTML=html;
-        requestAnimationFrame(()=>requestAnimationFrame(()=>{positionThirdPlaceResponsive();drawConnections();}));
+        requestAnimationFrame(()=>requestAnimationFrame(drawConnections));
       }
 
       if(t.updatedAt)$('updated').textContent=`LAST UPDATED ${new Date(t.updatedAt).toLocaleString()}`;
@@ -1789,7 +1840,7 @@ function drawConnections(){
   let resizeTimer;
   window.addEventListener('resize',()=>{
     clearTimeout(resizeTimer);
-    resizeTimer=setTimeout(()=>{positionThirdPlaceResponsive();drawConnections();},120);
+    resizeTimer=setTimeout(drawConnections,120);
   });
 
   load();
