@@ -3996,3 +3996,6 @@ body.site-opening-modal-open{overflow:hidden}
     gap:5px !important;
   }
 }
+
+/* WEB v7.0 — Tournament bracket entry */
+.tournament-bracket-link{display:inline-block;color:#4cff59;text-decoration:none;font-size:10px;font-weight:900;letter-spacing:.14em;border:1px solid rgba(76,255,89,.28);padding:9px 13px;margin:5px 0}.tournament-bracket-link:hover{border-color:#4cff59;background:rgba(76,255,89,.06)}

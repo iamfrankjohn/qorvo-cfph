@@ -52,6 +52,9 @@
     .event-modal-image-item{position:relative;border:1px solid rgba(78,255,96,.16);background:#020604}.event-modal-image-item img{display:block;width:100%;height:150px;object-fit:contain;background:#000}
     .event-modal-image-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:6px}.event-modal-image-actions button{min-height:30px;border:1px solid rgba(78,255,96,.18);background:#071009;color:#b7c7bb;cursor:pointer}
     .event-modal-image-number{position:absolute;top:6px;left:6px;padding:5px 8px;background:#020804;color:#4cff59;border:1px solid rgba(76,255,89,.45);font-size:10px;font-weight:900}
+
+    textarea{width:100%;padding:13px 14px;border-radius:11px;border:1px solid var(--line);background:#090d12;color:var(--text);outline:none;font:inherit;resize:vertical}textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(36,240,90,.08)}
+    .bracket-admin-round{margin-top:18px}.bracket-admin-round h4{margin:0 0 8px;color:var(--accent);font-size:.72rem;letter-spacing:.16em}.bracket-admin-match{display:grid;grid-template-columns:minmax(0,1fr) 68px 16px 68px auto;gap:8px;align-items:center;padding:9px;border:1px solid var(--line);border-radius:10px;background:#0a0f14;margin-top:7px}.bracket-admin-match .match-name{font-size:.8rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.bracket-admin-match input{padding:9px;text-align:center}@media(max-width:650px){.bracket-admin-match{grid-template-columns:minmax(0,1fr) 56px 12px 56px}.bracket-admin-match button{grid-column:1/-1}}
 </style>
 </head>
 <body>
@@ -66,6 +69,7 @@
         <button class="nav-btn active" type="button" data-tool="featured" disabled><span class="icon">★</span><span>Featured Post</span></button>
         <button class="nav-btn" type="button" data-tool="events" disabled><span class="icon">◫</span><span>Events & Schedule</span></button>
         <button class="nav-btn" type="button" data-tool="tiktok" disabled><span class="icon">●</span><span>TikTok LIVE Members</span></button>
+        <button class="nav-btn" type="button" data-tool="bracket" disabled><span class="icon">⌘</span><span>Tournament Bracket</span></button>
         <button class="nav-btn" type="button" data-tool="giveaways" disabled><span class="icon">◆</span><span>Giveaways</span></button>
       </nav>
       <div class="sidebar-foot"><a class="view-site" href="/">VIEW WEBSITE ↗</a></div>
@@ -102,6 +106,7 @@
               <option value="featured">Featured Post</option>
               <option value="events">Events & Schedule</option>
               <option value="tiktok">TikTok LIVE Members</option>
+              <option value="bracket">Tournament Bracket</option>
               <option value="giveaways">Giveaways</option>
             </select>
           </div>
@@ -110,6 +115,7 @@
             <div class="overview-card"><span>FEATURED POST</span><strong id="summary-featured"><em>Ready</em></strong></div>
             <div class="overview-card"><span>EVENTS</span><strong id="summary-events">0</strong></div>
             <div class="overview-card"><span>TIKTOK MEMBERS</span><strong id="summary-tiktok">0</strong></div>
+            <div class="overview-card"><span>BRACKET</span><strong id="summary-bracket">Not generated</strong></div>
             <div class="overview-card"><span>GIVEAWAYS</span><strong id="summary-giveaways">0</strong></div>
           </div>
 
@@ -209,6 +215,17 @@
               <div class="note" style="margin-top:14px">LIVE status is checked through your self-hosted TikTok checker. The private checker secret stays on Vercel/server-side.</div>
             </div>
           </section>
+          <section class="tool-panel" data-panel="bracket">
+            <div class="tool-card"><h3>Tournament Bracket</h3><p>Manage registration teams, generate the official bracket, and enter match results. <a href="/bracket.html" target="_blank" style="color:#24f05a">View public bracket ↗</a></p>
+              <div class="row"><div><label for="bracket-title">Tournament title</label><input id="bracket-title" maxlength="100" placeholder="QORVO Civil War 3v3"></div><div><label for="bracket-subtitle">Subtitle</label><input id="bracket-subtitle" maxlength="100" placeholder="In-Clan Tournament"></div></div>
+              <div class="row"><div><label for="bracket-status">Tournament status</label><select id="bracket-status"><option value="registration">Registration Open</option><option value="finalized">Teams Finalized</option><option value="ongoing">Tournament Ongoing</option><option value="completed">Completed</option></select></div><div><label>Placement match</label><label class="checkline"><input id="bracket-third" type="checkbox" checked> Include Battle for 3rd</label></div></div>
+              <div class="actions"><button class="btn primary" id="bracket-save-settings" type="button">Save Settings</button></div>
+            </div>
+            <div class="tool-card" style="margin-top:16px"><h3>Participating Teams</h3><p>Enter one team per line. You can keep editing this while registration is open.</p><label for="bracket-teams">Team list</label><textarea id="bracket-teams" rows="10" placeholder="Team A&#10;Team B&#10;Team C&#10;Team D"></textarea><div class="actions"><button class="btn primary" id="bracket-save-teams" type="button">Save Teams</button><span id="bracket-team-count" style="align-self:center;color:#94a0ad">0 teams</span></div></div>
+            <div class="tool-card" style="margin-top:16px"><h3>Generate Official Bracket</h3><p>Any team count from 2–64 is supported. BYEs are added automatically when needed. Once generated, positions remain fixed until you reset.</p><div class="actions"><button class="btn primary" id="bracket-generate-listed" type="button">Generate in Listed Order</button><button class="btn secondary" id="bracket-generate-random" type="button">Randomize & Generate</button><button class="btn danger" id="bracket-reset" type="button">Reset Bracket</button></div></div>
+            <div class="tool-card" style="margin-top:16px"><h3>Match Results</h3><p>Enter the final score for each completed match. Winners advance automatically; semifinal losers feed Battle for 3rd.</p><div id="bracket-match-admin"><div class="note">No bracket generated yet.</div></div></div>
+          </section>
+
           <section class="tool-panel" data-panel="giveaways">
             <div class="tool-card">
               <h3>QORVO Giveaways</h3>
@@ -245,6 +262,7 @@
     featured: ['FEATURED POST', 'Choose and manage the post pinned on the homepage.'],
     events: ['EVENTS & SCHEDULE', 'Create, remove and publish Events & Live entries.'],
     tiktok: ['TIKTOK LIVE MEMBERS', 'Manage the TikTok accounts monitored for LIVE status.'],
+    bracket: ['TOURNAMENT BRACKET', 'Build, seed and manage the official tournament bracket.'],
     giveaways: ['GIVEAWAYS', 'Create and manage QORVO Rewards and Supply Drops.']
   };
 
@@ -351,6 +369,7 @@
       await loadCurrent();
       await loadEvents();
       await loadEventModalAdmin();
+      await loadTournamentBracket();
       await loadTikTokMembers();
       await loadGiveawaysAdmin();
       status('Admin panel unlocked.', 'ok');
@@ -465,6 +484,18 @@
   $('event-modal-file').addEventListener('change',e=>{const fs=[...(e.target.files||[])],room=12-eventModalItems.length;fs.slice(0,room).forEach(file=>eventModalItems.push({type:'new',file,previewUrl:URL.createObjectURL(file)}));e.target.value='';renderEventModalAdmin()});
   $('save-event-modal-btn').addEventListener('click',async()=>{if(!eventModalItems.length)return status('Choose at least one image.','err');const btn=$('save-event-modal-btn');btn.disabled=true;try{const keepImagePaths=eventModalItems.filter(x=>x.type==='existing').map(x=>x.imagePath),imageDataList=[];for(const x of eventModalItems.filter(x=>x.type==='new'))imageDataList.push(await optimizeEventModalImage(x.file));const r=await fetch('/api/event-modal',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pin:adminPin,title:$('event-modal-title').value.trim(),delaySeconds:Number($('event-modal-delay').value||4),buttonLabel:$('event-modal-button-label').value.trim(),buttonUrl:$('event-modal-button-url').value.trim(),keepImagePaths,imageDataList})}),d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||'Could not publish.');eventModal=d.modal;eventModalItems=modalImages(eventModal).map(x=>({type:'existing',imagePath:x.imagePath,imageUrl:x.imageUrl,previewUrl:x.imageUrl}));renderEventModalAdmin();status('Multi-image event modal published.','ok')}catch(e){status(e.message,'err')}finally{btn.disabled=false}});
   $('remove-event-modal-btn').addEventListener('click',async()=>{if(!eventModal?.imageUrl||!confirm('Remove this modal and permanently delete all its photos?'))return;const r=await fetch('/api/event-modal',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({pin:adminPin})}),d=await r.json();if(!r.ok||!d.ok)return status(d.error||'Could not remove.','err');eventModal=null;eventModalItems=[];renderEventModalAdmin();status('Modal and all photos deleted.','ok')});
+
+  let tournamentBracket=null;
+  const bracketTeamName=id=>tournamentBracket?.teams?.find(t=>t.id===id)?.name||'TBD';
+  function makeBracketMatchRow(m){const row=document.createElement('div');row.className='bracket-admin-match';const n=document.createElement('span');n.className='match-name';n.textContent=`${bracketTeamName(m.teamA)} vs ${bracketTeamName(m.teamB)}`;const a=document.createElement('input');a.type='number';a.min='0';a.step='1';a.value=m.scoreA??'';const dash=document.createElement('span');dash.textContent='–';const b=document.createElement('input');b.type='number';b.min='0';b.step='1';b.value=m.scoreB??'';const save=document.createElement('button');save.type='button';save.className='btn secondary';save.textContent=m.completed?'Update Result':'Save Result';const ready=Boolean(m.teamA&&m.teamB);a.disabled=b.disabled=save.disabled=!ready;save.onclick=()=>bracketAction({action:'result',matchId:m.id,scoreA:Number(a.value),scoreB:Number(b.value)},'Saving result...');row.append(n,a,dash,b,save);return row}
+  function renderBracketAdmin(){if(!tournamentBracket)return;$('bracket-title').value=tournamentBracket.title||'';$('bracket-subtitle').value=tournamentBracket.subtitle||'';$('bracket-status').value=tournamentBracket.status||'registration';$('bracket-third').checked=tournamentBracket.thirdPlace!==false;$('bracket-teams').value=(tournamentBracket.teams||[]).map(t=>t.name).join('\n');$('bracket-team-count').textContent=`${tournamentBracket.teams?.length||0} teams`;$('summary-bracket').textContent=tournamentBracket.bracket?'Generated':'Not generated';$('bracket-teams').disabled=$('bracket-save-teams').disabled=Boolean(tournamentBracket.bracket);const box=$('bracket-match-admin');box.innerHTML='';if(!tournamentBracket.bracket){box.innerHTML='<div class="note">No bracket generated yet.</div>';return}(tournamentBracket.bracket.rounds||[]).forEach(r=>{const s=document.createElement('div');s.className='bracket-admin-round';const x=document.createElement('h4');x.textContent=r.name;s.appendChild(x);r.matches.forEach(m=>s.appendChild(makeBracketMatchRow(m)));box.appendChild(s)});if(tournamentBracket.bracket.thirdPlace){const s=document.createElement('div');s.className='bracket-admin-round';const x=document.createElement('h4');x.textContent='BATTLE FOR 3RD';s.append(x,makeBracketMatchRow(tournamentBracket.bracket.thirdPlace));box.appendChild(s)}}
+  async function loadTournamentBracket(){try{const r=await fetch(`/api/tournament-bracket?t=${Date.now()}`,{cache:'no-store'}),d=await r.json();tournamentBracket=d.tournament;renderBracketAdmin()}catch{status('Could not load tournament bracket.','err')}}
+  async function bracketAction(payload,msg){status(msg);try{const r=await fetch('/api/tournament-bracket',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pin:adminPin,...payload})}),d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||'Bracket update failed.');tournamentBracket=d.tournament;renderBracketAdmin();status('Tournament bracket updated.','ok')}catch(e){status(e.message,'err')}}
+  $('bracket-save-settings').onclick=()=>bracketAction({action:'save-settings',title:$('bracket-title').value,subtitle:$('bracket-subtitle').value,status:$('bracket-status').value,thirdPlace:$('bracket-third').checked},'Saving tournament settings...');
+  $('bracket-save-teams').onclick=()=>bracketAction({action:'save-teams',teams:$('bracket-teams').value.split(/\n+/).map(x=>x.trim()).filter(Boolean)},'Saving teams...');
+  $('bracket-generate-listed').onclick=()=>{if(confirm('Generate and lock the official bracket using the listed team order?'))bracketAction({action:'generate',randomize:false,thirdPlace:$('bracket-third').checked},'Generating bracket...')};
+  $('bracket-generate-random').onclick=()=>{if(confirm('Randomize all current teams and generate the official bracket?'))bracketAction({action:'generate',randomize:true,thirdPlace:$('bracket-third').checked},'Randomizing teams...')};
+  $('bracket-reset').onclick=()=>{if(confirm('Reset the bracket? All bracket positions and match results will be cleared, but the team list will remain.'))bracketAction({action:'reset'},'Resetting bracket...')};
 
   let tiktokMembers = [];
   function escHtml(v='') { return String(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c])); }
