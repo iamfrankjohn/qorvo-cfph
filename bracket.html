@@ -810,6 +810,125 @@ a{color:inherit}
 }
 </style>
 
+
+<style>
+/* WEB v7.15 — standalone centered esports podium */
+.standings-section{
+  width:100%;
+  box-sizing:border-box;
+  display:flex;
+  justify-content:center;
+  padding:58px 24px 38px;
+}
+.standings-section .podium-round{
+  position:static !important;
+  width:min(100%,860px) !important;
+  min-width:0 !important;
+  flex:none !important;
+  align-self:auto !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+}
+.standings-section .podium-inner{
+  position:static !important;
+  inset:auto !important;
+  width:100% !important;
+  transform:none !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+}
+.standings-section .round-head{
+  width:100% !important;
+  justify-content:center !important;
+  margin:0 0 40px !important;
+  text-align:center !important;
+}
+.standings-section .podium-stack{
+  width:100% !important;
+  min-height:0 !important;
+  display:flex !important;
+  flex-direction:row !important;
+  justify-content:center !important;
+  align-items:flex-end !important;
+  gap:28px !important;
+}
+.standings-section .podium-card.second{order:1}
+.standings-section .podium-card.champion{order:2}
+.standings-section .podium-card.third{order:3}
+.standings-section .podium-card{
+  position:relative !important;
+  width:220px !important;
+  height:220px !important;
+  min-height:220px !important;
+  box-sizing:border-box !important;
+  flex:none !important;
+  padding:48px 20px 24px !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  text-align:center !important;
+}
+.standings-section .podium-card.champion{
+  width:240px !important;
+  height:240px !important;
+  min-height:240px !important;
+  transform:translateY(-24px) !important;
+  box-shadow:0 0 28px rgba(255,214,0,.11),inset 0 0 24px rgba(255,214,0,.035) !important;
+}
+.standings-section .podium-card.second{
+  box-shadow:0 0 24px rgba(225,235,235,.08),inset 0 0 22px rgba(225,235,235,.025) !important;
+}
+.standings-section .podium-card.third{
+  box-shadow:0 0 24px rgba(214,116,18,.10),inset 0 0 22px rgba(214,116,18,.03) !important;
+}
+.standings-section .podium-card::before{
+  top:16px !important;
+  left:50% !important;
+  transform:translateX(-50%) !important;
+  font-size:42px !important;
+  line-height:1 !important;
+}
+.standings-section .podium-card.champion::before{font-size:48px !important}
+.standings-section .podium-card::after{inset:8px !important}
+.standings-section .podium-card small{
+  margin:0 0 12px !important;
+  font-size:11px !important;
+  letter-spacing:.09em !important;
+  text-align:center !important;
+}
+.standings-section .podium-card strong{
+  font-size:22px !important;
+  line-height:1.15 !important;
+  text-align:center !important;
+  max-width:100% !important;
+  overflow-wrap:anywhere !important;
+}
+.standings-section .podium-card.champion strong{font-size:25px !important}
+
+@media(max-width:760px){
+  .standings-section{padding:44px 18px 30px}
+  .standings-section .round-head{margin-bottom:30px !important}
+  .standings-section .podium-stack{
+    flex-direction:column !important;
+    align-items:center !important;
+    gap:22px !important;
+  }
+  .standings-section .podium-card,
+  .standings-section .podium-card.champion{
+    width:220px !important;
+    height:220px !important;
+    min-height:220px !important;
+    transform:none !important;
+  }
+  .standings-section .podium-card.champion{order:1}
+  .standings-section .podium-card.second{order:2}
+  .standings-section .podium-card.third{order:3}
+}
+</style>
+
 </head>
 <body>
 <header class="site-head">
@@ -860,20 +979,6 @@ a{color:inherit}
   }
 
   
-function positionFinalStandings(){
-  const podiumRound=document.querySelector('.podium-round');
-  const podiumInner=document.querySelector('.podium-inner');
-  const finalMatch=document.querySelector('.final-round .match');
-  if(!podiumRound||!podiumInner||!finalMatch)return;
-
-  const roundRect=podiumRound.getBoundingClientRect();
-  const finalRect=finalMatch.getBoundingClientRect();
-
-  /* Put the CENTER of the complete standings block (title + all 3 cards)
-     on the exact same horizontal axis as the CENTER of the Final match. */
-  const targetCenter=(finalRect.top + finalRect.height/2) - roundRect.top;
-  podiumInner.style.top=`${targetCenter}px`;
-}
 
 function drawConnections(){
     const stage=document.getElementById('bracket-stage');
@@ -980,11 +1085,11 @@ function drawConnections(){
                     ${round.matches.map((m,mi)=>matchHTML(m,t.teams,`MATCH ${mi+1}`,ri,mi,ri===rounds.length-1)).join('')}
                   </div>
                 </section>`).join('')}
-                ${podium}
               </div>
             </div>
           </div>
-        </div>`;
+        </div>
+        <div class="standings-section">${podium}</div>`;
 
         if(t.bracket.thirdPlace){
           html+=`<div class="third-match">
@@ -996,7 +1101,7 @@ function drawConnections(){
         }
 
         $('content').innerHTML=html;
-        requestAnimationFrame(()=>requestAnimationFrame(()=>{positionFinalStandings();drawConnections();}));
+        requestAnimationFrame(()=>requestAnimationFrame(drawConnections));
       }
 
       if(t.updatedAt)$('updated').textContent=`LAST UPDATED ${new Date(t.updatedAt).toLocaleString()}`;
@@ -1008,7 +1113,7 @@ function drawConnections(){
   let resizeTimer;
   window.addEventListener('resize',()=>{
     clearTimeout(resizeTimer);
-    resizeTimer=setTimeout(()=>{positionFinalStandings();drawConnections();},120);
+    resizeTimer=setTimeout(drawConnections,120);
   });
 
   load();
