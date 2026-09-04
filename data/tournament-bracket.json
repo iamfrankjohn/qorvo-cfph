@@ -5,14 +5,30 @@
   "thirdPlace": true,
   "teams": [
     {
-      "id": "team-1788509837784-1",
+      "id": "team-1788509904217-1",
       "name": "TEAM A"
     },
     {
-      "id": "team-1788509837784-2",
+      "id": "team-1788509904217-2",
       "name": "TEAM B"
+    },
+    {
+      "id": "team-1788509904217-3",
+      "name": "TEAM C"
+    },
+    {
+      "id": "team-1788509904217-4",
+      "name": "TEAM D"
+    },
+    {
+      "id": "team-1788509904217-5",
+      "name": "TEAM E"
+    },
+    {
+      "id": "team-1788509904217-6",
+      "name": "TEAM F"
     }
   ],
   "bracket": null,
-  "updatedAt": "2026-09-04T08:17:17.784Z"
-}\n
+  "updatedAt": "2026-09-04T08:18:24.217Z"
+}
