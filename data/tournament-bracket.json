@@ -3,7 +3,16 @@
   "subtitle": "In-Clan Tournament",
   "status": "registration",
   "thirdPlace": true,
-  "teams": [],
+  "teams": [
+    {
+      "id": "team-1788509837784-1",
+      "name": "TEAM A"
+    },
+    {
+      "id": "team-1788509837784-2",
+      "name": "TEAM B"
+    }
+  ],
   "bracket": null,
-  "updatedAt": "2026-09-04T08:10:38.901Z"
+  "updatedAt": "2026-09-04T08:17:17.784Z"
 }\n
