@@ -744,6 +744,32 @@ a{color:inherit}
 }
 </style>
 
+
+<style>
+/* WEB v7.12 — true vertical centering for Final Standings only */
+.podium-round{
+  position:relative !important;
+  align-self:stretch !important;
+  justify-content:initial !important;
+}
+
+.podium-inner{
+  position:absolute !important;
+  top:50% !important;
+  left:0 !important;
+  width:100% !important;
+  transform:translateY(-50%) !important;
+}
+
+.podium-inner .round-head{
+  margin-top:0 !important;
+}
+
+.podium-inner .podium-stack{
+  min-height:0 !important;
+}
+</style>
+
 </head>
 <body>
 <header class="site-head">
@@ -860,19 +886,21 @@ a{color:inherit}
         const third=t.bracket.thirdPlace?.completed?teamName(t.bracket.thirdPlace.winner,t.teams):'TBD';
 
         const podium=`<section class="podium-round">
-          <div class="round-head">
-            <span class="round-num">★</span>
-            <span class="round-name">FINAL STANDINGS</span>
-          </div>
-          <div class="podium-stack">
-            <div class="podium-card champion ${champion==='TBD'?'pending':''}">
-              <small>CHAMPION</small><strong>${esc(champion)}</strong>
+          <div class="podium-inner">
+            <div class="round-head">
+              <span class="round-num">★</span>
+              <span class="round-name">FINAL STANDINGS</span>
             </div>
-            <div class="podium-card second ${second==='TBD'?'pending':''}">
-              <small>1ST RUNNER-UP</small><strong>${esc(second)}</strong>
-            </div>
-            <div class="podium-card third ${third==='TBD'?'pending':''}">
-              <small>2ND RUNNER-UP</small><strong>${esc(third)}</strong>
+            <div class="podium-stack">
+              <div class="podium-card champion ${champion==='TBD'?'pending':''}">
+                <small>CHAMPION</small><strong>${esc(champion)}</strong>
+              </div>
+              <div class="podium-card second ${second==='TBD'?'pending':''}">
+                <small>1ST RUNNER-UP</small><strong>${esc(second)}</strong>
+              </div>
+              <div class="podium-card third ${third==='TBD'?'pending':''}">
+                <small>2ND RUNNER-UP</small><strong>${esc(third)}</strong>
+              </div>
             </div>
           </div>
         </section>`;
