@@ -5,38 +5,38 @@
   "thirdPlace": true,
   "teams": [
     {
-      "id": "team-1788673965222-1",
+      "id": "team-1788674082309-1",
       "name": "Team 7"
     },
     {
-      "id": "team-1788673965222-2",
+      "id": "team-1788674082309-2",
       "name": "Team 1"
     },
     {
-      "id": "team-1788673965222-3",
+      "id": "team-1788674082309-3",
       "name": "3DEVILZ"
     },
     {
-      "id": "team-1788673965222-4",
+      "id": "team-1788674082309-4",
       "name": "IYAKIN"
     },
     {
-      "id": "team-1788673965222-5",
-      "name": "Team 4"
+      "id": "team-1788674082309-5",
+      "name": "NOWARMUP"
     },
     {
-      "id": "team-1788673965222-6",
-      "name": "Team 2"
+      "id": "team-1788674082309-6",
+      "name": "EGULS"
     },
     {
-      "id": "team-1788673965222-7",
+      "id": "team-1788674082309-7",
       "name": "Team 5"
     },
     {
-      "id": "team-1788673965222-8",
+      "id": "team-1788674082309-8",
       "name": "Team 8"
     }
   ],
   "bracket": null,
-  "updatedAt": "2026-09-06T05:53:55.652Z"
+  "updatedAt": "2026-09-06T05:54:42.309Z"
 }
