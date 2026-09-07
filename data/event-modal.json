@@ -7,10 +7,14 @@
     {
       "imagePath": "assets/event-modals/event-modal-1788741176044-1.png",
       "imageUrl": "/assets/event-modals/event-modal-1788741176044-1.png"
+    },
+    {
+      "imagePath": "assets/event-modals/event-modal-1788760398556-1.png",
+      "imageUrl": "/assets/event-modals/event-modal-1788760398556-1.png"
     }
   ],
   "delaySeconds": 2,
   "buttonLabel": "",
   "buttonUrl": "",
-  "updatedAt": "2026-09-07T00:32:57.546Z"
+  "updatedAt": "2026-09-07T05:53:19.733Z"
 }
