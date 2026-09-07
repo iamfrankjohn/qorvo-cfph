@@ -1,24 +1,16 @@
 {
   "enabled": true,
   "title": "QORVO Event Announcement",
-  "imagePath": "assets/event-modals/event-modal-1788434695599-1.webp",
-  "imageUrl": "/assets/event-modals/event-modal-1788434695599-1.webp",
+  "imagePath": "assets/event-modals/event-modal-1788741176044-1.png",
+  "imageUrl": "/assets/event-modals/event-modal-1788741176044-1.png",
   "images": [
     {
-      "imagePath": "assets/event-modals/event-modal-1788434695599-1.webp",
-      "imageUrl": "/assets/event-modals/event-modal-1788434695599-1.webp"
-    },
-    {
-      "imagePath": "assets/event-modals/event-modal-1788434696479-2.webp",
-      "imageUrl": "/assets/event-modals/event-modal-1788434696479-2.webp"
-    },
-    {
-      "imagePath": "assets/event-modals/event-modal-1788434697507-3.webp",
-      "imageUrl": "/assets/event-modals/event-modal-1788434697507-3.webp"
+      "imagePath": "assets/event-modals/event-modal-1788741176044-1.png",
+      "imageUrl": "/assets/event-modals/event-modal-1788741176044-1.png"
     }
   ],
   "delaySeconds": 2,
   "buttonLabel": "",
   "buttonUrl": "",
-  "updatedAt": "2026-09-06T01:38:20.859Z"
+  "updatedAt": "2026-09-07T00:32:57.546Z"
 }
