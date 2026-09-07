@@ -14,7 +14,7 @@
     }
   ],
   "delaySeconds": 2,
-  "buttonLabel": "",
-  "buttonUrl": "",
-  "updatedAt": "2026-09-07T05:53:19.733Z"
+  "buttonLabel": "Tournament Bracket",
+  "buttonUrl": "https://qorvo-cfph.vercel.app/bracket",
+  "updatedAt": "2026-09-07T05:54:15.822Z"
 }
