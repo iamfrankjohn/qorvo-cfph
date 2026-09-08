@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
+<title>QORVO // Private Livestream</title>
+<script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:#020403;color:#eef7ef;font-family:Arial,sans-serif;display:grid;place-items:center}.wrap{width:min(1400px,100%);padding:18px}.head{display:flex;justify-content:space-between;gap:16px;align-items:end;margin-bottom:12px}.ey{color:#4cff59;font-size:10px;font-weight:900;letter-spacing:.18em}.head h1{margin:5px 0 0;font-size:25px}.status{font-size:11px;color:#839087}.video{aspect-ratio:16/9;background:#000;border:1px solid rgba(76,255,89,.2);position:relative;display:grid;place-items:center}.video video{width:100%;height:100%;object-fit:contain}.msg{position:absolute;text-align:center;color:#718078;line-height:1.6;padding:20px}.btn{margin-top:12px;width:100%;padding:13px;border:1px solid #4cff59;background:#4cff59;color:#031006;font-weight:900;cursor:pointer}.foot{text-align:center;color:#455249;font-size:9px;letter-spacing:.12em;margin-top:13px}@media(max-width:600px){.wrap{padding:9px}.head{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body><main class="wrap">
+<header class="head"><div><div class="ey">QORVO CFPH // PRIVATE STREAM</div><h1>Livestream Viewer</h1></div><div id="status" class="status">CONNECTING…</div></header>
+<div class="video"><div id="msg" class="msg">Connecting to the private livestream…</div><video id="video" autoplay playsinline controls></video></div>
+<button id="sound" class="btn" style="display:none">PLAY LIVESTREAM WITH AUDIO</button>
+<div class="foot">PRIVATE VIEWER • UNLISTED • WEB v7.33</div>
+</main>
+<script>
+(()=>{
+ const room=new URLSearchParams(location.search).get('room');
+ const video=document.getElementById('video'),msg=document.getElementById('msg'),status=document.getElementById('status'),sound=document.getElementById('sound');
+ if(!room||!/^[a-f0-9]{36}$/.test(room)){msg.textContent='Invalid or expired private livestream link.';status.textContent='OFFLINE';return}
+ const peer=new Peer(undefined,{debug:1});
+ peer.on('open',()=>{
+   status.textContent='JOINING…';
+   const call=peer.call('qorvo-host-'+room,new MediaStream());
+   call.on('stream',stream=>{
+     video.srcObject=stream;msg.style.display='none';status.textContent='LIVE';
+     const p=video.play();
+     if(p)p.catch(()=>{sound.style.display='block'});
+   });
+   call.on('close',()=>{status.textContent='OFFLINE';msg.style.display='block';msg.textContent='The livestream has ended.'});
+   call.on('error',()=>{status.textContent='OFFLINE';msg.style.display='block';msg.textContent='Could not connect to the livestream.'});
+ });
+ peer.on('error',err=>{
+   if(err.type==='peer-unavailable'){status.textContent='OFFLINE';msg.textContent='The livestream is offline or this link has expired.'}
+   else{status.textContent='CONNECTION ERROR';msg.textContent='Unable to connect to the private livestream.'}
+ });
+ sound.onclick=()=>{video.muted=false;video.play();sound.style.display='none'};
+})();
+</script></body></html>
