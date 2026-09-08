@@ -33,3 +33,13 @@ Note: the cooldown is best-effort in a serverless environment because individual
 ## Auto-unlock behavior
 
 There is no Unlock button in WEB v6.5. Once all six PIN digits are entered, authentication starts automatically. An incorrect PIN clears the six boxes and returns focus to the first digit.
+
+
+## Private livestream viewer PIN (WEB v7.43)
+
+For a separate viewer PIN, add this Production environment variable in Vercel:
+
+- Name: `QORVO_VIEWER_PIN`
+- Value: any 6-digit PIN you choose
+
+If `QORVO_VIEWER_PIN` is not set, the viewer will temporarily use `QORVO_ADMIN_PIN` as its fallback PIN. For better separation, use a different viewer PIN. The viewer PIN is never included in the permanent viewer URL.

@@ -3,6 +3,7 @@ const crypto = require('crypto');
 const MAX_ATTEMPTS = 5;
 const COOLDOWN_MS = 30 * 1000;
 const WINDOW_MS = 10 * 60 * 1000;
+const VIEWER_TOKEN_TTL = 12 * 60 * 60;
 const attempts = new Map();
 
 function safeEqual(a, b) {
@@ -12,9 +13,10 @@ function safeEqual(a, b) {
   return crypto.timingSafeEqual(left, right);
 }
 
-function clientKey(req) {
+function clientKey(req, scope = 'admin') {
   const forwarded = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim();
-  return forwarded || String(req.socket?.remoteAddress || 'unknown');
+  const ip = forwarded || String(req.socket?.remoteAddress || 'unknown');
+  return `${scope}:${ip}`;
 }
 
 function getAttemptState(key) {
@@ -65,11 +67,79 @@ function turnCredentials(res) {
   });
 }
 
+function viewerTokenSecret() {
+  return process.env.QORVO_VIEWER_TOKEN_SECRET || process.env.TURN_AUTH_SECRET || '';
+}
+
+function signViewerToken() {
+  const secret = viewerTokenSecret();
+  if (!secret) return null;
+  const exp = Math.floor(Date.now() / 1000) + VIEWER_TOKEN_TTL;
+  const nonce = crypto.randomBytes(12).toString('hex');
+  const payload = `${exp}.${nonce}`;
+  const sig = crypto.createHmac('sha256', secret).update(payload).digest('base64url');
+  return { token: `${payload}.${sig}`, expiresIn: VIEWER_TOKEN_TTL };
+}
+
+function verifyViewerToken(token) {
+  const secret = viewerTokenSecret();
+  if (!secret || typeof token !== 'string') return false;
+  const parts = token.split('.');
+  if (parts.length !== 3) return false;
+  const [expRaw, nonce, sig] = parts;
+  if (!/^\d+$/.test(expRaw) || !/^[a-f0-9]{24}$/.test(nonce) || !sig) return false;
+  const exp = Number(expRaw);
+  if (!Number.isFinite(exp) || exp < Math.floor(Date.now() / 1000)) return false;
+  const payload = `${expRaw}.${nonce}`;
+  const expected = crypto.createHmac('sha256', secret).update(payload).digest('base64url');
+  return safeEqual(sig, expected);
+}
+
+function rateLimitedPinCheck(req, res, configuredPin, scope, wrongMessage) {
+  const key = clientKey(req, scope);
+  const state = getAttemptState(key);
+  const now = Date.now();
+
+  if (state.lockedUntil > now) {
+    const retryAfter = Math.ceil((state.lockedUntil - now) / 1000);
+    res.setHeader('Retry-After', String(retryAfter));
+    return { ok: false, response: res.status(429).json({
+      ok: false,
+      error: `Too many incorrect attempts. Try again in ${retryAfter} seconds.`,
+      retryAfter
+    }) };
+  }
+
+  const pin = String(req.body?.pin || '');
+  if (!/^\d{6}$/.test(pin) || !safeEqual(pin, configuredPin)) {
+    state.count += 1;
+    if (state.count >= MAX_ATTEMPTS) {
+      state.count = 0;
+      state.windowStartedAt = now;
+      state.lockedUntil = now + COOLDOWN_MS;
+      attempts.set(key, state);
+      res.setHeader('Retry-After', '30');
+      return { ok: false, response: res.status(429).json({
+        ok: false,
+        error: 'Too many incorrect attempts. Try again in 30 seconds.',
+        retryAfter: 30
+      }) };
+    }
+    attempts.set(key, state);
+    return { ok: false, response: res.status(401).json({
+      ok: false,
+      error: wrongMessage,
+      attemptsRemaining: MAX_ATTEMPTS - state.count
+    }) };
+  }
+
+  attempts.delete(key);
+  return { ok: true };
+}
+
 module.exports = async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store, max-age=0');
 
-  // Reuse this existing Vercel Function for public, short-lived TURN REST credentials.
-  // This keeps the project within the Hobby plan's 12-function deployment limit.
   if (req.method === 'GET' && String(req.query?.mode || '') === 'turn') {
     return turnCredentials(res);
   }
@@ -77,6 +147,34 @@ module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
+  }
+
+  const mode = String(req.body?.mode || 'admin');
+
+  if (mode === 'viewer-verify') {
+    return res.status(verifyViewerToken(req.body?.token) ? 200 : 401).json({
+      ok: verifyViewerToken(req.body?.token)
+    });
+  }
+
+  if (mode === 'viewer') {
+    const configuredPin = process.env.QORVO_VIEWER_PIN || process.env.QORVO_ADMIN_PIN;
+    if (!configuredPin || !/^\d{6}$/.test(configuredPin)) {
+      return res.status(500).json({
+        ok: false,
+        error: 'Configure QORVO_VIEWER_PIN in Vercel as exactly 6 digits.'
+      });
+    }
+    if (!viewerTokenSecret()) {
+      return res.status(500).json({
+        ok: false,
+        error: 'Viewer token signing is not configured.'
+      });
+    }
+    const check = rateLimitedPinCheck(req, res, configuredPin, 'viewer', 'Incorrect viewer PIN.');
+    if (!check.ok) return check.response;
+    const signed = signViewerToken();
+    return res.status(200).json({ ok: true, ...signed });
   }
 
   const configuredPin = process.env.QORVO_ADMIN_PIN;
@@ -87,45 +185,7 @@ module.exports = async function handler(req, res) {
     });
   }
 
-  const key = clientKey(req);
-  const state = getAttemptState(key);
-  const now = Date.now();
-
-  if (state.lockedUntil > now) {
-    const retryAfter = Math.ceil((state.lockedUntil - now) / 1000);
-    res.setHeader('Retry-After', String(retryAfter));
-    return res.status(429).json({
-      ok: false,
-      error: `Too many incorrect attempts. Try again in ${retryAfter} seconds.`,
-      retryAfter
-    });
-  }
-
-  const pin = String(req.body?.pin || '');
-  if (!/^\d{6}$/.test(pin) || !safeEqual(pin, configuredPin)) {
-    state.count += 1;
-
-    if (state.count >= MAX_ATTEMPTS) {
-      state.count = 0;
-      state.windowStartedAt = now;
-      state.lockedUntil = now + COOLDOWN_MS;
-      attempts.set(key, state);
-      res.setHeader('Retry-After', '30');
-      return res.status(429).json({
-        ok: false,
-        error: 'Too many incorrect attempts. Try again in 30 seconds.',
-        retryAfter: 30
-      });
-    }
-
-    attempts.set(key, state);
-    return res.status(401).json({
-      ok: false,
-      error: 'Incorrect admin PIN.',
-      attemptsRemaining: MAX_ATTEMPTS - state.count
-    });
-  }
-
-  attempts.delete(key);
+  const check = rateLimitedPinCheck(req, res, configuredPin, 'admin', 'Incorrect admin PIN.');
+  if (!check.ok) return check.response;
   return res.status(200).json({ ok: true });
 };

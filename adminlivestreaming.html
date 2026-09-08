@@ -72,16 +72,19 @@
             <button id="endLive" class="btn danger" disabled>END LIVESTREAM</button>
           </div>
           <div id="liveBox" class="notice hidden">
-            <b>PRIVATE VIEWER LINK</b><br>
+            <b>PERMANENT PRIVATE VIEWER LINK</b><br>
             <input id="viewerLink" readonly style="width:100%;margin:8px 0;padding:9px;background:#020503;color:#fff;border:1px solid #243128">
             <button id="copyLink" class="btn" style="width:100%">COPY VIEWER LINK</button>
+            <div style="margin-top:12px"><b>VIEWER PIN</b></div>
+            <div id="viewerPin" style="margin:6px 0 10px;padding:12px;text-align:center;font-size:28px;font-weight:900;letter-spacing:.28em;background:#020503;color:#4cff59;border:1px solid #243128">------</div>
+            <div style="font-size:11px;color:#839087;margin-bottom:8px">Give this PIN to viewers. A new PIN is generated each time you click GO LIVE.</div>
             <div id="viewerCount" style="margin-top:8px">0 viewers connected</div>
           </div>
           <div id="message" class="notice">For Windows PC audio, choose <b>Entire Screen</b> in the browser share dialog and enable <b>Share system audio</b>. Browser/Windows support determines whether system audio is available.</div>
         </div>
       </aside>
     </div>
-    <div class="footer">PRIVATE TOOL • NOT LINKED IN PUBLIC NAVIGATION • WEB v7.41</div>
+    <div class="footer">PRIVATE TOOL • NOT LINKED IN PUBLIC NAVIGATION • WEB v7.43</div>
   </main>
 
 <script>
@@ -106,7 +109,8 @@ async function getIceConfig(){
 
   const $=id=>document.getElementById(id);
   let displayStream=null,micStream=null,mixedStream=null,audioCtx=null,destination=null,recorder=null,chunks=[],meterRAF=0;
-  let peer=null,roomToken='',liveCalls=new Map(),liveData=new Map();
+  const LIVE_ROOM_ID='qorvo-cfph-private-live';
+  let peer=null,liveCalls=new Map(),liveData=new Map(),currentViewerPin='';
 
   async function unlock(){
     const pin=$('pin').value.replace(/\D/g,'').slice(0,6);
@@ -209,27 +213,24 @@ async function getIceConfig(){
     $('statusDot').classList.remove('on');$('statusText').textContent='IDLE';
   }
 
-  function randomToken(){
-    const a=new Uint8Array(18);crypto.getRandomValues(a);
-    return Array.from(a,b=>b.toString(16).padStart(2,'0')).join('');
-  }
   function updateViewerCount(){
     const n=liveCalls.size;
     $('viewerCount').textContent=`${n} viewer${n===1?'':'s'} connected`;
   }
   async function goLive(){
     if(!mixedStream||peer)return;
-    roomToken=randomToken();
-    const peerId='qorvo-host-'+roomToken;
+    const peerId='qorvo-host-'+LIVE_ROOM_ID;
+    currentViewerPin=String(crypto.getRandomValues(new Uint32Array(1))[0]%1000000).padStart(6,'0');
+    $('viewerPin').textContent=currentViewerPin;
     $('goLive').disabled=true;
     $('message').textContent='Starting private WebRTC room…';
     const iceConfig=await getIceConfig();
     peer=new Peer(peerId,{host:'0.peerjs.com',port:443,path:'/',secure:true,debug:2,config:iceConfig});
     peer.on('open',()=>{
-      const url=`${location.origin}/livestream.html?room=${encodeURIComponent(roomToken)}`;
+      const url=`${location.origin}/livestream.html`;
       $('viewerLink').value=url;$('liveBox').classList.remove('hidden');
       $('endLive').disabled=false;$('statusText').textContent='LIVE';
-      $('message').innerHTML='Private livestream is ready. Share the generated viewer link only with people you want to watch.';
+      $('message').innerHTML='Private livestream is ready. Share the permanent viewer link and the <b>6-digit PIN shown above</b>.';
     });
     // Viewer first opens a normal PeerJS data connection. Once that signaling
     // path is confirmed, the HOST initiates the one-way media call back to the
@@ -237,6 +238,7 @@ async function getIceConfig(){
     peer.on('connection',conn=>{
       if(!mixedStream){ try{conn.close()}catch{}; return; }
       const viewerId=conn.peer;
+      const submittedPin=String(conn.metadata?.pin||'');
       if(liveData.has(viewerId)){ try{liveData.get(viewerId).close()}catch{} }
       liveData.set(viewerId,conn);
       const cleanup=()=>{
@@ -245,9 +247,11 @@ async function getIceConfig(){
         if(call){ try{call.close()}catch{}; liveCalls.delete(viewerId); }
         updateViewerCount();
       };
-      conn.on('open',()=>{
+      conn.on('open',async()=>{
         if(!mixedStream||liveCalls.has(viewerId))return;
         try{
+          if(!/^\d{6}$/.test(submittedPin)||submittedPin!==currentViewerPin){try{conn.send({type:'auth-failed'})}catch{};cleanup();return}
+          try{conn.send({type:'auth-ok'})}catch{}
           const call=peer.call(viewerId,mixedStream,{metadata:{type:'qorvo-host-stream'}});
           if(!call){cleanup();return;}
           liveCalls.set(viewerId,call);updateViewerCount();
@@ -266,8 +270,9 @@ async function getIceConfig(){
     for(const conn of liveData.values())try{conn.close()}catch{}
     liveCalls.clear();liveData.clear();updateViewerCount();
     if(peer){try{peer.destroy()}catch{}peer=null}
-    roomToken='';$('liveBox')?.classList.add('hidden');
+    $('liveBox')?.classList.add('hidden');
     if($('viewerLink'))$('viewerLink').value='';
+    currentViewerPin='';if($('viewerPin'))$('viewerPin').textContent='------';
     if($('goLive'))$('goLive').disabled=!mixedStream;
     if($('endLive'))$('endLive').disabled=true;
     if(mixedStream){$('statusText').textContent='CAPTURING'}else{$('statusText').textContent='IDLE'}
