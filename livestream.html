@@ -23,10 +23,10 @@ body.live-mode .video video{width:100vw;height:100vh;object-fit:contain;backgrou
 </div>
 <button id="sound" class="btn" style="display:none">ENABLE LIVESTREAM AUDIO</button>
 <div id="diag" class="foot" style="margin-top:8px"></div>
-<div class="foot">PRIVATE VIEWER • UNLISTED • WEB v7.40</div>
+<div class="foot">PRIVATE VIEWER • UNLISTED • WEB v7.41</div>
 </main>
 <script>
-(()=>{
+(async()=>{
 
 async function getIceConfig(){
   try{
@@ -53,7 +53,7 @@ async function getIceConfig(){
  const sound=document.getElementById('sound');
  const diag=document.getElementById('diag');
 
- let peer=null,mediaCall=null,gotStream=false,timeout=null,retryTimer=null,frameTimer=null;
+ let peer=null,mediaCall=null,dataConn=null,gotStream=false,timeout=null,retryTimer=null,frameTimer=null;
  const isOBS=/OBS|CEF/i.test(navigator.userAgent)||new URLSearchParams(location.search).get('obs')==='1';
 
  function setState(s,text){status.textContent=s;if(text){msg.style.display='block';msg.textContent=text}}
@@ -156,18 +156,30 @@ async function getIceConfig(){
 
  function connectMedia(){
    if(!peer||peer.destroyed||gotStream)return;
-   try{mediaCall?.close()}catch{}
+   try{dataConn?.close()}catch{}
    setState('JOINING…','Connecting to the private livestream…');
-   const call=peer.call('qorvo-host-'+room,new MediaStream(),{
+   dataConn=peer.connect('qorvo-host-'+room,{
      metadata:{type:'qorvo-viewer',obs:isOBS},
-     constraints:{offerToReceiveAudio:true,offerToReceiveVideo:true}
+     serialization:'json',reliable:true
    });
-   if(!call){fail('Could not create the livestream connection.');return}
-   attachCall(call);
+   dataConn.on('open',()=>{
+     setState('CONNECTED…','Signaling connected. Waiting for the video stream…');
+     try{dataConn.send({type:'viewer-ready'})}catch{}
+   });
+   dataConn.on('close',()=>{
+     if(!gotStream){clearTimeout(retryTimer);retryTimer=setTimeout(connectMedia,1200)}
+   });
+   dataConn.on('error',()=>{if(!gotStream)fail('Could not establish the viewer signaling connection.')});
    startTimeout();
  }
 
  peer=new Peer(undefined,peerOptions);
+ peer.on('call',call=>{
+   if(gotStream){try{call.close()}catch{};return}
+   attachCall(call);
+   // PeerJS supports answering without a local stream for a one-way call.
+   try{call.answer()}catch{fail('Could not answer the livestream media call.')}
+ });
  peer.on('open',()=>connectMedia());
  peer.on('disconnected',()=>{
    if(!gotStream){
@@ -206,7 +218,7 @@ async function getIceConfig(){
  },{passive:true});
 
  window.addEventListener('beforeunload',()=>{
-   try{mediaCall?.close();peer?.destroy()}catch{}
+   try{mediaCall?.close();dataConn?.close();peer?.destroy()}catch{}
  });
 })();
 </script></body></html>

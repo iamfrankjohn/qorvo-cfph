@@ -81,7 +81,7 @@
         </div>
       </aside>
     </div>
-    <div class="footer">PRIVATE TOOL • NOT LINKED IN PUBLIC NAVIGATION • WEB v7.40</div>
+    <div class="footer">PRIVATE TOOL • NOT LINKED IN PUBLIC NAVIGATION • WEB v7.41</div>
   </main>
 
 <script>
@@ -106,7 +106,7 @@ async function getIceConfig(){
 
   const $=id=>document.getElementById(id);
   let displayStream=null,micStream=null,mixedStream=null,audioCtx=null,destination=null,recorder=null,chunks=[],meterRAF=0;
-  let peer=null,roomToken='',liveCalls=new Map();
+  let peer=null,roomToken='',liveCalls=new Map(),liveData=new Map();
 
   async function unlock(){
     const pin=$('pin').value.replace(/\D/g,'').slice(0,6);
@@ -231,20 +231,31 @@ async function getIceConfig(){
       $('endLive').disabled=false;$('statusText').textContent='LIVE';
       $('message').innerHTML='Private livestream is ready. Share the generated viewer link only with people you want to watch.';
     });
-    // Receive-only viewers initiate the media call. This is more compatible
-    // with Chromium/OBS Browser Source and normal desktop/mobile browsers:
-    // viewer sends an empty stream, HOST answers with the mixed screen stream.
-    peer.on('call',call=>{
-      if(!mixedStream){ try{call.close()}catch{}; return; }
-      if(liveCalls.has(call.peer)){ try{call.close()}catch{}; return; }
-      try{
-        call.answer(mixedStream);
-        liveCalls.set(call.peer,call);updateViewerCount();
-        const cleanup=()=>{liveCalls.delete(call.peer);updateViewerCount()};
-        call.on('close',cleanup);call.on('error',cleanup);
-      }catch(err){
-        try{call.close()}catch{}
-      }
+    // Viewer first opens a normal PeerJS data connection. Once that signaling
+    // path is confirmed, the HOST initiates the one-way media call back to the
+    // viewer. This avoids using an empty MediaStream as the caller stream.
+    peer.on('connection',conn=>{
+      if(!mixedStream){ try{conn.close()}catch{}; return; }
+      const viewerId=conn.peer;
+      if(liveData.has(viewerId)){ try{liveData.get(viewerId).close()}catch{} }
+      liveData.set(viewerId,conn);
+      const cleanup=()=>{
+        liveData.delete(viewerId);
+        const call=liveCalls.get(viewerId);
+        if(call){ try{call.close()}catch{}; liveCalls.delete(viewerId); }
+        updateViewerCount();
+      };
+      conn.on('open',()=>{
+        if(!mixedStream||liveCalls.has(viewerId))return;
+        try{
+          const call=peer.call(viewerId,mixedStream,{metadata:{type:'qorvo-host-stream'}});
+          if(!call){cleanup();return;}
+          liveCalls.set(viewerId,call);updateViewerCount();
+          call.on('close',()=>{liveCalls.delete(viewerId);updateViewerCount()});
+          call.on('error',()=>{liveCalls.delete(viewerId);updateViewerCount()});
+        }catch(err){cleanup()}
+      });
+      conn.on('close',cleanup);conn.on('error',cleanup);
     });
     peer.on('error',err=>{
       $('message').textContent='Livestream connection error: '+(err.message||err.type||'Unknown error');
@@ -252,7 +263,8 @@ async function getIceConfig(){
   }
   function endLive(){
     for(const call of liveCalls.values())try{call.close()}catch{}
-    liveCalls.clear();updateViewerCount();
+    for(const conn of liveData.values())try{conn.close()}catch{}
+    liveCalls.clear();liveData.clear();updateViewerCount();
     if(peer){try{peer.destroy()}catch{}peer=null}
     roomToken='';$('liveBox')?.classList.add('hidden');
     if($('viewerLink'))$('viewerLink').value='';

@@ -1,4 +1,9 @@
-## WEB v7.40 — Vercel Hobby Function-Limit Fix
+WEB v7.41 — PeerJS viewer handshake fix
+- Fixed a viewer JavaScript startup error caused by awaiting TURN config inside a non-async wrapper.
+- Viewer now opens a PeerJS data connection first; host then initiates the one-way media call.
+- Keeps TURN 3478 UDP/TCP, OBS fullscreen playback, and private unlisted viewer links.
+
+## WEB v7.41 — Vercel Hobby Function-Limit Fix
 
 - Removed the separate `api/turn-credentials.js` function.
 - TURN REST credentials are now served by the existing `api/admin-auth.js` function at `GET /api/admin-auth?mode=turn`.
@@ -6,7 +11,7 @@
 - Admin PIN authentication remains POST-only and unchanged.
 - TURN uses UDP/TCP 3478 only until TURN TLS is configured.
 
-## WEB v7.40 — TURN 3478 Cross-Network Test
+## WEB v7.41 — TURN 3478 Cross-Network Test
 
 - TURN ICE configuration now advertises only the transports currently configured on Coturn: UDP 3478 and TCP 3478.
 - TURN TLS (`turns:` on 5349) is intentionally omitted until a hostname and TLS certificate are configured.
