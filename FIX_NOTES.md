@@ -1,3 +1,12 @@
+WEB v7.45 — Low-Resource Smooth Livestream Profile
+
+- Capture/stream profile changed to 1280x720 at 30 FPS for lower encoder load.
+- WebRTC video capped at about 1.6 Mbps per viewer.
+- WebRTC audio capped at about 96 kbps.
+- Maintains frame-rate priority so motion stays smooth before image quality is reduced.
+- Optional local recording reduced to about 2.5 Mbps video / 96 kbps audio to use less disk space.
+- Permanent viewer URL, per-live PIN, TURN, and private viewer flow are unchanged.
+
 WEB v7.44 — Smooth Livestream Profile
 - Caps desktop capture at 1920x1080 and 30 FPS.
 - Caps each WebRTC video sender near 3.5 Mbps and audio near 128 kbps.

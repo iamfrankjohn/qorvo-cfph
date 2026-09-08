@@ -84,7 +84,7 @@
         </div>
       </aside>
     </div>
-    <div class="footer">PRIVATE TOOL • NOT LINKED IN PUBLIC NAVIGATION • WEB v7.44</div>
+    <div class="footer">PRIVATE TOOL • NOT LINKED IN PUBLIC NAVIGATION • WEB v7.45</div>
   </main>
 
 <script>
@@ -149,7 +149,7 @@ async function getIceConfig(){
     try{
       $('message').textContent='Choose the screen/window to share…';
       displayStream=await navigator.mediaDevices.getDisplayMedia({
-        video:{width:{ideal:1920,max:1920},height:{ideal:1080,max:1080},frameRate:{ideal:30,max:30}},
+        video:{width:{ideal:1280,max:1280},height:{ideal:720,max:720},frameRate:{ideal:30,max:30}},
         audio:$('systemAudio').checked,
         systemAudio:'include',
         surfaceSwitching:'include',
@@ -176,8 +176,8 @@ async function getIceConfig(){
       }
 
       const videoTrack=displayStream.getVideoTracks()[0];
-      // Smooth-stream profile: cap capture at 1080p30 before WebRTC encoding.
-      try{await videoTrack.applyConstraints({width:{max:1920},height:{max:1080},frameRate:{ideal:30,max:30}})}catch{}
+      // Efficiency profile: 720p30 lowers CPU/GPU encoding load and upload use while keeping motion smooth.
+      try{await videoTrack.applyConstraints({width:{ideal:1280,max:1280},height:{ideal:720,max:720},frameRate:{ideal:30,max:30}})}catch{}
       try{videoTrack.contentHint='motion'}catch{}
       mixedStream=new MediaStream([
         videoTrack,
@@ -228,11 +228,11 @@ async function getIceConfig(){
           const params=sender.getParameters();
           if(!params.encodings?.length)params.encodings=[{}];
           if(track.kind==='video'){
-            params.encodings[0].maxBitrate=3500000;
+            params.encodings[0].maxBitrate=1600000;
             params.encodings[0].maxFramerate=30;
             params.degradationPreference='maintain-framerate';
           }else if(track.kind==='audio'){
-            params.encodings[0].maxBitrate=128000;
+            params.encodings[0].maxBitrate=96000;
           }
           await sender.setParameters(params);
         }catch{}
@@ -317,7 +317,7 @@ async function getIceConfig(){
     if(recorder&&recorder.state==='recording'){recorder.stop();return}
     chunks=[];
     const type=MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')?'video/webm;codecs=vp9,opus':'video/webm';
-    recorder=new MediaRecorder(mixedStream,{mimeType:type,videoBitsPerSecond:6000000,audioBitsPerSecond:192000});
+    recorder=new MediaRecorder(mixedStream,{mimeType:type,videoBitsPerSecond:2500000,audioBitsPerSecond:96000});
     recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
     recorder.onstop=()=>{
       const blob=new Blob(chunks,{type:'video/webm'}),url=URL.createObjectURL(blob),a=document.createElement('a');

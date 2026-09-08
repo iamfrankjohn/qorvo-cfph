@@ -1,4 +1,4 @@
-# QORVO CFPH — WEB v7.44
+# QORVO CFPH — WEB v7.45
 ## WEB v7.44 — Desktop Join Section Readability
 
 - Prevents desktop Join copy from being clipped by the diagonal panel and increases contrast in How To Join.
