@@ -81,14 +81,14 @@
         </div>
       </aside>
     </div>
-    <div class="footer">PRIVATE TOOL • NOT LINKED IN PUBLIC NAVIGATION • WEB v7.34</div>
+    <div class="footer">PRIVATE TOOL • NOT LINKED IN PUBLIC NAVIGATION • WEB v7.35</div>
   </main>
 
 <script>
 (()=>{
   const $=id=>document.getElementById(id);
   let displayStream=null,micStream=null,mixedStream=null,audioCtx=null,destination=null,recorder=null,chunks=[],meterRAF=0;
-  let peer=null,roomToken='',liveCalls=new Map(),viewerSignals=new Map();
+  let peer=null,roomToken='',liveCalls=new Map();
 
   async function unlock(){
     const pin=$('pin').value.replace(/\D/g,'').slice(0,6);
@@ -221,23 +221,20 @@
       $('endLive').disabled=false;$('statusText').textContent='LIVE';
       $('message').innerHTML='Private livestream is ready. Share the generated viewer link only with people you want to watch.';
     });
-    // Viewer opens a small data channel first. Once it says READY, the HOST
-    // calls the viewer with the outgoing mixed stream. This is the correct
-    // direction for one-way screen broadcasting and avoids calling the host
-    // with an empty MediaStream.
-    peer.on('connection',conn=>{
-      viewerSignals.set(conn.peer,conn);
-      conn.on('data',data=>{
-        if(!data||data.type!=='viewer-ready'||!mixedStream)return;
-        if(liveCalls.has(conn.peer))return;
-        const call=peer.call(conn.peer,mixedStream,{metadata:{type:'qorvo-live'}});
-        if(!call)return;
-        liveCalls.set(conn.peer,call);updateViewerCount();
-        const cleanup=()=>{liveCalls.delete(conn.peer);updateViewerCount()};
+    // Receive-only viewers initiate the media call. This is more compatible
+    // with Chromium/OBS Browser Source and normal desktop/mobile browsers:
+    // viewer sends an empty stream, HOST answers with the mixed screen stream.
+    peer.on('call',call=>{
+      if(!mixedStream){ try{call.close()}catch{}; return; }
+      if(liveCalls.has(call.peer)){ try{call.close()}catch{}; return; }
+      try{
+        call.answer(mixedStream);
+        liveCalls.set(call.peer,call);updateViewerCount();
+        const cleanup=()=>{liveCalls.delete(call.peer);updateViewerCount()};
         call.on('close',cleanup);call.on('error',cleanup);
-      });
-      const cleanupSignal=()=>viewerSignals.delete(conn.peer);
-      conn.on('close',cleanupSignal);conn.on('error',cleanupSignal);
+      }catch(err){
+        try{call.close()}catch{}
+      }
     });
     peer.on('error',err=>{
       $('message').textContent='Livestream connection error: '+(err.message||err.type||'Unknown error');
@@ -245,8 +242,7 @@
   }
   function endLive(){
     for(const call of liveCalls.values())try{call.close()}catch{}
-    for(const conn of viewerSignals.values())try{conn.close()}catch{}
-    liveCalls.clear();viewerSignals.clear();updateViewerCount();
+    liveCalls.clear();updateViewerCount();
     if(peer){try{peer.destroy()}catch{}peer=null}
     roomToken='';$('liveBox')?.classList.add('hidden');
     if($('viewerLink'))$('viewerLink').value='';

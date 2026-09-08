@@ -1,3 +1,12 @@
+## WEB v7.35 — Cross-device WebRTC Compatibility Fix
+
+- Reworked the livestream handshake for broader Chromium/OBS Browser Source compatibility.
+- Viewer now initiates a receive-only PeerJS media call with an empty MediaStream and explicit receive audio/video constraints.
+- Host answers that media call with the mixed screen + PC audio + microphone stream.
+- Removed the v7.34 data-channel `viewer-ready` dependency, eliminating a race/compatibility point that affected some viewers.
+- Added automatic retry when the host peer is not yet available and extended the connection timeout to 20 seconds.
+- Kept the private/unlisted workflow and public navigation unchanged.
+
 ## WEB v7.34 — WebRTC Viewer Handshake Fix
 
 - Fixed the viewer being stuck at JOINING.
