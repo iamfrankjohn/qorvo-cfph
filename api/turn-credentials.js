@@ -24,8 +24,7 @@ module.exports = function handler(req,res){
     {
       urls:[
         `turn:${host}:3478?transport=udp`,
-        `turn:${host}:3478?transport=tcp`,
-        `turns:${host}:5349?transport=tcp`
+        `turn:${host}:3478?transport=tcp`
       ],
       username,
       credential

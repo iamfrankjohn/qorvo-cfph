@@ -1,3 +1,9 @@
+## WEB v7.39 — TURN 3478 Cross-Network Test
+
+- TURN ICE configuration now advertises only the transports currently configured on Coturn: UDP 3478 and TCP 3478.
+- TURN TLS (`turns:` on 5349) is intentionally omitted until a hostname and TLS certificate are configured.
+- Existing STUN fallback and private/unlisted livestream behavior are unchanged.
+
 ## WEB v7.38 — TURN-ready cross-network WebRTC
 
 - Added `/api/turn-credentials` for temporary TURN REST credentials.
