@@ -1,26 +1,30 @@
-WEB v7.45 — Low-Resource Smooth Livestream Profile
+# WEB v7.46 — Ultra Smooth Livestream
 
-- Capture/stream profile changed to 1280x720 at 30 FPS for lower encoder load.
-- WebRTC video capped at about 1.6 Mbps per viewer.
-- WebRTC audio capped at about 96 kbps.
-- Maintains frame-rate priority so motion stays smooth before image quality is reduced.
-- Optional local recording reduced to about 2.5 Mbps video / 96 kbps audio to use less disk space.
-- Permanent viewer URL, per-live PIN, TURN, and private viewer flow are unchanged.
+- Removed recording UI/code completely.
+- Removed live audio meters/visualizers.
+- Disabled local video preview during capture and LIVE to reduce GPU/compositor load.
+- Reduced capture to 960×540 at 30 FPS for much lower encode cost.
+- Video send cap ~1.0 Mbps; audio cap ~64 kbps.
+- WebRTC prioritizes frame rate and high network priority where supported.
+- Disabled microphone echo cancellation/noise suppression/auto gain processing to reduce CPU DSP load.
+- Single-viewer performance mode prevents multiple simultaneous encoders/uploads from the host.
+- Permanent viewer URL, per-live PIN, TURN UDP/TCP 3478 retained.
+- Admin and viewer HTML served with no-store cache headers.
 
-WEB v7.44 — Smooth Livestream Profile
+WEB v7.46 — Smooth Livestream Profile
 - Caps desktop capture at 1920x1080 and 30 FPS.
 - Caps each WebRTC video sender near 3.5 Mbps and audio near 128 kbps.
 - Uses maintain-framerate degradation so constrained links reduce quality before sacrificing motion smoothness.
 - Marks screen/game video as motion content.
 - Keeps the permanent viewer URL, per-livestream PIN, TURN 3478, and private viewer flow unchanged.
 
-WEB v7.44 — Per-Livestream Viewer PIN
+WEB v7.46 — Per-Livestream Viewer PIN
 - Permanent viewer URL remains unchanged.
 - A fresh random 6-digit viewer PIN is generated and displayed in the admin livestream panel every time GO LIVE is pressed.
 - Viewers enter that current PIN; the host validates it before sending media.
 - QORVO_VIEWER_PIN is no longer required for livestream viewing.
 
-WEB v7.44 — Permanent PIN-Protected Livestream Viewer
+WEB v7.46 — Permanent PIN-Protected Livestream Viewer
 
 - Viewer URL is now permanent: `/livestream.html`.
 - Added a dedicated 6-digit viewer PIN gate using `QORVO_VIEWER_PIN` (falls back to `QORVO_ADMIN_PIN` if not set).
@@ -29,12 +33,12 @@ WEB v7.44 — Permanent PIN-Protected Livestream Viewer
 - Viewer automatically shows OFFLINE when no livestream is running and keeps checking for the next stream.
 - Existing TURN UDP/TCP 3478 support and the 12-function Vercel Hobby limit are preserved.
 
-WEB v7.44 — PeerJS viewer handshake fix
+WEB v7.46 — PeerJS viewer handshake fix
 - Fixed a viewer JavaScript startup error caused by awaiting TURN config inside a non-async wrapper.
 - Viewer now opens a PeerJS data connection first; host then initiates the one-way media call.
 - Keeps TURN 3478 UDP/TCP, OBS fullscreen playback, and private unlisted viewer links.
 
-## WEB v7.44 — Vercel Hobby Function-Limit Fix
+## WEB v7.46 — Vercel Hobby Function-Limit Fix
 
 - Removed the separate `api/turn-credentials.js` function.
 - TURN REST credentials are now served by the existing `api/admin-auth.js` function at `GET /api/admin-auth?mode=turn`.
@@ -42,7 +46,7 @@ WEB v7.44 — PeerJS viewer handshake fix
 - Admin PIN authentication remains POST-only and unchanged.
 - TURN uses UDP/TCP 3478 only until TURN TLS is configured.
 
-## WEB v7.44 — TURN 3478 Cross-Network Test
+## WEB v7.46 — TURN 3478 Cross-Network Test
 
 - TURN ICE configuration now advertises only the transports currently configured on Coturn: UDP 3478 and TCP 3478.
 - TURN TLS (`turns:` on 5349) is intentionally omitted until a hostname and TLS certificate are configured.

@@ -31,7 +31,7 @@ body.live-mode{display:block;width:100vw;height:100vh;overflow:hidden;background
 </div>
 <button id="sound" class="btn" style="display:none;margin-top:12px">ENABLE LIVESTREAM AUDIO</button>
 <div id="diag" class="foot" style="margin-top:8px"></div>
-<div class="foot">PRIVATE VIEWER • LIVE PIN PROTECTED • PERMANENT LINK • WEB v7.45</div>
+<div class="foot">PRIVATE VIEWER • LIVE PIN PROTECTED • PERMANENT LINK • WEB v7.46</div>
 </main>
 <script>
 (async()=>{
@@ -99,7 +99,7 @@ body.live-mode{display:block;width:100vw;height:100vh;overflow:hidden;background
    setState('CHECKING…','Checking for an ongoing livestream…');
    dataConn=peer.connect('qorvo-host-'+LIVE_ROOM_ID,{metadata:{type:'qorvo-viewer',obs:isOBS,pin:viewerPin},serialization:'json',reliable:true});
    dataConn.on('open',()=>{setState('CONNECTED…','Livestream found. Authorizing viewer…');try{dataConn.send({type:'viewer-ready'})}catch{}});
-   dataConn.on('data',data=>{if(data?.type==='auth-failed'){viewerPin='';showGate('Incorrect or expired viewer PIN. Enter the PIN currently shown on the admin livestream page.')}});
+   dataConn.on('data',data=>{if(data?.type==='auth-failed'){viewerPin='';showGate('Incorrect or expired viewer PIN. Enter the PIN currently shown on the admin livestream page.')}else if(data?.type==='busy'){setState('BUSY','Ultra Smooth Mode allows one viewer at a time. Close the other viewer first.');try{dataConn.close()}catch{}}});
    dataConn.on('close',()=>{if(!gotStream)scheduleRetry()});
    dataConn.on('error',()=>{if(!gotStream)scheduleRetry()});
    startTimeout();
@@ -107,7 +107,7 @@ body.live-mode{display:block;width:100vw;height:100vh;overflow:hidden;background
 
  async function startViewer(){
    cleanupPeer();gotStream=false;setState('CHECKING…','Checking for an ongoing livestream…');
-   peer=new Peer(undefined,{host:'0.peerjs.com',port:443,path:'/',secure:true,debug:2,config:await getIceConfig()});
+   peer=new Peer(undefined,{host:'0.peerjs.com',port:443,path:'/',secure:true,debug:0,config:await getIceConfig()});
    peer.on('call',call=>{if(gotStream){try{call.close()}catch{};return}attachCall(call);try{call.answer()}catch{setState('RETRYING…','Could not answer the livestream media call. Retrying…');scheduleRetry()}});
    peer.on('open',()=>connectMedia());
    peer.on('disconnected',()=>{if(!gotStream){setState('RECONNECTING…','Signaling disconnected. Reconnecting…');try{peer.reconnect()}catch{}}});
