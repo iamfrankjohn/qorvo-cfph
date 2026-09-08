@@ -16,7 +16,7 @@
     .error{min-height:20px;color:#ff8c93;font-size:12px;margin-top:9px}
     .app{max-width:1500px;margin:auto;padding:24px}.top{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:18px}.top h1{font-size:30px}.status{display:flex;gap:8px;align-items:center;font-size:11px;color:var(--muted)}.dot{width:8px;height:8px;border-radius:50%;background:#526058}.dot.on{background:var(--g);box-shadow:0 0 16px var(--g)}
     .grid{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:18px}.preview-shell,.panel{border:1px solid var(--line);background:rgba(5,10,7,.9)}.preview-head,.panel-head{padding:12px 14px;border-bottom:1px solid var(--line);font-size:10px;font-weight:900;letter-spacing:.14em;color:#a6b3aa}.preview{aspect-ratio:16/9;background:#000;display:grid;place-items:center;position:relative;overflow:hidden}.preview video{width:100%;height:100%;object-fit:contain;background:#000}.empty{position:absolute;color:#66736b;font-size:13px;text-align:center;line-height:1.6}
-    .panel-body{padding:14px}.field{margin-bottom:15px}.field label{display:block;font-size:10px;color:#8d9c92;margin-bottom:7px}.field select{width:100%;padding:10px;background:#030704;color:#fff;border:1px solid #243128}
+    .panel-body{padding:14px}.field{margin-bottom:15px}.field label{display:block;font-size:10px;color:#8d9c92;margin-bottom:7px}.field input[type="number"]{width:100%;padding:10px;background:#020503;color:#fff;border:1px solid #243128;outline:none}.field input[type="number"]:focus{border-color:#4cff59}.field select{width:100%;padding:10px;background:#030704;color:#fff;border:1px solid #243128}
     .toggle{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:12px}.toggle input{accent-color:#4cff59}
     .actions{display:grid;gap:9px;margin-top:16px}.notice{margin-top:13px;padding:11px;border:1px solid rgba(255,255,255,.07);background:#050806;color:#77867c;font-size:10px;line-height:1.55}
     .rec{color:#ff737b}.footer{margin-top:18px;color:#4d5c52;font-size:9px;letter-spacing:.12em;text-align:center}
@@ -57,6 +57,7 @@
           <div class="field"><label>MICROPHONE</label><select id="micSelect"><option value="">Default microphone</option></select></div>
           <div class="toggle"><span>Include PC audio</span><input id="systemAudio" type="checkbox" checked></div>
           <div class="toggle"><span>Include microphone</span><input id="micAudio" type="checkbox" checked></div>
+          <div class="field"><label>MAXIMUM VIEWERS</label><input id="maxViewers" class="viewer-limit" type="number" min="1" max="10" step="1" value="1"><div style="font-size:10px;color:#839087;margin-top:6px">Default: 1. Higher limits use more upload bandwidth and host resources.</div></div>
 
           <div class="actions">
             <button id="start" class="btn primary">START CAPTURE</button>
@@ -73,11 +74,11 @@
             <div style="font-size:11px;color:#839087;margin-bottom:8px">Give this PIN to viewers. A new PIN is generated each time you click GO LIVE.</div>
             <div id="viewerCount" style="margin-top:8px">0 viewers connected</div>
           </div>
-          <div id="message" class="notice"><b>ULTRA SMOOTH MODE</b><br>1280×720 • 30 FPS • ~2.2 Mbps video • 96 kbps audio • single viewer • no recording • no meters • no local preview. For Windows PC audio, choose <b>Entire Screen</b> and enable <b>Share system audio</b>.</div>
+          <div id="message" class="notice"><b>ULTRA SMOOTH MODE</b><br>1280×720 • 30 FPS • ~2.2 Mbps video • 96 kbps audio • configurable viewer limit • no recording • no meters • no local preview. For Windows PC audio, choose <b>Entire Screen</b> and enable <b>Share system audio</b>.</div>
         </div>
       </aside>
     </div>
-    <div class="footer">PRIVATE TOOL • NOT LINKED IN PUBLIC NAVIGATION • WEB v7.47</div>
+    <div class="footer">PRIVATE TOOL • NOT LINKED IN PUBLIC NAVIGATION • WEB v7.48</div>
   </main>
 
 <script>
@@ -103,7 +104,7 @@ async function getIceConfig(){
   const $=id=>document.getElementById(id);
   let displayStream=null,micStream=null,mixedStream=null,audioCtx=null,destination=null;
   const LIVE_ROOM_ID='qorvo-cfph-private-live';
-  let peer=null,liveCalls=new Map(),liveData=new Map(),currentViewerPin='';
+  let peer=null,liveCalls=new Map(),liveData=new Map(),currentViewerPin='',maxViewers=1;
 
   async function unlock(){
     const pin=$('pin').value.replace(/\D/g,'').slice(0,6);
@@ -226,11 +227,15 @@ async function getIceConfig(){
 
   function updateViewerCount(){
     const n=liveCalls.size;
-    $('viewerCount').textContent=`${n} viewer${n===1?'':'s'} connected`;
+    $('viewerCount').textContent=`${n} / ${maxViewers} viewer${maxViewers===1?'':'s'} connected`;
   }
   async function goLive(){
     if(!mixedStream||peer)return;
     const peerId='qorvo-host-'+LIVE_ROOM_ID;
+    maxViewers=Math.max(1,Math.min(10,parseInt($('maxViewers').value,10)||1));
+    $('maxViewers').value=String(maxViewers);
+    $('maxViewers').disabled=true;
+    updateViewerCount();
     currentViewerPin=String(crypto.getRandomValues(new Uint32Array(1))[0]%1000000).padStart(6,'0');
     $('viewerPin').textContent=currentViewerPin;
     $('goLive').disabled=true;
@@ -252,8 +257,8 @@ async function getIceConfig(){
       if(!mixedStream){ try{conn.close()}catch{}; return; }
       const viewerId=conn.peer;
       const submittedPin=String(conn.metadata?.pin||'');
-      // One-viewer performance mode: prevents duplicate real-time encoders/uploads on the host.
-      if(liveCalls.size>0 && !liveCalls.has(viewerId)){
+      // Enforce the admin-selected viewer limit for this livestream.
+      if(liveCalls.size>=maxViewers && !liveCalls.has(viewerId)){
         conn.on('open',()=>{try{conn.send({type:'busy'})}catch{};try{conn.close()}catch{}});
         return;
       }
@@ -292,6 +297,7 @@ async function getIceConfig(){
     $('liveBox')?.classList.add('hidden');
     if($('viewerLink'))$('viewerLink').value='';
     currentViewerPin='';if($('viewerPin'))$('viewerPin').textContent='------';
+    if($('maxViewers'))$('maxViewers').disabled=false;
     if($('goLive'))$('goLive').disabled=!mixedStream;
     if($('endLive'))$('endLive').disabled=true;
     if(mixedStream){$('statusText').textContent='CAPTURING';$('preview').srcObject=null;$('empty').classList.remove('hidden');$('empty').innerHTML='CAPTURE READY<br>Local preview disabled for maximum performance'}else{$('statusText').textContent='IDLE'}

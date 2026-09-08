@@ -1,3 +1,13 @@
+WEB v7.48 — Configurable Maximum Viewers
+
+- Added Maximum Viewers control to the private Admin Livestream Studio.
+- Default is 1 viewer for best performance.
+- Admin can select 1–10 viewers before GO LIVE.
+- Viewer limit is locked while LIVE and restored when the livestream ends.
+- Connected count now shows current / maximum viewers.
+- Extra viewers receive the existing busy/viewer-limit response when capacity is reached.
+- Retains 1280×720 @ 30 FPS, ~2.2 Mbps video, 96 kbps audio, no recording, no meters, and no local preview.
+
 WEB v7.47 — Clear + Smooth Livestream
 - Raised capture from 960x540 to 1280x720 at 30 FPS for sharper desktop/game text.
 - Video bitrate raised from ~1.0 Mbps to ~2.2 Mbps; audio from 64 kbps to 96 kbps.
