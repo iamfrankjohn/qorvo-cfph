@@ -1,4 +1,20 @@
-## WEB v7.36 — OBS Browser Source Playback Fix
+## WEB v7.37 — OBS Autoplay + Fullscreen Viewer Fix
+
+- Removed the misleading OBS autoplay-blocked overlay for video.
+- The muted video now retries `play()` automatically after metadata/canplay events and for several short retry attempts.
+- Audio autoplay is handled separately and can still require a click depending on OBS/CEF policy; audio failure no longer blocks video.
+- Once the remote video is LIVE, the viewer automatically enters a clean fullscreen layout:
+  - header hidden
+  - footer hidden
+  - diagnostics hidden
+  - video fills the entire browser-source canvas
+  - black background with `object-fit: contain` to avoid cropping
+- When the livestream ends, the normal viewer UI returns.
+- Private/unlisted behavior remains unchanged.
+- No public navigation links were added.
+- No live `data/*.json` files are included.
+
+## WEB v7.37 — OBS Browser Source Playback Fix
 
 - Fixed the case where the viewer reaches LIVE in OBS Browser Source but the embedded player stays loading/gray.
 - Remote WebRTC video and audio are now split into separate playback elements.
@@ -10,7 +26,7 @@
 - No public navigation links were added.
 - No live `data/*.json` files are included.
 
-## WEB v7.36 — Cross-device WebRTC Compatibility Fix
+## WEB v7.37 — Cross-device WebRTC Compatibility Fix
 
 - Reworked the livestream handshake for broader Chromium/OBS Browser Source compatibility.
 - Viewer now initiates a receive-only PeerJS media call with an empty MediaStream and explicit receive audio/video constraints.
