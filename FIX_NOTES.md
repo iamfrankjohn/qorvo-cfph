@@ -1,4 +1,9 @@
-WEB v7.48 — Configurable Maximum Viewers
+WEB v7.49 — Clear HD Game Livestream
+- Upgraded capture to 1920x1080 at 30 FPS.
+- Increased video ceiling to ~4.0 Mbps for sharper game text/details.
+- Kept no recording, no meters, no local preview, TURN, PIN, and configurable viewer limit.
+
+WEB v7.49 — Configurable Maximum Viewers
 
 - Added Maximum Viewers control to the private Admin Livestream Studio.
 - Default is 1 viewer for best performance.

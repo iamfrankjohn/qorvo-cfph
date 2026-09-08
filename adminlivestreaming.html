@@ -74,11 +74,11 @@
             <div style="font-size:11px;color:#839087;margin-bottom:8px">Give this PIN to viewers. A new PIN is generated each time you click GO LIVE.</div>
             <div id="viewerCount" style="margin-top:8px">0 viewers connected</div>
           </div>
-          <div id="message" class="notice"><b>ULTRA SMOOTH MODE</b><br>1280×720 • 30 FPS • ~2.2 Mbps video • 96 kbps audio • configurable viewer limit • no recording • no meters • no local preview. For Windows PC audio, choose <b>Entire Screen</b> and enable <b>Share system audio</b>.</div>
+          <div id="message" class="notice"><b>ULTRA SMOOTH MODE</b><br>1920×1080 • 30 FPS • ~4.0 Mbps video • 96 kbps audio • configurable viewer limit • no recording • no meters • no local preview. For Windows PC audio, choose <b>Entire Screen</b> and enable <b>Share system audio</b>.</div>
         </div>
       </aside>
     </div>
-    <div class="footer">PRIVATE TOOL • NOT LINKED IN PUBLIC NAVIGATION • WEB v7.48</div>
+    <div class="footer">PRIVATE TOOL • NOT LINKED IN PUBLIC NAVIGATION • WEB v7.49</div>
   </main>
 
 <script>
@@ -137,7 +137,7 @@ async function getIceConfig(){
     try{
       $('message').textContent='Choose the screen/window to share…';
       displayStream=await navigator.mediaDevices.getDisplayMedia({
-        video:{width:{ideal:1280,max:1280},height:{ideal:720,max:720},frameRate:{ideal:30,max:30}},
+        video:{width:{ideal:1920,max:1920},height:{ideal:1080,max:1080},frameRate:{ideal:30,max:30}},
         audio:$('systemAudio').checked,
         systemAudio:'include',
         surfaceSwitching:'include',
@@ -164,8 +164,8 @@ async function getIceConfig(){
       }
 
       const videoTrack=displayStream.getVideoTracks()[0];
-      // Balanced smooth profile: 720p30 keeps desktop text/gameplay clear while controlling encode and upload load.
-      try{await videoTrack.applyConstraints({width:{max:1280},height:{max:720},frameRate:{ideal:30,max:30}})}catch{}
+      // Clear HD profile: 1080p30 improves game/detail clarity while retaining the low-overhead livestream path.
+      try{await videoTrack.applyConstraints({width:{max:1920},height:{max:1080},frameRate:{ideal:30,max:30}})}catch{}
       try{videoTrack.contentHint='motion'}catch{}
       mixedStream=new MediaStream([
         videoTrack,
@@ -210,7 +210,7 @@ async function getIceConfig(){
           const params=sender.getParameters();
           if(!params.encodings?.length)params.encodings=[{}];
           if(track.kind==='video'){
-            params.encodings[0].maxBitrate=2200000;
+            params.encodings[0].maxBitrate=4000000;
             params.encodings[0].maxFramerate=30;
             params.encodings[0].priority='high';
             params.encodings[0].networkPriority='high';
