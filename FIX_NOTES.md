@@ -1,4 +1,16 @@
-## WEB v7.35 — Cross-device WebRTC Compatibility Fix
+## WEB v7.36 — OBS Browser Source Playback Fix
+
+- Fixed the case where the viewer reaches LIVE in OBS Browser Source but the embedded player stays loading/gray.
+- Remote WebRTC video and audio are now split into separate playback elements.
+- Video is always muted and autoplayed independently, which avoids OBS/CEF blocking the video because audio playback requires interaction.
+- Remote audio uses a dedicated `<audio>` element and an explicit Enable Livestream Audio fallback button.
+- Added OBS/CEF detection and a five-second decoded-frame diagnostic.
+- Added a clear OBS-specific message when WebRTC is connected but no video frame has decoded.
+- Existing private/unlisted flow remains unchanged.
+- No public navigation links were added.
+- No live `data/*.json` files are included.
+
+## WEB v7.36 — Cross-device WebRTC Compatibility Fix
 
 - Reworked the livestream handshake for broader Chromium/OBS Browser Source compatibility.
 - Viewer now initiates a receive-only PeerJS media call with an empty MediaStream and explicit receive audio/video constraints.

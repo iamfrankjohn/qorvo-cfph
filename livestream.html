@@ -11,61 +11,169 @@
 </head>
 <body><main class="wrap">
 <header class="head"><div><div class="ey">QORVO CFPH // PRIVATE STREAM</div><h1>Livestream Viewer</h1></div><div id="status" class="status">CONNECTING…</div></header>
-<div class="video"><div id="msg" class="msg">Connecting to the private livestream…</div><video id="video" autoplay playsinline controls></video></div>
-<button id="sound" class="btn" style="display:none">PLAY LIVESTREAM WITH AUDIO</button>
-<div class="foot">PRIVATE VIEWER • UNLISTED • WEB v7.35</div>
+<div class="video">
+  <div id="msg" class="msg">Connecting to the private livestream…</div>
+  <video id="video" autoplay playsinline muted></video>
+  <audio id="audio" autoplay></audio>
+</div>
+<button id="sound" class="btn" style="display:none">ENABLE LIVESTREAM AUDIO</button>
+<div id="diag" class="foot" style="margin-top:8px"></div>
+<div class="foot">PRIVATE VIEWER • UNLISTED • WEB v7.36</div>
 </main>
 <script>
 (()=>{
  const room=new URLSearchParams(location.search).get('room');
- const video=document.getElementById('video'),msg=document.getElementById('msg'),status=document.getElementById('status'),sound=document.getElementById('sound');
- let peer=null,mediaCall=null,gotStream=false,timeout=null,retryTimer=null;
+ const video=document.getElementById('video');
+ const audio=document.getElementById('audio');
+ const msg=document.getElementById('msg');
+ const status=document.getElementById('status');
+ const sound=document.getElementById('sound');
+ const diag=document.getElementById('diag');
+
+ let peer=null,mediaCall=null,gotStream=false,timeout=null,retryTimer=null,frameTimer=null;
+ const isOBS=/OBS|CEF/i.test(navigator.userAgent)||new URLSearchParams(location.search).get('obs')==='1';
+
  function setState(s,text){status.textContent=s;if(text){msg.style.display='block';msg.textContent=text}}
  function fail(text){if(gotStream)return;clearTimeout(timeout);setState('OFFLINE',text)}
  if(!room||!/^[a-f0-9]{36}$/.test(room)){fail('Invalid or expired private livestream link.');return}
+
  const peerOptions={
    host:'0.peerjs.com',port:443,path:'/',secure:true,debug:2,
-   config:{iceServers:[
-     {urls:'stun:stun.l.google.com:19302'},
-     {urls:'stun:stun1.l.google.com:19302'}
-   ],sdpSemantics:'unified-plan'}
+   config:{
+     iceServers:[
+       {urls:'stun:stun.l.google.com:19302'},
+       {urls:'stun:stun1.l.google.com:19302'}
+     ],
+     sdpSemantics:'unified-plan'
+   }
  };
- function startTimeout(){clearTimeout(timeout);timeout=setTimeout(()=>{if(!gotStream)fail('Connection timed out. Refresh and try again.')},20000)}
+
+ function startTimeout(){
+   clearTimeout(timeout);
+   timeout=setTimeout(()=>{if(!gotStream)fail('Connection timed out. Refresh and try again.')},20000);
+ }
+
+ function startFrameWatch(stream){
+   clearTimeout(frameTimer);
+   const vt=stream.getVideoTracks()[0];
+   if(!vt)return;
+   const settings=vt.getSettings?.()||{};
+   diag.textContent=`${isOBS?'OBS/CEF viewer • ':''}Video: ${settings.width||'?'}×${settings.height||'?'} • ${settings.frameRate||'?'} fps`;
+   frameTimer=setTimeout(()=>{
+     if(video.readyState<2){
+       msg.style.display='block';
+       msg.textContent='Stream connected, but this browser has not decoded a video frame yet. In OBS Browser Source, enable browser hardware acceleration and refresh the source.';
+     }
+   },5000);
+ }
+
+ async function attachRemoteStream(stream){
+   gotStream=true;
+   clearTimeout(timeout);
+   clearTimeout(retryTimer);
+
+   const videoTracks=stream.getVideoTracks();
+   const audioTracks=stream.getAudioTracks();
+
+   // OBS Browser Source can get stuck when one <video> element must start
+   // audio + video together. Keep the picture permanently muted and play
+   // remote audio through a dedicated <audio> element.
+   const pictureStream=new MediaStream(videoTracks);
+   const soundStream=new MediaStream(audioTracks);
+
+   video.muted=true;
+   video.srcObject=pictureStream;
+   audio.srcObject=audioTracks.length?soundStream:null;
+
+   msg.style.display='none';
+   status.textContent='LIVE';
+   startFrameWatch(stream);
+
+   try{
+     await video.play();
+   }catch(e){
+     msg.style.display='block';
+     msg.textContent='Video autoplay was blocked. Click inside the page or refresh the Browser Source.';
+   }
+
+   if(audioTracks.length){
+     try{
+       audio.volume=1;
+       await audio.play();
+       sound.style.display='none';
+     }catch(e){
+       sound.style.display='block';
+     }
+   }else{
+     sound.style.display='none';
+   }
+ }
+
  function attachCall(call){
    mediaCall=call;
-   call.on('stream',stream=>{
-     gotStream=true;clearTimeout(timeout);clearTimeout(retryTimer);
-     video.srcObject=stream;msg.style.display='none';status.textContent='LIVE';
-     const p=video.play(); if(p)p.catch(()=>{sound.style.display='block'});
+   call.on('stream',attachRemoteStream);
+   call.on('close',()=>{
+     if(gotStream){
+       gotStream=false;
+       setState('OFFLINE','The livestream has ended.');
+     }else fail('The broadcaster closed the connection.');
    });
-   call.on('close',()=>{if(gotStream){gotStream=false;setState('OFFLINE','The livestream has ended.')} else fail('The broadcaster closed the connection.')});
    call.on('error',()=>{if(!gotStream)fail('The video connection failed.')});
  }
+
  function connectMedia(){
    if(!peer||peer.destroyed||gotStream)return;
    try{mediaCall?.close()}catch{}
    setState('JOINING…','Connecting to the private livestream…');
-   const receiveOnly=new MediaStream();
-   const call=peer.call('qorvo-host-'+room,receiveOnly,{
-     metadata:{type:'qorvo-viewer'},
+   const call=peer.call('qorvo-host-'+room,new MediaStream(),{
+     metadata:{type:'qorvo-viewer',obs:isOBS},
      constraints:{offerToReceiveAudio:true,offerToReceiveVideo:true}
    });
    if(!call){fail('Could not create the livestream connection.');return}
-   attachCall(call);startTimeout();
+   attachCall(call);
+   startTimeout();
  }
+
  peer=new Peer(undefined,peerOptions);
  peer.on('open',()=>connectMedia());
- peer.on('disconnected',()=>{if(!gotStream){setState('RECONNECTING…','Signaling disconnected. Reconnecting…');try{peer.reconnect()}catch{}}});
+ peer.on('disconnected',()=>{
+   if(!gotStream){
+     setState('RECONNECTING…','Signaling disconnected. Reconnecting…');
+     try{peer.reconnect()}catch{}
+   }
+ });
  peer.on('error',err=>{
    if(err.type==='peer-unavailable'){
-     if(!gotStream){setState('WAITING FOR HOST…','The host is not ready yet. Retrying…');clearTimeout(retryTimer);retryTimer=setTimeout(connectMedia,1200)}
+     if(!gotStream){
+       setState('WAITING FOR HOST…','The host is not ready yet. Retrying…');
+       clearTimeout(retryTimer);
+       retryTimer=setTimeout(connectMedia,1200);
+     }
    }else if(err.type==='network'||err.type==='server-error'||err.type==='socket-error'||err.type==='socket-closed'){
-     if(!gotStream)fail('Could not reach the livestream signaling service.')
+     if(!gotStream)fail('Could not reach the livestream signaling service.');
    }else if(err.type==='webrtc'){
-     if(!gotStream)fail('WebRTC could not establish a media connection on this device/network.')
-   }else if(!gotStream){fail('Unable to connect ('+(err.type||'connection error')+').')}
+     if(!gotStream)fail('WebRTC could not establish a media connection on this device/network.');
+   }else if(!gotStream){
+     fail('Unable to connect ('+(err.type||'connection error')+').');
+   }
  });
- sound.onclick=()=>{video.muted=false;video.play();sound.style.display='none'};
- window.addEventListener('beforeunload',()=>{try{mediaCall?.close();peer?.destroy()}catch{}});
+
+ sound.onclick=async()=>{
+   try{
+     audio.volume=1;
+     await audio.play();
+     sound.style.display='none';
+   }catch(e){
+     sound.textContent='AUDIO BLOCKED — CLICK AGAIN';
+   }
+ };
+
+ document.addEventListener('click',()=>{
+   if(audio.srcObject&&audio.paused)audio.play().catch(()=>{});
+ },{passive:true});
+
+ window.addEventListener('beforeunload',()=>{
+   try{mediaCall?.close();peer?.destroy()}catch{}
+ });
 })();
 </script></body></html>
