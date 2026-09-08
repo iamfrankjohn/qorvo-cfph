@@ -73,11 +73,11 @@
             <div style="font-size:11px;color:#839087;margin-bottom:8px">Give this PIN to viewers. A new PIN is generated each time you click GO LIVE.</div>
             <div id="viewerCount" style="margin-top:8px">0 viewers connected</div>
           </div>
-          <div id="message" class="notice"><b>ULTRA SMOOTH MODE</b><br>960×540 • 30 FPS • ~1 Mbps video • 64 kbps audio • single viewer • no recording • no meters • no local preview. For Windows PC audio, choose <b>Entire Screen</b> and enable <b>Share system audio</b>.</div>
+          <div id="message" class="notice"><b>ULTRA SMOOTH MODE</b><br>1280×720 • 30 FPS • ~2.2 Mbps video • 96 kbps audio • single viewer • no recording • no meters • no local preview. For Windows PC audio, choose <b>Entire Screen</b> and enable <b>Share system audio</b>.</div>
         </div>
       </aside>
     </div>
-    <div class="footer">PRIVATE TOOL • NOT LINKED IN PUBLIC NAVIGATION • WEB v7.46</div>
+    <div class="footer">PRIVATE TOOL • NOT LINKED IN PUBLIC NAVIGATION • WEB v7.47</div>
   </main>
 
 <script>
@@ -136,7 +136,7 @@ async function getIceConfig(){
     try{
       $('message').textContent='Choose the screen/window to share…';
       displayStream=await navigator.mediaDevices.getDisplayMedia({
-        video:{width:{ideal:960,max:960},height:{ideal:540,max:540},frameRate:{ideal:30,max:30}},
+        video:{width:{ideal:1280,max:1280},height:{ideal:720,max:720},frameRate:{ideal:30,max:30}},
         audio:$('systemAudio').checked,
         systemAudio:'include',
         surfaceSwitching:'include',
@@ -163,8 +163,8 @@ async function getIceConfig(){
       }
 
       const videoTrack=displayStream.getVideoTracks()[0];
-      // Ultra-smooth profile: 540p30 sharply reduces encode and upload load while preserving motion.
-      try{await videoTrack.applyConstraints({width:{max:960},height:{max:540},frameRate:{ideal:30,max:30}})}catch{}
+      // Balanced smooth profile: 720p30 keeps desktop text/gameplay clear while controlling encode and upload load.
+      try{await videoTrack.applyConstraints({width:{max:1280},height:{max:720},frameRate:{ideal:30,max:30}})}catch{}
       try{videoTrack.contentHint='motion'}catch{}
       mixedStream=new MediaStream([
         videoTrack,
@@ -209,13 +209,13 @@ async function getIceConfig(){
           const params=sender.getParameters();
           if(!params.encodings?.length)params.encodings=[{}];
           if(track.kind==='video'){
-            params.encodings[0].maxBitrate=1000000;
+            params.encodings[0].maxBitrate=2200000;
             params.encodings[0].maxFramerate=30;
             params.encodings[0].priority='high';
             params.encodings[0].networkPriority='high';
             params.degradationPreference='maintain-framerate';
           }else if(track.kind==='audio'){
-            params.encodings[0].maxBitrate=64000;
+            params.encodings[0].maxBitrate=96000;
           }
           await sender.setParameters(params);
         }catch{}

@@ -35,7 +35,7 @@ Note: the cooldown is best-effort in a serverless environment because individual
 There is no Unlock button in WEB v6.5. Once all six PIN digits are entered, authentication starts automatically. An incorrect PIN clears the six boxes and returns focus to the first digit.
 
 
-## Private livestream viewer PIN (WEB v7.46)
+## Private livestream viewer PIN (WEB v7.47)
 
 For a separate viewer PIN, add this Production environment variable in Vercel:
 
