@@ -1,10 +1,17 @@
-WEB v7.43 — Per-Livestream Viewer PIN
+WEB v7.44 — Smooth Livestream Profile
+- Caps desktop capture at 1920x1080 and 30 FPS.
+- Caps each WebRTC video sender near 3.5 Mbps and audio near 128 kbps.
+- Uses maintain-framerate degradation so constrained links reduce quality before sacrificing motion smoothness.
+- Marks screen/game video as motion content.
+- Keeps the permanent viewer URL, per-livestream PIN, TURN 3478, and private viewer flow unchanged.
+
+WEB v7.44 — Per-Livestream Viewer PIN
 - Permanent viewer URL remains unchanged.
 - A fresh random 6-digit viewer PIN is generated and displayed in the admin livestream panel every time GO LIVE is pressed.
 - Viewers enter that current PIN; the host validates it before sending media.
 - QORVO_VIEWER_PIN is no longer required for livestream viewing.
 
-WEB v7.43 — Permanent PIN-Protected Livestream Viewer
+WEB v7.44 — Permanent PIN-Protected Livestream Viewer
 
 - Viewer URL is now permanent: `/livestream.html`.
 - Added a dedicated 6-digit viewer PIN gate using `QORVO_VIEWER_PIN` (falls back to `QORVO_ADMIN_PIN` if not set).
@@ -13,12 +20,12 @@ WEB v7.43 — Permanent PIN-Protected Livestream Viewer
 - Viewer automatically shows OFFLINE when no livestream is running and keeps checking for the next stream.
 - Existing TURN UDP/TCP 3478 support and the 12-function Vercel Hobby limit are preserved.
 
-WEB v7.43 — PeerJS viewer handshake fix
+WEB v7.44 — PeerJS viewer handshake fix
 - Fixed a viewer JavaScript startup error caused by awaiting TURN config inside a non-async wrapper.
 - Viewer now opens a PeerJS data connection first; host then initiates the one-way media call.
 - Keeps TURN 3478 UDP/TCP, OBS fullscreen playback, and private unlisted viewer links.
 
-## WEB v7.43 — Vercel Hobby Function-Limit Fix
+## WEB v7.44 — Vercel Hobby Function-Limit Fix
 
 - Removed the separate `api/turn-credentials.js` function.
 - TURN REST credentials are now served by the existing `api/admin-auth.js` function at `GET /api/admin-auth?mode=turn`.
@@ -26,7 +33,7 @@ WEB v7.43 — PeerJS viewer handshake fix
 - Admin PIN authentication remains POST-only and unchanged.
 - TURN uses UDP/TCP 3478 only until TURN TLS is configured.
 
-## WEB v7.43 — TURN 3478 Cross-Network Test
+## WEB v7.44 — TURN 3478 Cross-Network Test
 
 - TURN ICE configuration now advertises only the transports currently configured on Coturn: UDP 3478 and TCP 3478.
 - TURN TLS (`turns:` on 5349) is intentionally omitted until a hostname and TLS certificate are configured.

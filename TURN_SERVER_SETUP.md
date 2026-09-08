@@ -1,4 +1,4 @@
-# QORVO TURN Server Setup — WEB v7.43
+# QORVO TURN Server Setup — WEB v7.44
 
 Use a small Debian/Ubuntu VM/CT with a public IPv4 address or a router port-forward to it.
 
