@@ -81,11 +81,29 @@
         </div>
       </aside>
     </div>
-    <div class="footer">PRIVATE TOOL • NOT LINKED IN PUBLIC NAVIGATION • WEB v7.37</div>
+    <div class="footer">PRIVATE TOOL • NOT LINKED IN PUBLIC NAVIGATION • WEB v7.38</div>
   </main>
 
 <script>
 (()=>{
+
+async function getIceConfig(){
+  try{
+    const r=await fetch('/api/turn-credentials',{cache:'no-store'});
+    if(r.ok){
+      const d=await r.json();
+      if(Array.isArray(d.iceServers)&&d.iceServers.length)return {iceServers:d.iceServers,sdpSemantics:'unified-plan'};
+    }
+  }catch{}
+  return {
+    iceServers:[
+      {urls:'stun:stun.l.google.com:19302'},
+      {urls:'stun:stun1.l.google.com:19302'}
+    ],
+    sdpSemantics:'unified-plan'
+  };
+}
+
   const $=id=>document.getElementById(id);
   let displayStream=null,micStream=null,mixedStream=null,audioCtx=null,destination=null,recorder=null,chunks=[],meterRAF=0;
   let peer=null,roomToken='',liveCalls=new Map();
@@ -199,22 +217,14 @@
     const n=liveCalls.size;
     $('viewerCount').textContent=`${n} viewer${n===1?'':'s'} connected`;
   }
-  function goLive(){
+  async function goLive(){
     if(!mixedStream||peer)return;
     roomToken=randomToken();
     const peerId='qorvo-host-'+roomToken;
     $('goLive').disabled=true;
     $('message').textContent='Starting private WebRTC room…';
-    peer=new Peer(peerId,{
-      host:'0.peerjs.com',port:443,path:'/',secure:true,debug:2,
-      config:{
-        iceServers:[
-          {urls:'stun:stun.l.google.com:19302'},
-          {urls:'stun:stun1.l.google.com:19302'}
-        ],
-        sdpSemantics:'unified-plan'
-      }
-    });
+    const iceConfig=await getIceConfig();
+    peer=new Peer(peerId,{host:'0.peerjs.com',port:443,path:'/',secure:true,debug:2,config:iceConfig});
     peer.on('open',()=>{
       const url=`${location.origin}/livestream.html?room=${encodeURIComponent(roomToken)}`;
       $('viewerLink').value=url;$('liveBox').classList.remove('hidden');

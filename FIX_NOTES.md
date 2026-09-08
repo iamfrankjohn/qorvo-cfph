@@ -1,4 +1,15 @@
-## WEB v7.37 — OBS Autoplay + Fullscreen Viewer Fix
+## WEB v7.38 — TURN-ready cross-network WebRTC
+
+- Added `/api/turn-credentials` for temporary TURN REST credentials.
+- Permanent TURN authentication secret stays in Vercel environment variables and is never embedded in the public HTML.
+- Broadcaster and viewer dynamically load the same ICE configuration.
+- Supports TURN UDP 3478, TURN TCP 3478, and TURN-over-TLS TCP 5349.
+- Falls back to the existing STUN-only configuration until TURN is configured.
+- Added `TURN_SERVER_SETUP.md` with Coturn deployment, firewall, DNS, TLS, and Vercel environment-variable instructions.
+- Existing OBS/fullscreen behavior is retained.
+- Private pages remain unlisted/noindex and no live `data/*.json` is included.
+
+## WEB v7.38 — OBS Autoplay + Fullscreen Viewer Fix
 
 - Removed the misleading OBS autoplay-blocked overlay for video.
 - The muted video now retries `play()` automatically after metadata/canplay events and for several short retry attempts.
@@ -14,7 +25,7 @@
 - No public navigation links were added.
 - No live `data/*.json` files are included.
 
-## WEB v7.37 — OBS Browser Source Playback Fix
+## WEB v7.38 — OBS Browser Source Playback Fix
 
 - Fixed the case where the viewer reaches LIVE in OBS Browser Source but the embedded player stays loading/gray.
 - Remote WebRTC video and audio are now split into separate playback elements.
@@ -26,7 +37,7 @@
 - No public navigation links were added.
 - No live `data/*.json` files are included.
 
-## WEB v7.37 — Cross-device WebRTC Compatibility Fix
+## WEB v7.38 — Cross-device WebRTC Compatibility Fix
 
 - Reworked the livestream handshake for broader Chromium/OBS Browser Source compatibility.
 - Viewer now initiates a receive-only PeerJS media call with an empty MediaStream and explicit receive audio/video constraints.
