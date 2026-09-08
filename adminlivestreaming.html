@@ -81,7 +81,7 @@
         </div>
       </aside>
     </div>
-    <div class="footer">PRIVATE TOOL • NOT LINKED IN PUBLIC NAVIGATION • WEB v7.39</div>
+    <div class="footer">PRIVATE TOOL • NOT LINKED IN PUBLIC NAVIGATION • WEB v7.40</div>
   </main>
 
 <script>
@@ -89,7 +89,7 @@
 
 async function getIceConfig(){
   try{
-    const r=await fetch('/api/turn-credentials',{cache:'no-store'});
+    const r=await fetch('/api/admin-auth?mode=turn',{cache:'no-store'});
     if(r.ok){
       const d=await r.json();
       if(Array.isArray(d.iceServers)&&d.iceServers.length)return {iceServers:d.iceServers,sdpSemantics:'unified-plan'};

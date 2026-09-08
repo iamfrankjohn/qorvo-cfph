@@ -1,4 +1,4 @@
-# QORVO TURN Server Setup — WEB v7.39
+# QORVO TURN Server Setup — WEB v7.40
 
 Use a small Debian/Ubuntu VM/CT with a public IPv4 address or a router port-forward to it.
 
@@ -71,7 +71,7 @@ Add these in the Vercel project settings:
 
 Redeploy Vercel after adding them.
 
-The website calls `/api/turn-credentials`. It creates temporary HMAC credentials on the server, so the permanent TURN secret never appears in the browser source code.
+The website calls `/api/admin-auth?mode=turn`. It creates temporary HMAC credentials on the server, so the permanent TURN secret never appears in the browser source code.
 
 ## 8. Test
 Start the host stream, then open the private viewer link from a phone on mobile data or a PC on a different Internet connection.

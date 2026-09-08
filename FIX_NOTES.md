@@ -1,4 +1,12 @@
-## WEB v7.39 — TURN 3478 Cross-Network Test
+## WEB v7.40 — Vercel Hobby Function-Limit Fix
+
+- Removed the separate `api/turn-credentials.js` function.
+- TURN REST credentials are now served by the existing `api/admin-auth.js` function at `GET /api/admin-auth?mode=turn`.
+- Keeps the project at 12 top-level API functions, within Vercel Hobby's direct-function deployment limit.
+- Admin PIN authentication remains POST-only and unchanged.
+- TURN uses UDP/TCP 3478 only until TURN TLS is configured.
+
+## WEB v7.40 — TURN 3478 Cross-Network Test
 
 - TURN ICE configuration now advertises only the transports currently configured on Coturn: UDP 3478 and TCP 3478.
 - TURN TLS (`turns:` on 5349) is intentionally omitted until a hostname and TLS certificate are configured.
