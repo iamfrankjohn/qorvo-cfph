@@ -1,0 +1,16 @@
+QORVO CFPH WEB v7.57
+
+Private livestreaming has been removed from this release.
+
+IMPORTANT:
+Extracting this ZIP over an existing project does not delete files that already exist.
+Delete these old files from your project before committing:
+
+livestream.html
+adminlivestreaming.html
+TURN_SERVER_SETUP.md
+
+Git command:
+git rm livestream.html adminlivestreaming.html TURN_SERVER_SETUP.md
+
+No scoreboard, bracket, tournament, news, TikTok, event, giveaway, or other website feature was intentionally removed.
