@@ -1,4 +1,10 @@
-WEB v7.55 — Refined Full-Width Esports Scoreboard
+WEB v7.56 — Refined scoreboard visual redesign
+- Removed TEAM A / TEAM B labels from scoreboard HUD.
+- Removed QORVO ESPORTS center label.
+- Rebalanced widths, spacing, and score core for cleaner esports broadcast visuals.
+- Kept transparent OBS background and live auto-update behavior.
+
+WEB v7.56 — Refined Full-Width Esports Scoreboard
 
 - Rebuilt scoreboard layout to prevent team-name clipping and overlap.
 - Wider team-name areas with dedicated score boxes and a cleaner center VS core.

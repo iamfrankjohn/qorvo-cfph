@@ -8,107 +8,32 @@
 <title>QORVO Esports Scoreboard</title>
 <script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script>
 <style>
-:root{
-  --g:#53ff78; --g2:#14d94d; --g3:#0b7d31;
-  --ink:#050806; --ink2:#0a100c; --steel:#18211b; --white:#f7fff8;
-}
-*{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent;font-family:Arial,Helvetica,sans-serif}
-body{user-select:none}
-.stage{width:100vw;height:100vh;display:flex;align-items:flex-start;background:transparent}
-.scoreboard{
-  position:relative;width:100vw;height:154px;color:var(--white);
-  filter:drop-shadow(0 10px 16px rgba(0,0,0,.68));
-  overflow:visible;
-}
-/* main body */
-.bar{
-  position:absolute;left:0;right:0;top:0;height:126px;
-  display:grid;grid-template-columns:220px minmax(0,1fr) 90px 154px 90px minmax(0,1fr) 220px;
-  align-items:center;
-  background:linear-gradient(180deg,rgba(3,8,5,.985),rgba(7,12,8,.985));
-  border-top:2px solid rgba(102,255,139,.75);
-  border-bottom:2px solid rgba(69,255,112,.72);
-  box-shadow:inset 0 -18px 38px rgba(0,0,0,.34),inset 0 0 28px rgba(66,255,103,.035);
-}
-.bar::before{
-  content:"";position:absolute;inset:0;pointer-events:none;
-  background:
-    repeating-linear-gradient(135deg,transparent 0 30px,rgba(255,255,255,.018) 30px 31px),
-    linear-gradient(90deg,rgba(60,255,100,.045),transparent 18%,transparent 82%,rgba(60,255,100,.045));
-}
-.brand{
-  position:relative;height:100%;z-index:2;display:flex;flex-direction:column;justify-content:center;
-  padding:0 22px;background:linear-gradient(180deg,#07120a,#020503);
-}
-.brand.left{clip-path:polygon(0 0,88% 0,100% 50%,88% 100%,0 100%)}
-.brand.right{clip-path:polygon(12% 0,100% 0,100% 100%,12% 100%,0 50%);align-items:flex-end;text-align:right}
-.brand::after{content:"";position:absolute;bottom:16px;width:68px;height:3px;background:linear-gradient(90deg,var(--g),transparent);box-shadow:0 0 12px rgba(83,255,120,.6)}
-.brand.right::after{background:linear-gradient(90deg,transparent,var(--g))}
-.brand-main{font-size:20px;font-weight:1000;letter-spacing:.11em;color:var(--g);text-transform:uppercase;white-space:nowrap}
-.brand-sub{font-size:8px;font-weight:900;letter-spacing:.23em;color:#cbd8ce;text-transform:uppercase;margin-top:6px;opacity:.78;white-space:nowrap}
-
-.team{
-  position:relative;height:92px;z-index:2;display:flex;align-items:center;
-  background:linear-gradient(180deg,#18211a 0,#0b100c 55%,#060906 100%);
-  border-top:2px solid rgba(117,255,149,.85);border-bottom:2px solid rgba(29,204,70,.8);
-  box-shadow:inset 0 0 26px rgba(83,255,120,.045);
-  min-width:0;
-}
-.team::before{content:"";position:absolute;inset:8px;background:linear-gradient(110deg,rgba(83,255,120,.07),transparent 40%,rgba(255,255,255,.025));pointer-events:none}
-.team.a{clip-path:polygon(0 0,95% 0,100% 50%,95% 100%,0 100%,4% 50%);justify-content:flex-end;padding:0 34px 0 48px;text-align:right}
-.team.b{clip-path:polygon(5% 0,100% 0,96% 50%,100% 100%,5% 100%,0 50%);justify-content:flex-start;padding:0 48px 0 34px;text-align:left}
-.team-name{position:relative;z-index:2;width:100%;font-size:clamp(24px,2.15vw,38px);font-weight:1000;letter-spacing:.028em;line-height:1;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 3px 10px #000}
-.team-tag{position:absolute;bottom:11px;font-size:8px;font-weight:1000;letter-spacing:.24em;color:var(--g);opacity:.8;text-transform:uppercase}.team.a .team-tag{right:36px}.team.b .team-tag{left:36px}
-
-.scorebox{
-  position:relative;z-index:5;width:90px;height:106px;display:flex;align-items:center;justify-content:center;
-  background:linear-gradient(180deg,#1a281d,#050805);border:2px solid rgba(93,255,128,.78);
-  box-shadow:inset 0 0 26px rgba(83,255,120,.075),0 0 18px rgba(32,218,73,.18);
-}
-.scorebox.a{clip-path:polygon(0 0,84% 0,100% 50%,84% 100%,0 100%,12% 50%)}
-.scorebox.b{clip-path:polygon(16% 0,100% 0,88% 50%,100% 100%,16% 100%,0 50%)}
-.score{font-size:64px;line-height:1;font-weight:1000;font-variant-numeric:tabular-nums;text-shadow:0 0 16px rgba(255,255,255,.12)}
-.score.bump{animation:bump .22s ease-out}@keyframes bump{0%{transform:scale(1)}45%{transform:scale(1.18);color:var(--g)}100%{transform:scale(1)}}
-
-.core{
-  position:relative;z-index:6;height:118px;background:linear-gradient(180deg,#0d170f,#020403);
-  clip-path:polygon(15% 0,85% 0,100% 48%,86% 100%,14% 100%,0 48%);
-  border-top:2px solid #76ff98;box-shadow:inset 0 0 34px rgba(83,255,120,.09);
-}
-.core::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 42%,rgba(83,255,120,.13),transparent 58%)}
-.event{position:absolute;top:13px;left:0;right:0;text-align:center;color:var(--g);font-size:9px;font-weight:1000;letter-spacing:.2em;text-transform:uppercase}
-.vs{position:absolute;top:39px;left:0;right:0;text-align:center;font-size:28px;font-weight:1000;letter-spacing:.07em}
-.round{position:absolute;left:20px;right:20px;bottom:14px;height:27px;display:flex;align-items:center;justify-content:center;padding:0 8px;background:linear-gradient(90deg,transparent,rgba(83,255,120,.16),transparent);border-top:1px solid rgba(93,255,128,.35);border-bottom:1px solid rgba(93,255,128,.2);font-size:10px;font-weight:1000;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-
-/* thin esports rail under main bar */
-.rail{position:absolute;left:0;right:0;top:126px;height:24px;background:linear-gradient(180deg,rgba(9,16,10,.98),rgba(2,5,3,.95));border-bottom:3px solid var(--g2);box-shadow:0 0 15px rgba(83,255,120,.42)}
-.rail::before,.rail::after{content:"";position:absolute;top:8px;width:33%;height:4px;background:repeating-linear-gradient(90deg,var(--g) 0 24px,#12301a 24px 31px)}
-.rail::before{left:18%}.rail::after{right:18%;transform:scaleX(-1)}
-.rail-center{position:absolute;left:50%;top:2px;transform:translateX(-50%);height:18px;min-width:210px;padding:0 20px;display:flex;align-items:center;justify-content:center;background:#08110a;clip-path:polygon(8% 0,92% 0,100% 50%,92% 100%,8% 100%,0 50%);color:#bcffca;font-size:8px;font-weight:1000;letter-spacing:.22em;text-transform:uppercase;white-space:nowrap}
-
-.status{position:absolute;left:50%;top:162px;transform:translateX(-50%);padding:6px 12px;border-radius:6px;background:rgba(0,0,0,.78);color:#e9f2eb;font-size:11px;z-index:20}.connected .status{display:none}
-
-@media(max-width:1300px){
-  .bar{grid-template-columns:150px minmax(0,1fr) 76px 132px 76px minmax(0,1fr) 150px}
-  .brand{padding:0 14px}.brand-main{font-size:14px}.brand-sub{display:none}
-  .team.a{padding-right:24px;padding-left:28px}.team.b{padding-left:24px;padding-right:28px}
-  .team-name{font-size:clamp(19px,2.15vw,30px)}
-  .scorebox{width:76px}.score{font-size:54px}
-}
+:root{--g:#54ff7a;--g2:#16d94f;--g3:#0c7b32;--ink:#050806;--ink2:#0b120d;--white:#f7fff8;--muted:#9cb1a1}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent;font-family:Arial,Helvetica,sans-serif}body{user-select:none}.stage{width:100vw;height:100vh;display:flex;align-items:flex-start;background:transparent}.scoreboard{position:relative;width:100vw;height:142px;color:var(--white);filter:drop-shadow(0 12px 18px rgba(0,0,0,.62));overflow:visible}
+.shell{position:absolute;inset:0 0 auto 0;height:118px;display:grid;grid-template-columns:190px minmax(0,1fr) 86px 170px 86px minmax(0,1fr) 190px;align-items:center;background:linear-gradient(180deg,rgba(3,8,5,.99),rgba(6,11,7,.985));border-top:2px solid rgba(112,255,145,.72);border-bottom:2px solid rgba(75,255,116,.7);box-shadow:inset 0 -20px 34px rgba(0,0,0,.34),inset 0 0 26px rgba(84,255,122,.03)}
+.shell:before{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(135deg,transparent 0 34px,rgba(255,255,255,.014) 34px 35px),linear-gradient(90deg,rgba(84,255,122,.05),transparent 18%,transparent 82%,rgba(84,255,122,.05))}
+.brand{position:relative;height:100%;z-index:2;display:flex;flex-direction:column;justify-content:center;padding:0 18px;background:linear-gradient(180deg,#08120a,#020503)}
+.brand.left{clip-path:polygon(0 0,86% 0,100% 50%,86% 100%,0 100%)}.brand.right{clip-path:polygon(14% 0,100% 0,100% 100%,14% 100%,0 50%);align-items:flex-end;text-align:right}.brand-main{font-size:18px;font-weight:1000;letter-spacing:.11em;color:var(--g);text-transform:uppercase;white-space:nowrap}.brand-sub{font-size:8px;font-weight:900;letter-spacing:.19em;color:#c7d4ca;text-transform:uppercase;margin-top:5px;opacity:.76;white-space:nowrap}
+.team{position:relative;height:80px;z-index:2;display:flex;align-items:center;min-width:0;background:linear-gradient(180deg,#18211a 0,#0c110d 58%,#070a07 100%);border-top:2px solid rgba(118,255,149,.86);border-bottom:2px solid rgba(29,204,70,.82);box-shadow:inset 0 0 28px rgba(84,255,122,.05)}
+.team:before{content:"";position:absolute;inset:7px;background:linear-gradient(110deg,rgba(84,255,122,.07),transparent 42%,rgba(255,255,255,.025));pointer-events:none}.team.a{clip-path:polygon(0 0,95% 0,100% 50%,95% 100%,0 100%,4% 50%);justify-content:flex-end;padding:0 34px 0 44px;text-align:right}.team.b{clip-path:polygon(5% 0,100% 0,96% 50%,100% 100%,5% 100%,0 50%);justify-content:flex-start;padding:0 44px 0 34px;text-align:left}.team-name{position:relative;z-index:2;width:100%;font-size:clamp(23px,2.05vw,36px);font-weight:1000;letter-spacing:.02em;line-height:1;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 3px 9px #000}
+.scorebox{position:relative;z-index:5;width:86px;height:94px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#1a281d,#050805);border:2px solid rgba(93,255,128,.8);box-shadow:inset 0 0 24px rgba(84,255,122,.08),0 0 18px rgba(32,218,73,.16)}.scorebox.a{clip-path:polygon(0 0,84% 0,100% 50%,84% 100%,0 100%,12% 50%)}.scorebox.b{clip-path:polygon(16% 0,100% 0,88% 50%,100% 100%,16% 100%,0 50%)}.score{font-size:58px;line-height:1;font-weight:1000;font-variant-numeric:tabular-nums;text-shadow:0 0 16px rgba(255,255,255,.12)}.score.bump{animation:bump .22s ease-out}@keyframes bump{0%{transform:scale(1)}45%{transform:scale(1.18);color:var(--g)}100%{transform:scale(1)}}
+.core{position:relative;z-index:6;height:106px;background:linear-gradient(180deg,#0d170f,#020403);clip-path:polygon(16% 0,84% 0,100% 48%,86% 100%,14% 100%,0 48%);border-top:2px solid #76ff98;box-shadow:inset 0 0 34px rgba(84,255,122,.09)}.core:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 44%,rgba(84,255,122,.13),transparent 58%)}.vs{position:absolute;top:25px;left:0;right:0;text-align:center;font-size:29px;font-weight:1000;letter-spacing:.08em}.round{position:absolute;left:22px;right:22px;bottom:14px;height:28px;display:flex;align-items:center;justify-content:center;padding:0 10px;background:linear-gradient(90deg,transparent,rgba(84,255,122,.17),transparent);border-top:1px solid rgba(93,255,128,.38);border-bottom:1px solid rgba(93,255,128,.2);font-size:10px;font-weight:1000;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rail{position:absolute;left:0;right:0;top:118px;height:22px;background:linear-gradient(180deg,rgba(9,16,10,.98),rgba(2,5,3,.95));border-bottom:3px solid var(--g2);box-shadow:0 0 14px rgba(84,255,122,.38)}.rail:before,.rail:after{content:"";position:absolute;top:7px;width:31%;height:4px;background:repeating-linear-gradient(90deg,var(--g) 0 22px,#12301a 22px 29px)}.rail:before{left:19%}.rail:after{right:19%;transform:scaleX(-1)}.rail-center{position:absolute;left:50%;top:1px;transform:translateX(-50%);height:18px;min-width:220px;padding:0 22px;display:flex;align-items:center;justify-content:center;background:#08110a;clip-path:polygon(8% 0,92% 0,100% 50%,92% 100%,8% 100%,0 50%);color:#bcffca;font-size:8px;font-weight:1000;letter-spacing:.22em;text-transform:uppercase;white-space:nowrap}
+.status{position:absolute;left:50%;top:150px;transform:translateX(-50%);padding:6px 12px;border-radius:6px;background:rgba(0,0,0,.78);color:#e9f2eb;font-size:11px;z-index:20}.connected .status{display:none}
+@media(max-width:1300px){.shell{grid-template-columns:150px minmax(0,1fr) 74px 142px 74px minmax(0,1fr) 150px}.brand{padding:0 14px}.brand-main{font-size:14px}.brand-sub{display:none}.team.a{padding-right:24px;padding-left:28px}.team.b{padding-left:24px;padding-right:28px}.team-name{font-size:clamp(19px,2.1vw,30px)}.scorebox{width:74px}.score{font-size:50px}}
 </style>
 </head>
 <body>
 <div class="stage" id="stage">
   <div class="scoreboard">
-    <div class="bar">
+    <div class="shell">
       <div class="brand left"><div class="brand-main">QORVO CFPH</div><div class="brand-sub">CrossFire Philippines</div></div>
-      <div class="team a"><div class="team-name" id="a">TEAM A</div><div class="team-tag">TEAM A</div></div>
+      <div class="team a"><div class="team-name" id="a">WONDERPETCHS</div></div>
       <div class="scorebox a"><div class="score" id="sa">0</div></div>
-      <div class="core"><div class="event">QORVO ESPORTS</div><div class="vs">VS</div><div class="round" id="r">MATCH 1</div></div>
+      <div class="core"><div class="vs">VS</div><div class="round" id="r">MATCH 1</div></div>
       <div class="scorebox b"><div class="score" id="sb">0</div></div>
-      <div class="team b"><div class="team-name" id="b">TEAM B</div><div class="team-tag">TEAM B</div></div>
-      <div class="brand right"><div class="brand-main">CIVIL WAR</div><div class="brand-sub">3V3 • LIVE MATCH</div></div>
+      <div class="team b"><div class="team-name" id="b">UDERDOGS</div></div>
+      <div class="brand right"><div class="brand-main">CIVIL WAR</div><div class="brand-sub">3V3 • IN-CLAN TOURNAMENT</div></div>
     </div>
     <div class="rail"><div class="rail-center">LIVE SCOREBOARD</div></div>
     <div class="status" id="status">Connecting to scoreboard control…</div>
@@ -120,7 +45,7 @@ let lastA=null,lastB=null;
 function bump(el){el.classList.remove('bump');void el.offsetWidth;el.classList.add('bump')}
 function apply(d){
   if(!d||d.type!=='scoreboard-state')return;
-  $('a').textContent=d.teamA||'TEAM A';$('b').textContent=d.teamB||'TEAM B';
+  $('a').textContent=d.teamA||'WONDERPETCHS';$('b').textContent=d.teamB||'UDERDOGS';
   if(lastA!==null&&String(lastA)!==String(d.scoreA))bump($('sa'));
   if(lastB!==null&&String(lastB)!==String(d.scoreB))bump($('sb'));
   lastA=d.scoreA??0;lastB=d.scoreB??0;
