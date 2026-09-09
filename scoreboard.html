@@ -9,143 +9,36 @@
 <script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script>
 <style>
 :root{
-  --green:#56ef7c;
-  --green-soft:#1d8b3d;
-  --white:#f7fff9;
-  --muted:#aebbb1;
-  --panel:rgba(6,10,7,.96);
-  --panel2:rgba(15,22,17,.97);
+  --green:#56ef7c;--green-soft:#1d8b3d;--white:#f7fff9;
+  --muted:#aebbb1;--panel:rgba(6,10,7,.96);--panel2:rgba(15,22,17,.97)
 }
 *{box-sizing:border-box}
-html,body{
-  margin:0;width:100%;height:100%;overflow:hidden;
-  background:transparent;
-  font-family:Arial,Helvetica,sans-serif;
-  color:var(--white);
-}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent;font-family:Arial,Helvetica,sans-serif;color:var(--white)}
 .stage{position:relative;width:100vw;height:100vh;background:transparent}
+.board{position:absolute;top:22px;left:50%;transform:translateX(-50%);width:min(1640px,88vw);height:82px;display:grid;grid-template-columns:minmax(0,1fr) 90px 230px 90px minmax(0,1fr);align-items:center;filter:drop-shadow(0 6px 10px rgba(0,0,0,.7))}
+.team{height:60px;display:flex;align-items:center;background:linear-gradient(180deg,var(--panel2),var(--panel));border-top:2px solid var(--green-soft);border-bottom:1px solid rgba(86,239,124,.25)}
+.team.left{justify-content:flex-end;padding:0 28px 0 20px;border-radius:8px 0 0 8px}
+.team.right{justify-content:flex-start;padding:0 20px 0 28px;border-radius:0 8px 8px 0}
+.name{width:100%;font-size:30px;line-height:1;font-weight:900;letter-spacing:.025em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.left .name{text-align:right}.right .name{text-align:left}
+.scorebox{position:relative;z-index:3;height:72px;display:flex;align-items:center;justify-content:center;background:#0a120c;border:2px solid var(--green)}
+.scorebox.left{border-radius:8px 0 0 8px}.scorebox.right{border-radius:0 8px 8px 0}
+.score{font-size:52px;line-height:1;font-weight:1000;font-variant-numeric:tabular-nums}
+.score.bump{animation:bump .2s ease-out}@keyframes bump{45%{transform:scale(1.18);color:var(--green)}}
+.center{position:relative;z-index:4;height:82px;background:linear-gradient(180deg,#111a13,#050806);border-top:2px solid var(--green);border-bottom:2px solid var(--green-soft);display:flex;flex-direction:column;align-items:center;justify-content:center}
+.event{color:var(--green);font-size:10px;font-weight:900;letter-spacing:.15em;margin-bottom:3px}.vs{font-size:25px;line-height:1;font-weight:1000}.round{max-width:190px;margin-top:5px;color:#d9e5dc;font-size:9px;line-height:1;font-weight:900;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-/* Simple, clean scoreboard for a 1920x1080 OBS browser source */
-.board{
-  position:absolute;
-  top:22px;
-  left:50%;
-  transform:translateX(-50%);
-  width:min(1640px,88vw);
-  height:82px;
-  display:grid;
-  grid-template-columns:minmax(0,1fr) 90px 230px 90px minmax(0,1fr);
-  align-items:center;
-  filter:drop-shadow(0 6px 10px rgba(0,0,0,.7));
+.setup{
+  position:absolute;left:50%;top:150px;transform:translateX(-50%);
+  width:min(440px,90vw);padding:18px;border-radius:12px;
+  background:rgba(5,9,6,.96);border:1px solid rgba(86,239,124,.4);
+  box-shadow:0 12px 30px rgba(0,0,0,.5);text-align:center
 }
-.team{
-  height:60px;
-  display:flex;
-  align-items:center;
-  background:linear-gradient(180deg,var(--panel2),var(--panel));
-  border-top:2px solid var(--green-soft);
-  border-bottom:1px solid rgba(86,239,124,.25);
-}
-.team.left{
-  justify-content:flex-end;
-  padding:0 28px 0 20px;
-  border-radius:8px 0 0 8px;
-}
-.team.right{
-  justify-content:flex-start;
-  padding:0 20px 0 28px;
-  border-radius:0 8px 8px 0;
-}
-.name{
-  width:100%;
-  font-size:30px;
-  line-height:1;
-  font-weight:900;
-  letter-spacing:.025em;
-  text-transform:uppercase;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-.left .name{text-align:right}
-.right .name{text-align:left}
-
-.scorebox{
-  position:relative;
-  z-index:3;
-  height:72px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:#0a120c;
-  border:2px solid var(--green);
-}
-.scorebox.left{border-radius:8px 0 0 8px}
-.scorebox.right{border-radius:0 8px 8px 0}
-.score{
-  font-size:52px;
-  line-height:1;
-  font-weight:1000;
-  font-variant-numeric:tabular-nums;
-}
-.score.bump{animation:bump .2s ease-out}
-@keyframes bump{
-  45%{transform:scale(1.18);color:var(--green)}
-}
-
-.center{
-  position:relative;
-  z-index:4;
-  height:82px;
-  background:linear-gradient(180deg,#111a13,#050806);
-  border-top:2px solid var(--green);
-  border-bottom:2px solid var(--green-soft);
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-}
-.event{
-  color:var(--green);
-  font-size:10px;
-  font-weight:900;
-  letter-spacing:.15em;
-  margin-bottom:3px;
-}
-.vs{
-  font-size:25px;
-  line-height:1;
-  font-weight:1000;
-}
-.round{
-  max-width:190px;
-  margin-top:5px;
-  color:#d9e5dc;
-  font-size:9px;
-  line-height:1;
-  font-weight:900;
-  letter-spacing:.12em;
-  text-transform:uppercase;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-.status{
-  position:absolute;
-  left:50%;top:114px;
-  transform:translateX(-50%);
-  padding:5px 10px;
-  border-radius:5px;
-  background:rgba(0,0,0,.82);
-  font-size:10px;
-}
-.connected .status{display:none}
-
-@media(max-width:1100px){
-  .board{width:94vw;grid-template-columns:minmax(0,1fr) 72px 180px 72px minmax(0,1fr)}
-  .name{font-size:22px}
-  .score{font-size:44px}
-}
+.setup h2{margin:0 0 6px;font-size:17px}.setup p{margin:0 0 12px;color:var(--muted);font-size:12px}
+.tokenrow{display:flex;gap:8px}.tokenrow input{flex:1;height:42px;border:1px solid #31513c;border-radius:8px;background:#071009;color:#fff;text-align:center;font-size:20px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;outline:none}.tokenrow button{width:110px;border:0;border-radius:8px;background:var(--green);color:#041107;font-weight:1000;cursor:pointer}
+.status{position:absolute;left:50%;top:114px;transform:translateX(-50%);padding:5px 10px;border-radius:5px;background:rgba(0,0,0,.82);font-size:10px}
+.connected .status,.connected .setup{display:none}
+@media(max-width:1100px){.board{width:94vw;grid-template-columns:minmax(0,1fr) 72px 180px 72px minmax(0,1fr)}.name{font-size:22px}.score{font-size:44px}}
 </style>
 </head>
 <body>
@@ -153,74 +46,77 @@ html,body{
   <div class="board">
     <div class="team left"><div class="name" id="a">WONDERPETCHS</div></div>
     <div class="scorebox left"><div class="score" id="sa">0</div></div>
-
-    <div class="center">
-      <div class="event">CIVIL WAR 3V3</div>
-      <div class="vs">VS</div>
-      <div class="round" id="r">MATCH 1</div>
-    </div>
-
+    <div class="center"><div class="event">CIVIL WAR 3V3</div><div class="vs">VS</div><div class="round" id="r">MATCH 1</div></div>
     <div class="scorebox right"><div class="score" id="sb">0</div></div>
     <div class="team right"><div class="name" id="b">UDERDOGS</div></div>
   </div>
 
-  <div class="status" id="status">Connecting to scoreboard control…</div>
+  <div class="status" id="status">Enter pairing token</div>
+
+  <div class="setup" id="setup">
+    <h2>Connect Scoreboard</h2>
+    <p>Enter the 6-character token shown on scoreboard-control.</p>
+    <div class="tokenrow">
+      <input id="token" maxlength="6" autocomplete="off" placeholder="ABC123">
+      <button id="connectBtn">CONNECT</button>
+    </div>
+  </div>
 </div>
 
 <script>
-const HOST='qorvo-scoreboard-live-v750';
 const $=id=>document.getElementById(id);
-let peer,conn,retry,lastA=null,lastB=null;
+let peer,conn,retry,lastA=null,lastB=null,currentToken='';
 
-function bump(el){
-  el.classList.remove('bump');
-  void el.offsetWidth;
-  el.classList.add('bump');
-}
+function cleanToken(v){return (v||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6)}
+function roomFor(token){return 'qorvo-scoreboard-'+token.toLowerCase()}
+
+function bump(el){el.classList.remove('bump');void el.offsetWidth;el.classList.add('bump')}
 function apply(d){
   if(!d||d.type!=='scoreboard-state')return;
-
-  $('a').textContent=d.teamA||'WONDERPETCHS';
-  $('b').textContent=d.teamB||'UDERDOGS';
-
+  $('a').textContent=d.teamA||'WONDERPETCHS';$('b').textContent=d.teamB||'UDERDOGS';
   if(lastA!==null&&String(lastA)!==String(d.scoreA))bump($('sa'));
   if(lastB!==null&&String(lastB)!==String(d.scoreB))bump($('sb'));
-
-  lastA=d.scoreA??0;
-  lastB=d.scoreB??0;
-
-  $('sa').textContent=lastA;
-  $('sb').textContent=lastB;
-  $('r').textContent=d.round||'MATCH 1';
-
+  lastA=d.scoreA??0;lastB=d.scoreB??0;
+  $('sa').textContent=lastA;$('sb').textContent=lastB;$('r').textContent=d.round||'MATCH 1';
   $('stage').classList.add('connected');
-}
-function connect(){
-  clearTimeout(retry);
-  try{conn?.close()}catch{}
-
-  peer=new Peer(
-    'qorvo-score-viewer-'+crypto.randomUUID().replaceAll('-','').slice(0,18),
-    {host:'0.peerjs.com',port:443,path:'/',secure:true,debug:0}
-  );
-
-  peer.on('open',()=>{
-    conn=peer.connect(HOST,{reliable:true});
-    conn.on('data',apply);
-    conn.on('close',again);
-    conn.on('error',again);
-  });
-
-  peer.on('error',again);
-  peer.on('disconnected',again);
 }
 function again(){
   $('stage').classList.remove('connected');
   $('status').textContent='Reconnecting…';
   try{peer?.destroy()}catch{}
-  retry=setTimeout(connect,1500);
+  if(currentToken) retry=setTimeout(()=>connect(currentToken),1500)
 }
-connect();
+function connect(token){
+  token=cleanToken(token);
+  if(token.length!==6){
+    $('status').textContent='Token must be 6 characters';
+    return;
+  }
+  currentToken=token;
+  localStorage.setItem('qorvoScoreToken',token);
+  const u=new URL(location.href);u.searchParams.set('token',token);history.replaceState(null,'',u);
+  $('status').textContent='Connecting…';
+  clearTimeout(retry);try{conn?.close()}catch{};try{peer?.destroy()}catch{}
+
+  peer=new Peer('qorvo-score-viewer-'+crypto.randomUUID().replaceAll('-','').slice(0,18),{host:'0.peerjs.com',port:443,path:'/',secure:true,debug:0});
+  peer.on('open',()=>{
+    conn=peer.connect(roomFor(token),{reliable:true,metadata:{token}});
+    conn.on('open',()=>{$('status').textContent='Connected — waiting for score…'});
+    conn.on('data',apply);
+    conn.on('close',again);
+    conn.on('error',again);
+  });
+  peer.on('error',again);
+  peer.on('disconnected',again);
+}
+$('connectBtn').onclick=()=>connect($('token').value);
+$('token').addEventListener('keydown',e=>{if(e.key==='Enter')connect(e.target.value)});
+$('token').addEventListener('input',e=>e.target.value=cleanToken(e.target.value));
+
+const urlToken=cleanToken(new URLSearchParams(location.search).get('token'));
+const savedToken=cleanToken(localStorage.getItem('qorvoScoreToken'));
+const startToken=urlToken||savedToken;
+if(startToken){$('token').value=startToken;connect(startToken)}
 </script>
 </body>
 </html>

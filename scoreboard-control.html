@@ -6,90 +6,124 @@
 <title>QORVO Scoreboard Control</title>
 <script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script>
 <style>
-:root{--g:#67ff8d;--g2:#21d95a;--bg:#050806;--card:#0b120d;--line:#284433;--white:#f7fff9;--muted:#92a499;font-family:Arial,Helvetica,sans-serif;color-scheme:dark}
-*{box-sizing:border-box}
-body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% 0,#102016,#060906 42%,#030403);color:var(--white)}
-.wrap{max-width:1080px;margin:auto;padding:22px}
-.header,.card{background:linear-gradient(180deg,#111a13,#080d09);border:1px solid var(--line);border-radius:14px;box-shadow:0 15px 35px rgba(0,0,0,.2)}
-.header{padding:18px 20px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:16px;border-top:2px solid var(--g2)}
-.eyebrow{font-size:10px;font-weight:1000;letter-spacing:.18em;color:var(--g);margin-bottom:5px}h1{margin:0;font-size:24px}.meta{font-size:12px;color:var(--muted);margin-top:6px}.status{padding:8px 12px;border-radius:999px;background:rgba(103,255,141,.08);border:1px solid rgba(103,255,141,.3);font-size:11px;font-weight:1000;color:var(--g)}
-.card{padding:17px;margin-bottom:15px}.field label{display:block;margin-bottom:7px;font-size:9px;font-weight:1000;letter-spacing:.14em;color:#a6b7ab;text-transform:uppercase}.field input{width:100%;height:44px;border:1px solid #31513c;border-radius:8px;background:#060906;color:white;padding:0 12px;font-size:16px;font-weight:800;outline:none}.field input:focus{border-color:var(--g2);box-shadow:0 0 0 3px rgba(103,255,141,.07)}
+:root{--g:#56ef7c;--bg:#050806;--card:#0b120d;--line:#284433;--white:#f7fff9;--muted:#92a499;font-family:Arial,Helvetica,sans-serif;color-scheme:dark}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% 0,#102016,#060906 42%,#030403);color:var(--white)}
+.wrap{max-width:1040px;margin:auto;padding:22px}.header,.card{background:linear-gradient(180deg,#111a13,#080d09);border:1px solid var(--line);border-radius:14px;box-shadow:0 15px 35px rgba(0,0,0,.2)}
+.header{padding:18px 20px;margin-bottom:16px;display:flex;justify-content:space-between;gap:16px;border-top:2px solid var(--g)}.eyebrow{font-size:10px;font-weight:1000;letter-spacing:.18em;color:var(--g);margin-bottom:5px}h1{margin:0;font-size:24px}.meta{font-size:12px;color:var(--muted);margin-top:6px}
+.status{padding:8px 12px;border-radius:999px;background:rgba(86,239,124,.08);border:1px solid rgba(86,239,124,.3);font-size:11px;font-weight:1000;color:var(--g);height:max-content}
+.card{padding:17px;margin-bottom:15px}
+.pairing{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:end}
+.tokenbox label,.field label{display:block;margin-bottom:7px;font-size:9px;font-weight:1000;letter-spacing:.14em;color:#a6b7ab;text-transform:uppercase}
+.tokenview{height:54px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(86,239,124,.45);border-radius:9px;background:#061008;color:var(--g);font-size:28px;font-weight:1000;letter-spacing:.2em}
+.pairbuttons{display:flex;gap:8px}.pairbuttons button{height:54px;padding:0 16px}
+.field input{width:100%;height:44px;border:1px solid #31513c;border-radius:8px;background:#060906;color:white;padding:0 12px;font-size:16px;font-weight:800;outline:none}.field input:focus{border-color:var(--g);box-shadow:0 0 0 3px rgba(86,239,124,.07)}
 .teams{display:grid;grid-template-columns:1fr 64px 1fr;gap:14px;align-items:center}.vs{text-align:center;font-weight:1000;color:var(--g);font-size:18px}.teamcard{padding:15px;border:1px solid #2a4634;border-radius:11px;background:rgba(0,0,0,.16)}.tag{font-size:9px;font-weight:1000;letter-spacing:.15em;color:var(--g);margin-bottom:11px}.score{font-size:72px;line-height:1;font-weight:1000;text-align:center;margin:15px 0 13px}.buttons{display:grid;grid-template-columns:1fr 1.4fr;gap:8px}
 button{min-height:42px;border-radius:8px;border:1px solid #304b38;background:#1c2a20;color:white;font-weight:1000;cursor:pointer}.plus,.primary{background:var(--g);color:#041107;border:0}.danger{background:#351717!important;border-color:#672d2d!important;color:#ffc1c1!important}.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.viewer{margin-left:auto;font-size:11px;color:var(--muted)}
-.preview{height:128px;padding:20px 14px;background:repeating-linear-gradient(45deg,#080b09 0 12px,#0a0e0b 12px 24px);border-radius:10px;overflow:hidden}.pboard{height:82px;display:grid;grid-template-columns:minmax(0,1fr) 66px 170px 66px minmax(0,1fr);align-items:center}.pteam{height:52px;display:flex;align-items:center;background:linear-gradient(180deg,#152119,#070b08);border-top:1px solid var(--g2);border-bottom:1px solid #1f6a35;padding:0 15px;font-size:15px;font-weight:1000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pteam.a{justify-content:flex-end;text-align:right;clip-path:polygon(0 0,94% 0,100% 50%,94% 100%,0 100%)}.pteam.b{clip-path:polygon(6% 0,100% 0,100% 100%,6% 100%,0 50%)}.pscore{height:62px;display:flex;align-items:center;justify-content:center;border:1px solid var(--g2);background:#09110b;font-size:34px;font-weight:1000}.pcore{height:72px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#08100a;clip-path:polygon(13% 0,87% 0,100% 50%,87% 100%,13% 100%,0 50%)}.pcore b{font-size:18px}.pcore span{font-size:7px;color:var(--g);letter-spacing:.11em;font-weight:1000;margin-top:4px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.preview-head{display:flex;justify-content:space-between;margin-bottom:10px}.preview-head strong{font-size:11px;letter-spacing:.12em}.footer{text-align:center;color:#68766d;font-size:10px;padding:6px}
-@media(max-width:720px){.wrap{padding:12px}.header{align-items:flex-start}.teams{grid-template-columns:1fr}.preview{display:none}.viewer{width:100%;margin-left:0}}
+.hint{margin-top:9px;color:var(--muted);font-size:11px;line-height:1.45}.hint code{color:#dfffe7}
+@media(max-width:720px){.wrap{padding:12px}.teams,.pairing{grid-template-columns:1fr}.pairbuttons{width:100%}.pairbuttons button{flex:1}.viewer{width:100%;margin-left:0}}
 </style></head>
 <body>
 <main class="wrap">
 <div class="header">
-  <div><div class="eyebrow">QORVO CFPH • CIVIL WAR 3V3</div><h1>LIVE SCOREBOARD CONTROL</h1><div class="meta">WEB v7.63 • Broadcast scoreboard controller</div></div>
+  <div><div class="eyebrow">QORVO CFPH • CIVIL WAR 3V3</div><h1>LIVE SCOREBOARD CONTROL</h1><div class="meta">WEB v7.64 • Token-paired scoreboard connection</div></div>
   <div id="status" class="status">STARTING…</div>
+</div>
+
+<div class="card">
+  <div class="pairing">
+    <div class="tokenbox">
+      <label>Scoreboard Pairing Token</label>
+      <div class="tokenview" id="tokenView">------</div>
+    </div>
+    <div class="pairbuttons">
+      <button id="newToken">NEW TOKEN</button>
+      <button class="primary" id="copyLink">COPY OBS LINK</button>
+    </div>
+  </div>
+  <div class="hint">
+    Open the scoreboard with the generated token. The copied OBS link already includes it, for example:
+    <code>scoreboard.html?token=ABC123</code>. You can also enter the token manually using OBS → Browser Source → Interact.
+  </div>
 </div>
 
 <div class="card"><div class="field"><label>Match / Round Label</label><input id="round" value="MATCH 1"></div></div>
 
-<div class="card">
-  <div class="teams">
-    <div class="teamcard">
-      <div class="tag">LEFT TEAM</div>
-      <div class="field"><label>Team Name</label><input id="teamA" value="WONDERPETCHS"></div>
-      <div class="score" id="scoreA">0</div>
-      <div class="buttons"><button data-side="A" data-delta="-1">−1</button><button class="plus" data-side="A" data-delta="1">+1 SCORE</button></div>
-    </div>
-    <div class="vs">VS</div>
-    <div class="teamcard">
-      <div class="tag">RIGHT TEAM</div>
-      <div class="field"><label>Team Name</label><input id="teamB" value="UDERDOGS"></div>
-      <div class="score" id="scoreB">0</div>
-      <div class="buttons"><button data-side="B" data-delta="-1">−1</button><button class="plus" data-side="B" data-delta="1">+1 SCORE</button></div>
-    </div>
-  </div>
-</div>
+<div class="card"><div class="teams">
+  <div class="teamcard"><div class="tag">LEFT TEAM</div><div class="field"><label>Team Name</label><input id="teamA" value="WONDERPETCHS"></div><div class="score" id="scoreA">0</div><div class="buttons"><button data-side="A" data-delta="-1">−1</button><button class="plus" data-side="A" data-delta="1">+1 SCORE</button></div></div>
+  <div class="vs">VS</div>
+  <div class="teamcard"><div class="tag">RIGHT TEAM</div><div class="field"><label>Team Name</label><input id="teamB" value="UDERDOGS"></div><div class="score" id="scoreB">0</div><div class="buttons"><button data-side="B" data-delta="-1">−1</button><button class="plus" data-side="B" data-delta="1">+1 SCORE</button></div></div>
+</div></div>
 
 <div class="card actions">
   <button class="primary" id="swap">SWAP TEAMS</button>
   <button class="danger" id="reset">RESET SCORE</button>
-  <button id="copy">COPY OBS LINK</button>
   <span class="viewer" id="viewers">0 scoreboard viewer(s)</span>
 </div>
-
-<div class="card">
-  <div class="preview-head"><strong>OBS LAYOUT PREVIEW</strong><span class="meta">Full-width 1920×1080 top HUD</span></div>
-  <div class="preview"><div class="pboard">
-    <div class="pteam a" id="pA">WONDERPETCHS</div><div class="pscore" id="pSA">0</div>
-    <div class="pcore"><b>VS</b><span id="pRound">MATCH 1</span></div>
-    <div class="pscore" id="pSB">0</div><div class="pteam b" id="pB">UDERDOGS</div>
-  </div></div>
-</div>
-<div class="footer">QORVO CFPH • CIVIL WAR 3V3</div>
 </main>
+
 <script>
-const ROOM='qorvo-scoreboard-live-v750';
+const $=id=>document.getElementById(id);
 const state={teamA:'WONDERPETCHS',teamB:'UDERDOGS',scoreA:0,scoreB:0,round:'MATCH 1'};
-const conns=new Map(),$=id=>document.getElementById(id);
+const conns=new Map();
+let peer=null,token='';
+
+function generateToken(){
+  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const bytes=new Uint32Array(6);crypto.getRandomValues(bytes);
+  return Array.from(bytes,n=>chars[n%chars.length]).join('');
+}
+function roomFor(t){return 'qorvo-scoreboard-'+t.toLowerCase()}
 function snapshot(){return {...state,type:'scoreboard-state'}}
+
 function render(){
- ['teamA','teamB','round'].forEach(k=>{if(document.activeElement!==$(k))$(k).value=state[k]});
- $('scoreA').textContent=state.scoreA;$('scoreB').textContent=state.scoreB;
- $('pA').textContent=state.teamA;$('pB').textContent=state.teamB;
- $('pSA').textContent=state.scoreA;$('pSB').textContent=state.scoreB;$('pRound').textContent=state.round
+  ['teamA','teamB','round'].forEach(k=>{if(document.activeElement!==$(k))$(k).value=state[k]});
+  $('scoreA').textContent=state.scoreA;$('scoreB').textContent=state.scoreB;
+  $('tokenView').textContent=token||'------';
 }
 function send(){
- const d=snapshot();
- for(const [id,c] of conns){if(c.open){try{c.send(d)}catch{}}else conns.delete(id)}
- $('viewers').textContent=`${[...conns.values()].filter(c=>c.open).length} scoreboard viewer(s)`
+  const d=snapshot();
+  for(const [id,c] of conns){
+    if(c.open){try{c.send(d)}catch{}}
+    else conns.delete(id);
+  }
+  $('viewers').textContent=`${[...conns.values()].filter(c=>c.open).length} scoreboard viewer(s)`;
 }
 function changed(){render();send()}
+
+function startHost(newToken){
+  token=newToken;
+  localStorage.setItem('qorvoControlToken',token);
+  render();
+  conns.clear();
+  try{peer?.destroy()}catch{}
+  $('status').textContent='STARTING…';
+
+  peer=new Peer(roomFor(token),{host:'0.peerjs.com',port:443,path:'/',secure:true,debug:0});
+  peer.on('open',()=>{$('status').textContent='ONLINE • '+token;send()});
+  peer.on('connection',c=>{
+    conns.set(c.peer,c);
+    c.on('open',()=>{try{c.send(snapshot())}catch{};send()});
+    c.on('close',()=>{conns.delete(c.peer);send()});
+    c.on('error',()=>{conns.delete(c.peer);send()});
+  });
+  peer.on('error',e=>{
+    $('status').textContent=e.type==='unavailable-id'?'TOKEN IN USE — GENERATE NEW':'CONNECTION ERROR';
+  });
+}
+
 ['teamA','teamB','round'].forEach(k=>$(k).addEventListener('input',e=>{state[k]=e.target.value;changed()}));
 document.querySelectorAll('[data-delta]').forEach(b=>b.onclick=()=>{const k=b.dataset.side==='A'?'scoreA':'scoreB';state[k]=Math.max(0,state[k]+Number(b.dataset.delta));changed()});
 $('reset').onclick=()=>{state.scoreA=0;state.scoreB=0;changed()};
 $('swap').onclick=()=>{[state.teamA,state.teamB]=[state.teamB,state.teamA];[state.scoreA,state.scoreB]=[state.scoreB,state.scoreA];changed()};
-$('copy').onclick=async()=>{const u=new URL('/scoreboard.html',location.origin).href;try{await navigator.clipboard.writeText(u);$('copy').textContent='COPIED';setTimeout(()=>$('copy').textContent='COPY OBS LINK',1200)}catch{prompt('OBS Browser Source URL:',u)}};
-const peer=new Peer(ROOM,{host:'0.peerjs.com',port:443,path:'/',secure:true,debug:0});
-peer.on('open',()=>{$('status').textContent='ONLINE • READY';send()});
-peer.on('connection',c=>{conns.set(c.peer,c);c.on('open',()=>{try{c.send(snapshot())}catch{};send()});c.on('close',()=>{conns.delete(c.peer);send()});c.on('error',()=>{conns.delete(c.peer);send()})});
-peer.on('error',e=>{$('status').textContent=e.type==='unavailable-id'?'CONTROL ALREADY OPEN':'CONNECTION ERROR'});
-render();
+$('newToken').onclick=()=>startHost(generateToken());
+$('copyLink').onclick=async()=>{
+  const u=new URL('/scoreboard.html',location.origin);
+  u.searchParams.set('token',token);
+  try{await navigator.clipboard.writeText(u.href);$('copyLink').textContent='COPIED';setTimeout(()=>$('copyLink').textContent='COPY OBS LINK',1200)}
+  catch{prompt('OBS Browser Source URL:',u.href)}
+};
+
+const saved=(localStorage.getItem('qorvoControlToken')||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6);
+startHost(saved.length===6?saved:generateToken());
 </script>
-</body>
-</html>
+</body></html>
