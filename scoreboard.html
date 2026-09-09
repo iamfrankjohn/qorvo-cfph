@@ -158,6 +158,8 @@ async function connect(token){
 
     conn.on('open',()=>{
       $('status').textContent='CONNECTED — waiting for score…';
+      $('setup').style.display='';
+      $('status').style.display='';
       $('stage').classList.add('connected');
     });
 
@@ -197,34 +199,13 @@ async function connect(token){
 }
 
 $('vsPanel').addEventListener('click',()=>{
-  const entered=prompt(
-    'Enter a NEW 6-character scoreboard token.\n\nCurrent token: '+(currentToken||'NONE'),
-    ''
-  );
-  if(entered===null) return;
-
-  const newToken=cleanToken(entered);
-  if(newToken.length!==6){
-    alert('Please enter a valid 6-character token.');
-    return;
-  }
-
-  // Replace the saved token FIRST, preventing the previous token from auto-reconnecting.
-  clearTimeout(retry);
-  currentToken=newToken;
-  localStorage.setItem('qorvoScoreToken',newToken);
-  $('token').value=newToken;
-
-  const u=new URL(location.href);
-  u.searchParams.set('token',newToken);
-  history.replaceState(null,'',u);
-
-  try{conn?.close()}catch{}
-  try{peer?.destroy()}catch{}
-
+  // Re-open the original inline token entry instead of using a browser message box.
   $('stage').classList.remove('connected');
-  $('status').textContent='Switching to '+newToken+'…';
-  connect(newToken);
+  $('setup').style.display='block';
+  $('status').style.display='block';
+  $('status').textContent='Enter a new pairing token';
+  $('token').value='';
+  setTimeout(()=>$('token').focus(),50);
 });
 
 $('connectBtn').onclick=()=>connect($('token').value);
