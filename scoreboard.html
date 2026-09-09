@@ -9,102 +9,276 @@
 <script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script>
 <style>
 :root{
- --green:#5cff83;--green2:#18d956;--green3:#0c7c32;
- --ink:#030604;--panel:#07100a;--panel2:#101b13;--white:#fff;--muted:#b7c8bc
+  --q:#67ff8d;
+  --q2:#21d95a;
+  --q3:#0f7d34;
+  --glass:rgba(6,11,8,.96);
+  --glass2:rgba(14,23,16,.98);
+  --white:#f8fff9;
+  --muted:#a9b8ad;
 }
 *{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent;font-family:Arial,Helvetica,sans-serif}
-body{position:relative;color:var(--white)}
-.canvas{position:relative;width:100vw;height:100vh;background:transparent;overflow:hidden}
-
-/* Designed directly on a 1920x1080 canvas. Only top ~105px is occupied. */
-.board{
- position:absolute;left:0;top:0;width:100%;height:106px;
- display:grid;grid-template-columns:minmax(0,1fr) 116px 300px 116px minmax(0,1fr);
- align-items:start;
- filter:drop-shadow(0 8px 10px rgba(0,0,0,.68));
+html,body{
+  margin:0;width:100%;height:100%;
+  overflow:hidden;background:transparent;
+  font-family:Arial,Helvetica,sans-serif;
 }
+body{color:var(--white)}
+.canvas{
+  position:relative;
+  width:100vw;height:100vh;
+  background:transparent;
+}
+
+/* Broadcast-safe top scoreboard */
+.scoreboard{
+  position:absolute;
+  left:50%;
+  top:18px;
+  transform:translateX(-50%);
+  width:min(1760px,94vw);
+  height:92px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 92px 260px 92px minmax(0,1fr);
+  align-items:center;
+  filter:drop-shadow(0 8px 12px rgba(0,0,0,.72));
+}
+.scoreboard:before{
+  content:"";
+  position:absolute;
+  left:5%;right:5%;top:-5px;height:2px;
+  background:linear-gradient(90deg,transparent,var(--q2),var(--q),var(--q2),transparent);
+  box-shadow:0 0 10px rgba(103,255,141,.5);
+}
+
+/* team panels */
 .team{
- position:relative;height:68px;margin-top:8px;display:flex;align-items:center;
- background:linear-gradient(180deg,rgba(18,31,21,.98),rgba(3,8,5,.98));
- border-top:2px solid var(--green2);border-bottom:1px solid rgba(92,255,131,.65);
- overflow:hidden
+  position:relative;
+  height:66px;
+  display:flex;
+  align-items:center;
+  background:
+    linear-gradient(180deg,rgba(17,29,20,.98),rgba(5,9,6,.99));
+  border-top:1px solid rgba(103,255,141,.65);
+  border-bottom:1px solid rgba(103,255,141,.28);
+  overflow:hidden;
 }
-.team:before{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 25%,rgba(92,255,131,.08),transparent 70%);pointer-events:none}
-.team.left{justify-content:flex-end;padding:0 38px 0 24px;clip-path:polygon(0 0,96% 0,100% 50%,96% 100%,0 100%)}
-.team.right{justify-content:flex-start;padding:0 24px 0 38px;clip-path:polygon(4% 0,100% 0,100% 100%,4% 100%,0 50%)}
-.name{position:relative;z-index:2;width:100%;font-size:clamp(22px,2vw,34px);font-weight:1000;letter-spacing:.035em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 2px 5px #000}
-.left .name{text-align:right}.right .name{text-align:left}
+.team:after{
+  content:"";
+  position:absolute;inset:0;
+  background:
+    linear-gradient(120deg,transparent 0 35%,rgba(103,255,141,.06) 48%,transparent 61%);
+  pointer-events:none;
+}
+.team.left{
+  justify-content:flex-end;
+  padding:0 36px 0 28px;
+  clip-path:polygon(0 0,95% 0,100% 50%,95% 100%,0 100%,2% 50%);
+}
+.team.right{
+  justify-content:flex-start;
+  padding:0 28px 0 36px;
+  clip-path:polygon(5% 0,100% 0,98% 50%,100% 100%,5% 100%,0 50%);
+}
+.name{
+  position:relative;
+  z-index:2;
+  width:100%;
+  font-weight:1000;
+  font-size:clamp(22px,2vw,34px);
+  letter-spacing:.045em;
+  line-height:1;
+  text-transform:uppercase;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  text-shadow:0 2px 4px rgba(0,0,0,.85);
+}
+.left .name{text-align:right}
+.right .name{text-align:left}
 
+/* score boxes */
 .scorebox{
- position:relative;z-index:5;height:84px;margin-top:0;display:flex;align-items:center;justify-content:center;
- background:linear-gradient(180deg,#19311f,#07110a 62%,#020503);
- border:2px solid var(--green2);
- box-shadow:inset 0 0 24px rgba(92,255,131,.12),0 0 14px rgba(92,255,131,.18)
+  position:relative;
+  z-index:5;
+  height:76px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:
+    radial-gradient(circle at 50% 28%,rgba(103,255,141,.13),transparent 40%),
+    linear-gradient(180deg,#14261a,#050906 72%);
+  border:1px solid rgba(103,255,141,.75);
+  box-shadow:
+    inset 0 0 20px rgba(103,255,141,.08),
+    0 0 12px rgba(33,217,90,.12);
 }
-.scorebox.left{clip-path:polygon(0 8%,82% 8%,100% 50%,82% 92%,0 92%,14% 50%)}
-.scorebox.right{clip-path:polygon(18% 8%,100% 8%,86% 50%,100% 92%,18% 92%,0 50%)}
-.score{font-size:57px;font-weight:1000;line-height:1;font-variant-numeric:tabular-nums;text-shadow:0 0 12px rgba(92,255,131,.2)}
-.score.bump{animation:bump .22s ease-out}@keyframes bump{45%{transform:scale(1.22);color:var(--green)}}
+.scorebox.left{clip-path:polygon(0 7%,82% 7%,100% 50%,82% 93%,0 93%,12% 50%)}
+.scorebox.right{clip-path:polygon(18% 7%,100% 7%,88% 50%,100% 93%,18% 93%,0 50%)}
+.score{
+  font-size:52px;
+  line-height:1;
+  font-weight:1000;
+  font-variant-numeric:tabular-nums;
+}
+.score.bump{animation:scorepop .22s ease-out}
+@keyframes scorepop{
+  0%{transform:scale(1)}
+  45%{transform:scale(1.18);color:var(--q)}
+  100%{transform:scale(1)}
+}
 
+/* center tournament plaque */
 .center{
- position:relative;z-index:7;height:96px;
- background:linear-gradient(180deg,#142119,#050907 72%,#020403);
- clip-path:polygon(12% 0,88% 0,100% 48%,88% 100%,12% 100%,0 48%);
- border-top:2px solid var(--green);border-bottom:2px solid var(--green2);
- box-shadow:inset 0 0 35px rgba(92,255,131,.09)
+  position:relative;
+  z-index:8;
+  height:86px;
+  background:
+    radial-gradient(circle at 50% 28%,rgba(103,255,141,.12),transparent 46%),
+    linear-gradient(180deg,#101a12,#040705);
+  clip-path:polygon(13% 0,87% 0,100% 50%,87% 100%,13% 100%,0 50%);
+  border-top:1px solid var(--q);
+  border-bottom:1px solid rgba(103,255,141,.5);
 }
-.brand{position:absolute;top:8px;left:0;right:0;text-align:center;color:var(--green);font-size:10px;font-weight:1000;letter-spacing:.22em}
-.title{position:absolute;top:25px;left:0;right:0;text-align:center;font-size:17px;font-weight:1000;letter-spacing:.08em}
-.vs{position:absolute;top:46px;left:0;right:0;text-align:center;font-size:24px;line-height:1;font-weight:1000}
-.round{position:absolute;bottom:8px;left:34px;right:34px;text-align:center;color:#dfffe6;font-size:9px;font-weight:1000;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kicker{
+  position:absolute;left:0;right:0;top:7px;
+  text-align:center;
+  color:var(--q);
+  font-size:9px;
+  line-height:1;
+  font-weight:1000;
+  letter-spacing:.22em;
+}
+.event{
+  position:absolute;left:0;right:0;top:22px;
+  text-align:center;
+  font-size:15px;
+  line-height:1;
+  font-weight:1000;
+  letter-spacing:.07em;
+}
+.vs{
+  position:absolute;left:0;right:0;top:40px;
+  text-align:center;
+  font-size:22px;
+  line-height:1;
+  font-weight:1000;
+}
+.round{
+  position:absolute;left:35px;right:35px;bottom:7px;
+  text-align:center;
+  font-size:8px;
+  line-height:1;
+  font-weight:900;
+  letter-spacing:.14em;
+  color:#d9ffe2;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
 
-.rail{
- position:absolute;left:8%;right:8%;top:77px;height:29px;z-index:3;
- display:grid;grid-template-columns:1fr auto 1fr;align-items:start
+/* small lower tournament tag */
+.tag{
+  position:absolute;
+  left:50%;
+  top:82px;
+  transform:translateX(-50%);
+  min-width:330px;
+  height:20px;
+  padding:0 26px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(4,8,5,.94);
+  border-top:1px solid rgba(103,255,141,.55);
+  clip-path:polygon(6% 0,94% 0,100% 50%,94% 100%,6% 100%,0 50%);
+  color:#bfffcf;
+  font-size:7.5px;
+  font-weight:1000;
+  letter-spacing:.2em;
+  white-space:nowrap;
 }
-.line{height:2px;margin-top:8px;background:linear-gradient(90deg,transparent,rgba(92,255,131,.7))}
-.line.r{transform:scaleX(-1)}
-.label{
- min-width:245px;height:25px;padding:0 25px;display:flex;align-items:center;justify-content:center;
- background:#050906;clip-path:polygon(7% 0,93% 0,100% 50%,93% 100%,7% 100%,0 50%);
- border-top:1px solid rgba(92,255,131,.7);color:#cffff0;font-size:8px;font-weight:1000;letter-spacing:.19em
+.status{
+  position:absolute;
+  left:50%;top:118px;
+  transform:translateX(-50%);
+  padding:5px 10px;
+  border-radius:5px;
+  background:rgba(0,0,0,.82);
+  color:#fff;
+  font-size:10px;
 }
-.status{position:absolute;top:112px;left:50%;transform:translateX(-50%);padding:5px 10px;border-radius:5px;background:rgba(0,0,0,.82);font-size:10px}
 .connected .status{display:none}
+@media(max-width:1200px){
+  .scoreboard{width:97vw;grid-template-columns:minmax(0,1fr) 74px 210px 74px minmax(0,1fr)}
+  .scorebox{height:70px}.score{font-size:45px}.center{height:80px}.name{font-size:clamp(18px,2vw,27px)}
+  .team.left{padding-right:28px}.team.right{padding-left:28px}.event{font-size:13px}.tag{min-width:270px}
+}
 </style>
 </head>
 <body>
 <div class="canvas" id="canvas">
- <div class="board">
-  <div class="team left"><div class="name" id="a">WONDERPETCHS</div></div>
-  <div class="scorebox left"><div class="score" id="sa">0</div></div>
-  <div class="center"><div class="brand">QORVO CFPH</div><div class="title">CIVIL WAR 3V3</div><div class="vs">VS</div><div class="round" id="r">MATCH 1</div></div>
-  <div class="scorebox right"><div class="score" id="sb">0</div></div>
-  <div class="team right"><div class="name" id="b">UDERDOGS</div></div>
- </div>
- <div class="rail"><div class="line"></div><div class="label">IN-CLAN TOURNAMENT • LIVE SCOREBOARD</div><div class="line r"></div></div>
- <div class="status" id="status">Connecting to scoreboard control…</div>
+  <div class="scoreboard">
+    <div class="team left"><div class="name" id="a">WONDERPETCHS</div></div>
+    <div class="scorebox left"><div class="score" id="sa">0</div></div>
+    <div class="center">
+      <div class="kicker">QORVO CFPH</div>
+      <div class="event">CIVIL WAR 3V3</div>
+      <div class="vs">VS</div>
+      <div class="round" id="r">MATCH 1</div>
+    </div>
+    <div class="scorebox right"><div class="score" id="sb">0</div></div>
+    <div class="team right"><div class="name" id="b">UDERDOGS</div></div>
+    <div class="tag">IN-CLAN TOURNAMENT • LIVE SCOREBOARD</div>
+  </div>
+  <div class="status" id="status">Connecting to scoreboard control…</div>
 </div>
 <script>
-const HOST='qorvo-scoreboard-live-v750', $=id=>document.getElementById(id);
+const HOST='qorvo-scoreboard-live-v750';
+const $=id=>document.getElementById(id);
 let peer,conn,retry,lastA=null,lastB=null;
-function bump(e){e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump')}
+
+function bump(el){
+  el.classList.remove('bump');
+  void el.offsetWidth;
+  el.classList.add('bump');
+}
 function apply(d){
- if(!d||d.type!=='scoreboard-state')return;
- $('a').textContent=d.teamA||'WONDERPETCHS';$('b').textContent=d.teamB||'UDERDOGS';
- if(lastA!==null&&String(lastA)!==String(d.scoreA))bump($('sa'));
- if(lastB!==null&&String(lastB)!==String(d.scoreB))bump($('sb'));
- lastA=d.scoreA??0;lastB=d.scoreB??0;$('sa').textContent=lastA;$('sb').textContent=lastB;
- $('r').textContent=d.round||'MATCH';$('canvas').classList.add('connected')
+  if(!d || d.type!=='scoreboard-state') return;
+  $('a').textContent=d.teamA||'WONDERPETCHS';
+  $('b').textContent=d.teamB||'UDERDOGS';
+  if(lastA!==null && String(lastA)!==String(d.scoreA)) bump($('sa'));
+  if(lastB!==null && String(lastB)!==String(d.scoreB)) bump($('sb'));
+  lastA=d.scoreA??0;
+  lastB=d.scoreB??0;
+  $('sa').textContent=lastA;
+  $('sb').textContent=lastB;
+  $('r').textContent=d.round||'MATCH';
+  $('canvas').classList.add('connected');
 }
 function connect(){
- clearTimeout(retry);try{conn?.close()}catch{}
- peer=new Peer('qorvo-score-viewer-'+crypto.randomUUID().replaceAll('-','').slice(0,18),{host:'0.peerjs.com',port:443,path:'/',secure:true,debug:0});
- peer.on('open',()=>{conn=peer.connect(HOST,{reliable:true});conn.on('data',apply);conn.on('close',again);conn.on('error',again)});
- peer.on('error',again);peer.on('disconnected',again)
+  clearTimeout(retry);
+  try{conn?.close()}catch{}
+  peer=new Peer(
+    'qorvo-score-viewer-'+crypto.randomUUID().replaceAll('-','').slice(0,18),
+    {host:'0.peerjs.com',port:443,path:'/',secure:true,debug:0}
+  );
+  peer.on('open',()=>{
+    conn=peer.connect(HOST,{reliable:true});
+    conn.on('data',apply);
+    conn.on('close',again);
+    conn.on('error',again);
+  });
+  peer.on('error',again);
+  peer.on('disconnected',again);
 }
-function again(){ $('canvas').classList.remove('connected');$('status').textContent='Reconnecting…';try{peer?.destroy()}catch{};retry=setTimeout(connect,1500)}
+function again(){
+  $('canvas').classList.remove('connected');
+  $('status').textContent='Reconnecting…';
+  try{peer?.destroy()}catch{}
+  retry=setTimeout(connect,1500);
+}
 connect();
 </script>
-</body></html>
+</body>
+</html>

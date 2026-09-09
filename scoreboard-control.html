@@ -6,44 +6,79 @@
 <title>QORVO Scoreboard Control</title>
 <script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script>
 <style>
-:root{--g:#62ff89;--g2:#18d950;--bg:#050806;--card:#0d140f;--card2:#121c15;--line:#294434;--white:#f7fff9;--muted:#91a398;font-family:Inter,Arial,sans-serif;color-scheme:dark}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% 0,#102016 0,#070b08 35%,#040604 100%);color:var(--white);min-height:100vh}.wrap{max-width:1080px;margin:auto;padding:24px}
-.header{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:18px;padding:18px 20px;background:linear-gradient(180deg,#111b14,#090e0a);border:1px solid var(--line);border-top:2px solid var(--g2);border-radius:14px;box-shadow:0 14px 40px rgba(0,0,0,.25)}
-.eyebrow{font-size:10px;font-weight:900;letter-spacing:.2em;color:var(--g);text-transform:uppercase;margin-bottom:5px}h1{font-size:25px;margin:0;letter-spacing:.02em}.meta{font-size:12px;color:var(--muted);margin-top:6px}.status{padding:9px 13px;border:1px solid rgba(98,255,137,.35);border-radius:999px;background:rgba(98,255,137,.07);color:var(--g);font-size:12px;font-weight:900;white-space:nowrap}
-.card{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px;box-shadow:0 14px 35px rgba(0,0,0,.18)}
-.matchrow{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:end}.field label{display:block;font-size:10px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#a9b9ae;margin:0 0 7px}.field input{width:100%;height:46px;padding:0 13px;border:1px solid #31513c;border-radius:9px;background:#070b08;color:white;font-size:17px;font-weight:800;outline:none}.field input:focus{border-color:var(--g2);box-shadow:0 0 0 3px rgba(98,255,137,.08)}
-.teams{display:grid;grid-template-columns:1fr 78px 1fr;gap:16px;align-items:center}.versus{text-align:center;font-size:18px;font-weight:1000;color:var(--g);letter-spacing:.08em}.teamcard{padding:16px;border:1px solid #294434;border-radius:12px;background:rgba(0,0,0,.18)}.teamhead{display:flex;align-items:center;justify-content:space-between;gap:12px}.tag{font-size:10px;font-weight:900;letter-spacing:.16em;color:var(--g);text-transform:uppercase}.score{font-size:78px;font-weight:1000;line-height:1;text-align:center;margin:18px 0 14px;font-variant-numeric:tabular-nums}.buttons{display:grid;grid-template-columns:1fr 1.5fr;gap:8px}
-button{border:0;border-radius:9px;min-height:43px;padding:0 14px;font-weight:900;cursor:pointer;transition:.15s transform,.15s filter}.buttons button:active,.actions button:active{transform:scale(.98)}.plus{background:var(--g);color:#031006}.minus{background:#26362b;color:white}.actions{display:flex;gap:9px;flex-wrap:wrap;align-items:center}.actions button{background:#1d2b21;color:white;border:1px solid #304b38}.actions .primary{background:var(--g);color:#031006;border:0}.actions .danger{background:#381818;color:#ffb4b4;border-color:#673030}.viewer{margin-left:auto;font-size:12px;color:var(--muted)}
-.preview-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.preview-title strong{font-size:12px;letter-spacing:.12em;text-transform:uppercase}.preview{height:145px;border-radius:11px;background:repeating-linear-gradient(45deg,#080b09 0 12px,#0a0e0b 12px 24px);overflow:hidden;padding:17px 14px}.pboard{height:92px;display:grid;grid-template-columns:minmax(0,1fr) 76px 128px 76px minmax(0,1fr);align-items:center}.pteam{height:56px;display:flex;align-items:center;background:linear-gradient(180deg,#172219,#080c09);border-top:1px solid var(--g2);border-bottom:1px solid #236d39;padding:0 18px;font-size:17px;font-weight:1000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase}.pteam.a{justify-content:flex-end;text-align:right;clip-path:polygon(0 0,94% 0,100% 50%,94% 100%,0 100%)}.pteam.b{clip-path:polygon(6% 0,100% 0,100% 100%,6% 100%,0 50%)}.pscore{height:70px;display:flex;align-items:center;justify-content:center;background:#09110b;border:1px solid var(--g2);font-size:38px;font-weight:1000}.pcore{height:78px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#09100b;clip-path:polygon(14% 0,86% 0,100% 50%,86% 100%,14% 100%,0 50%)}.pcore b{font-size:20px}.pcore span{font-size:8px;color:var(--g);font-weight:900;letter-spacing:.12em;margin-top:5px;max-width:95px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.footer{text-align:center;color:#68766d;font-size:11px;padding:8px}
-@media(max-width:720px){.wrap{padding:12px}.header{align-items:flex-start}.teams{grid-template-columns:1fr}.versus{padding:0}.matchrow{grid-template-columns:1fr}.viewer{width:100%;margin-left:0}.preview{display:none}}
+:root{--g:#67ff8d;--g2:#21d95a;--bg:#050806;--card:#0b120d;--line:#284433;--white:#f7fff9;--muted:#92a499;font-family:Arial,Helvetica,sans-serif;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% 0,#102016,#060906 42%,#030403);color:var(--white)}
+.wrap{max-width:1080px;margin:auto;padding:22px}
+.header,.card{background:linear-gradient(180deg,#111a13,#080d09);border:1px solid var(--line);border-radius:14px;box-shadow:0 15px 35px rgba(0,0,0,.2)}
+.header{padding:18px 20px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:16px;border-top:2px solid var(--g2)}
+.eyebrow{font-size:10px;font-weight:1000;letter-spacing:.18em;color:var(--g);margin-bottom:5px}h1{margin:0;font-size:24px}.meta{font-size:12px;color:var(--muted);margin-top:6px}.status{padding:8px 12px;border-radius:999px;background:rgba(103,255,141,.08);border:1px solid rgba(103,255,141,.3);font-size:11px;font-weight:1000;color:var(--g)}
+.card{padding:17px;margin-bottom:15px}.field label{display:block;margin-bottom:7px;font-size:9px;font-weight:1000;letter-spacing:.14em;color:#a6b7ab;text-transform:uppercase}.field input{width:100%;height:44px;border:1px solid #31513c;border-radius:8px;background:#060906;color:white;padding:0 12px;font-size:16px;font-weight:800;outline:none}.field input:focus{border-color:var(--g2);box-shadow:0 0 0 3px rgba(103,255,141,.07)}
+.teams{display:grid;grid-template-columns:1fr 64px 1fr;gap:14px;align-items:center}.vs{text-align:center;font-weight:1000;color:var(--g);font-size:18px}.teamcard{padding:15px;border:1px solid #2a4634;border-radius:11px;background:rgba(0,0,0,.16)}.tag{font-size:9px;font-weight:1000;letter-spacing:.15em;color:var(--g);margin-bottom:11px}.score{font-size:72px;line-height:1;font-weight:1000;text-align:center;margin:15px 0 13px}.buttons{display:grid;grid-template-columns:1fr 1.4fr;gap:8px}
+button{min-height:42px;border-radius:8px;border:1px solid #304b38;background:#1c2a20;color:white;font-weight:1000;cursor:pointer}.plus,.primary{background:var(--g);color:#041107;border:0}.danger{background:#351717!important;border-color:#672d2d!important;color:#ffc1c1!important}.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.viewer{margin-left:auto;font-size:11px;color:var(--muted)}
+.preview{height:128px;padding:20px 14px;background:repeating-linear-gradient(45deg,#080b09 0 12px,#0a0e0b 12px 24px);border-radius:10px;overflow:hidden}.pboard{height:82px;display:grid;grid-template-columns:minmax(0,1fr) 66px 170px 66px minmax(0,1fr);align-items:center}.pteam{height:52px;display:flex;align-items:center;background:linear-gradient(180deg,#152119,#070b08);border-top:1px solid var(--g2);border-bottom:1px solid #1f6a35;padding:0 15px;font-size:15px;font-weight:1000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pteam.a{justify-content:flex-end;text-align:right;clip-path:polygon(0 0,94% 0,100% 50%,94% 100%,0 100%)}.pteam.b{clip-path:polygon(6% 0,100% 0,100% 100%,6% 100%,0 50%)}.pscore{height:62px;display:flex;align-items:center;justify-content:center;border:1px solid var(--g2);background:#09110b;font-size:34px;font-weight:1000}.pcore{height:72px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#08100a;clip-path:polygon(13% 0,87% 0,100% 50%,87% 100%,13% 100%,0 50%)}.pcore b{font-size:18px}.pcore span{font-size:7px;color:var(--g);letter-spacing:.11em;font-weight:1000;margin-top:4px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.preview-head{display:flex;justify-content:space-between;margin-bottom:10px}.preview-head strong{font-size:11px;letter-spacing:.12em}.footer{text-align:center;color:#68766d;font-size:10px;padding:6px}
+@media(max-width:720px){.wrap{padding:12px}.header{align-items:flex-start}.teams{grid-template-columns:1fr}.preview{display:none}.viewer{width:100%;margin-left:0}}
 </style></head>
-<body><main class="wrap">
-<div class="header"><div><div class="eyebrow">QORVO CFPH • Civil War 3V3</div><h1>LIVE SCOREBOARD CONTROL</h1><div class="meta">WEB v7.59 • Redesigned broadcast scoreboard • Keep this page open while OBS is using the overlay.</div></div><div id="status" class="status">STARTING…</div></div>
+<body>
+<main class="wrap">
+<div class="header">
+  <div><div class="eyebrow">QORVO CFPH • CIVIL WAR 3V3</div><h1>LIVE SCOREBOARD CONTROL</h1><div class="meta">WEB v7.60 • Broadcast scoreboard controller</div></div>
+  <div id="status" class="status">STARTING…</div>
+</div>
 
-<div class="card"><div class="matchrow"><div class="field"><label>Match / Round Label</label><input id="round" value="MATCH 1"></div></div></div>
+<div class="card"><div class="field"><label>Match / Round Label</label><input id="round" value="MATCH 1"></div></div>
 
-<div class="card"><div class="teams">
-<div class="teamcard"><div class="teamhead"><span class="tag">Left Team</span></div><div class="field"><label>Team Name</label><input id="teamA" value="WONDERPETCHS"></div><div class="score" id="scoreA">0</div><div class="buttons"><button class="minus" data-side="A" data-delta="-1">−1 SCORE</button><button class="plus" data-side="A" data-delta="1">+1 SCORE</button></div></div>
-<div class="versus">VS</div>
-<div class="teamcard"><div class="teamhead"><span class="tag">Right Team</span></div><div class="field"><label>Team Name</label><input id="teamB" value="UDERDOGS"></div><div class="score" id="scoreB">0</div><div class="buttons"><button class="minus" data-side="B" data-delta="-1">−1 SCORE</button><button class="plus" data-side="B" data-delta="1">+1 SCORE</button></div></div>
-</div></div>
+<div class="card">
+  <div class="teams">
+    <div class="teamcard">
+      <div class="tag">LEFT TEAM</div>
+      <div class="field"><label>Team Name</label><input id="teamA" value="WONDERPETCHS"></div>
+      <div class="score" id="scoreA">0</div>
+      <div class="buttons"><button data-side="A" data-delta="-1">−1</button><button class="plus" data-side="A" data-delta="1">+1 SCORE</button></div>
+    </div>
+    <div class="vs">VS</div>
+    <div class="teamcard">
+      <div class="tag">RIGHT TEAM</div>
+      <div class="field"><label>Team Name</label><input id="teamB" value="UDERDOGS"></div>
+      <div class="score" id="scoreB">0</div>
+      <div class="buttons"><button data-side="B" data-delta="-1">−1</button><button class="plus" data-side="B" data-delta="1">+1 SCORE</button></div>
+    </div>
+  </div>
+</div>
 
-<div class="card actions"><button class="primary" id="swap">SWAP TEAMS</button><button class="danger" id="reset">RESET SCORE</button><button id="copy">COPY OBS LINK</button><span class="viewer" id="viewers">0 scoreboard viewer(s)</span></div>
+<div class="card actions">
+  <button class="primary" id="swap">SWAP TEAMS</button>
+  <button class="danger" id="reset">RESET SCORE</button>
+  <button id="copy">COPY OBS LINK</button>
+  <span class="viewer" id="viewers">0 scoreboard viewer(s)</span>
+</div>
 
-<div class="card"><div class="preview-title"><strong>OBS Preview</strong><span class="meta">Live layout preview</span></div><div class="preview"><div class="pboard"><div class="pteam a" id="pA">WONDERPETCHS</div><div class="pscore" id="pSA">0</div><div class="pcore"><b>VS</b><span id="pRound">MATCH 1</span></div><div class="pscore" id="pSB">0</div><div class="pteam b" id="pB">UDERDOGS</div></div></div></div>
+<div class="card">
+  <div class="preview-head"><strong>OBS LAYOUT PREVIEW</strong><span class="meta">Full-width 1920×1080 top HUD</span></div>
+  <div class="preview"><div class="pboard">
+    <div class="pteam a" id="pA">WONDERPETCHS</div><div class="pscore" id="pSA">0</div>
+    <div class="pcore"><b>VS</b><span id="pRound">MATCH 1</span></div>
+    <div class="pscore" id="pSB">0</div><div class="pteam b" id="pB">UDERDOGS</div>
+  </div></div>
+</div>
 <div class="footer">QORVO CFPH • CIVIL WAR 3V3</div>
 </main>
 <script>
 const ROOM='qorvo-scoreboard-live-v750';
 const state={teamA:'WONDERPETCHS',teamB:'UDERDOGS',scoreA:0,scoreB:0,round:'MATCH 1'};
-const conns=new Map();const $=id=>document.getElementById(id);
+const conns=new Map(),$=id=>document.getElementById(id);
 function snapshot(){return {...state,type:'scoreboard-state'}}
 function render(){
  ['teamA','teamB','round'].forEach(k=>{if(document.activeElement!==$(k))$(k).value=state[k]});
  $('scoreA').textContent=state.scoreA;$('scoreB').textContent=state.scoreB;
- $('pA').textContent=state.teamA;$('pB').textContent=state.teamB;$('pSA').textContent=state.scoreA;$('pSB').textContent=state.scoreB;$('pRound').textContent=state.round
+ $('pA').textContent=state.teamA;$('pB').textContent=state.teamB;
+ $('pSA').textContent=state.scoreA;$('pSB').textContent=state.scoreB;$('pRound').textContent=state.round
 }
-function send(){const d=snapshot();for(const [id,c] of conns){if(c.open){try{c.send(d)}catch{}}else conns.delete(id)}$('viewers').textContent=`${[...conns.values()].filter(c=>c.open).length} scoreboard viewer(s)`}
+function send(){
+ const d=snapshot();
+ for(const [id,c] of conns){if(c.open){try{c.send(d)}catch{}}else conns.delete(id)}
+ $('viewers').textContent=`${[...conns.values()].filter(c=>c.open).length} scoreboard viewer(s)`
+}
 function changed(){render();send()}
 ['teamA','teamB','round'].forEach(k=>$(k).addEventListener('input',e=>{state[k]=e.target.value;changed()}));
 document.querySelectorAll('[data-delta]').forEach(b=>b.onclick=()=>{const k=b.dataset.side==='A'?'scoreA':'scoreB';state[k]=Math.max(0,state[k]+Number(b.dataset.delta));changed()});
@@ -55,4 +90,6 @@ peer.on('open',()=>{$('status').textContent='ONLINE • READY';send()});
 peer.on('connection',c=>{conns.set(c.peer,c);c.on('open',()=>{try{c.send(snapshot())}catch{};send()});c.on('close',()=>{conns.delete(c.peer);send()});c.on('error',()=>{conns.delete(c.peer);send()})});
 peer.on('error',e=>{$('status').textContent=e.type==='unavailable-id'?'CONTROL ALREADY OPEN':'CONNECTION ERROR'});
 render();
-</script></body></html>
+</script>
+</body>
+</html>
