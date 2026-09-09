@@ -9,230 +9,228 @@
 <script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script>
 <style>
 :root{
-  --q:#67ff8d;
-  --q2:#21d95a;
-  --q3:#0f7d34;
-  --glass:rgba(6,11,8,.96);
-  --glass2:rgba(14,23,16,.98);
-  --white:#f8fff9;
-  --muted:#a9b8ad;
+  --green:#5cff83;
+  --green2:#22d95c;
+  --green3:#11843a;
+  --white:#ffffff;
+  --muted:#b7c4ba;
+  --dark:#040705;
+  --dark2:#0a110c;
+  --dark3:#111a13;
 }
 *{box-sizing:border-box}
 html,body{
-  margin:0;width:100%;height:100%;
-  overflow:hidden;background:transparent;
+  width:100%;height:100%;
+  margin:0;overflow:hidden;background:transparent;
   font-family:Arial,Helvetica,sans-serif;
 }
 body{color:var(--white)}
-.canvas{
-  position:relative;
-  width:100vw;height:100vh;
-  background:transparent;
-}
+.stage{position:relative;width:100vw;height:100vh;background:transparent}
 
-/* Broadcast-safe top scoreboard */
-.scoreboard{
+/* 1920x1080 broadcast HUD: readable, compact, but visually substantial */
+.hud{
   position:absolute;
-  left:50%;
-  top:18px;
+  left:50%;top:18px;
   transform:translateX(-50%);
-  width:min(1760px,94vw);
-  height:92px;
-  display:grid;
-  grid-template-columns:minmax(0,1fr) 92px 260px 92px minmax(0,1fr);
-  align-items:center;
-  filter:drop-shadow(0 8px 12px rgba(0,0,0,.72));
+  width:min(1780px,92.7vw);
+  height:132px;
+  filter:drop-shadow(0 10px 18px rgba(0,0,0,.75));
 }
-.scoreboard:before{
+.hud:before{
   content:"";
   position:absolute;
-  left:5%;right:5%;top:-5px;height:2px;
-  background:linear-gradient(90deg,transparent,var(--q2),var(--q),var(--q2),transparent);
-  box-shadow:0 0 10px rgba(103,255,141,.5);
+  left:72px;right:72px;top:0;height:3px;
+  background:linear-gradient(90deg,transparent 0%,var(--green2) 12%,var(--green) 50%,var(--green2) 88%,transparent 100%);
+  box-shadow:0 0 14px rgba(92,255,131,.45);
+}
+
+.row{
+  position:absolute;
+  left:0;right:0;top:6px;height:102px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 126px 330px 126px minmax(0,1fr);
+  align-items:center;
 }
 
 /* team panels */
 .team{
+  height:82px;
   position:relative;
-  height:66px;
   display:flex;
   align-items:center;
-  background:
-    linear-gradient(180deg,rgba(17,29,20,.98),rgba(5,9,6,.99));
-  border-top:1px solid rgba(103,255,141,.65);
-  border-bottom:1px solid rgba(103,255,141,.28);
   overflow:hidden;
+  background:
+    linear-gradient(180deg,rgba(17,28,20,.98),rgba(5,8,6,.995));
+  border-top:2px solid rgba(92,255,131,.72);
+  border-bottom:1px solid rgba(92,255,131,.38);
+  box-shadow:inset 0 0 28px rgba(92,255,131,.035);
 }
-.team:after{
+.team:before{
   content:"";
   position:absolute;inset:0;
   background:
-    linear-gradient(120deg,transparent 0 35%,rgba(103,255,141,.06) 48%,transparent 61%);
+    linear-gradient(120deg,transparent 22%,rgba(92,255,131,.08) 48%,transparent 74%),
+    repeating-linear-gradient(135deg,transparent 0 42px,rgba(255,255,255,.018) 42px 43px);
   pointer-events:none;
 }
 .team.left{
   justify-content:flex-end;
-  padding:0 36px 0 28px;
+  padding:0 42px 0 28px;
   clip-path:polygon(0 0,95% 0,100% 50%,95% 100%,0 100%,2% 50%);
 }
 .team.right{
   justify-content:flex-start;
-  padding:0 28px 0 36px;
+  padding:0 28px 0 42px;
   clip-path:polygon(5% 0,100% 0,98% 50%,100% 100%,5% 100%,0 50%);
 }
-.name{
-  position:relative;
-  z-index:2;
+.teamname{
+  position:relative;z-index:2;
   width:100%;
-  font-weight:1000;
-  font-size:clamp(22px,2vw,34px);
-  letter-spacing:.045em;
+  font-size:clamp(28px,2.1vw,40px);
   line-height:1;
+  font-weight:1000;
+  letter-spacing:.035em;
   text-transform:uppercase;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
-  text-shadow:0 2px 4px rgba(0,0,0,.85);
+  text-shadow:0 3px 8px rgba(0,0,0,.88);
 }
-.left .name{text-align:right}
-.right .name{text-align:left}
+.team.left .teamname{text-align:right}
+.team.right .teamname{text-align:left}
 
-/* score boxes */
+/* scores */
 .scorebox{
-  position:relative;
-  z-index:5;
-  height:76px;
+  position:relative;z-index:5;
+  height:94px;
   display:flex;
   align-items:center;
   justify-content:center;
   background:
-    radial-gradient(circle at 50% 28%,rgba(103,255,141,.13),transparent 40%),
-    linear-gradient(180deg,#14261a,#050906 72%);
-  border:1px solid rgba(103,255,141,.75);
+    radial-gradient(circle at 50% 28%,rgba(92,255,131,.17),transparent 45%),
+    linear-gradient(180deg,#17321f 0%,#071009 64%,#020403 100%);
+  border:2px solid rgba(92,255,131,.86);
   box-shadow:
-    inset 0 0 20px rgba(103,255,141,.08),
-    0 0 12px rgba(33,217,90,.12);
+    inset 0 0 26px rgba(92,255,131,.1),
+    0 0 18px rgba(34,217,92,.16);
 }
-.scorebox.left{clip-path:polygon(0 7%,82% 7%,100% 50%,82% 93%,0 93%,12% 50%)}
-.scorebox.right{clip-path:polygon(18% 7%,100% 7%,88% 50%,100% 93%,18% 93%,0 50%)}
+.scorebox.left{clip-path:polygon(0 6%,82% 6%,100% 50%,82% 94%,0 94%,13% 50%)}
+.scorebox.right{clip-path:polygon(18% 6%,100% 6%,87% 50%,100% 94%,18% 94%,0 50%)}
 .score{
-  font-size:52px;
+  font-size:68px;
   line-height:1;
   font-weight:1000;
   font-variant-numeric:tabular-nums;
+  text-shadow:0 0 12px rgba(92,255,131,.12);
 }
-.score.bump{animation:scorepop .22s ease-out}
-@keyframes scorepop{
+.score.bump{animation:bump .22s ease-out}
+@keyframes bump{
   0%{transform:scale(1)}
-  45%{transform:scale(1.18);color:var(--q)}
+  45%{transform:scale(1.22);color:var(--green)}
   100%{transform:scale(1)}
 }
 
-/* center tournament plaque */
+/* center */
 .center{
-  position:relative;
-  z-index:8;
-  height:86px;
+  position:relative;z-index:7;
+  height:104px;
   background:
-    radial-gradient(circle at 50% 28%,rgba(103,255,141,.12),transparent 46%),
-    linear-gradient(180deg,#101a12,#040705);
-  clip-path:polygon(13% 0,87% 0,100% 50%,87% 100%,13% 100%,0 50%);
-  border-top:1px solid var(--q);
-  border-bottom:1px solid rgba(103,255,141,.5);
+    radial-gradient(circle at 50% 28%,rgba(92,255,131,.14),transparent 48%),
+    linear-gradient(180deg,#131e16 0%,#050906 78%,#020403 100%);
+  clip-path:polygon(12% 0,88% 0,100% 50%,88% 100%,12% 100%,0 50%);
+  border-top:2px solid var(--green);
+  border-bottom:1px solid rgba(92,255,131,.62);
 }
-.kicker{
-  position:absolute;left:0;right:0;top:7px;
+.center .brand{
+  position:absolute;left:0;right:0;top:9px;
   text-align:center;
-  color:var(--q);
-  font-size:9px;
-  line-height:1;
-  font-weight:1000;
-  letter-spacing:.22em;
+  color:var(--green);
+  font-size:11px;font-weight:1000;letter-spacing:.22em;
 }
-.event{
-  position:absolute;left:0;right:0;top:22px;
+.center .event{
+  position:absolute;left:0;right:0;top:28px;
   text-align:center;
-  font-size:15px;
-  line-height:1;
-  font-weight:1000;
-  letter-spacing:.07em;
+  font-size:19px;font-weight:1000;letter-spacing:.08em;
 }
-.vs{
-  position:absolute;left:0;right:0;top:40px;
+.center .vs{
+  position:absolute;left:0;right:0;top:52px;
   text-align:center;
-  font-size:22px;
-  line-height:1;
-  font-weight:1000;
+  font-size:29px;font-weight:1000;line-height:1;
 }
-.round{
-  position:absolute;left:35px;right:35px;bottom:7px;
+.center .round{
+  position:absolute;left:36px;right:36px;bottom:10px;
   text-align:center;
-  font-size:8px;
-  line-height:1;
-  font-weight:900;
-  letter-spacing:.14em;
-  color:#d9ffe2;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
+  font-size:10px;font-weight:1000;letter-spacing:.16em;
+  color:#dfffe7;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
 
-/* small lower tournament tag */
-.tag{
+/* bottom accent bar */
+.subbar{
   position:absolute;
-  left:50%;
-  top:82px;
-  transform:translateX(-50%);
-  min-width:330px;
-  height:20px;
-  padding:0 26px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:rgba(4,8,5,.94);
-  border-top:1px solid rgba(103,255,141,.55);
-  clip-path:polygon(6% 0,94% 0,100% 50%,94% 100%,6% 100%,0 50%);
-  color:#bfffcf;
-  font-size:7.5px;
-  font-weight:1000;
-  letter-spacing:.2em;
+  left:14%;right:14%;top:107px;height:25px;
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:start;
+}
+.subline{
+  height:2px;margin-top:7px;
+  background:linear-gradient(90deg,transparent,rgba(92,255,131,.72));
+}
+.subline.right{transform:scaleX(-1)}
+.label{
+  min-width:350px;height:25px;
+  padding:0 30px;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(180deg,#0b120d,#030604);
+  border-top:1px solid rgba(92,255,131,.68);
+  clip-path:polygon(7% 0,93% 0,100% 50%,93% 100%,7% 100%,0 50%);
+  color:#cffff0;
+  font-size:9px;font-weight:1000;letter-spacing:.19em;
   white-space:nowrap;
 }
 .status{
-  position:absolute;
-  left:50%;top:118px;
-  transform:translateX(-50%);
-  padding:5px 10px;
-  border-radius:5px;
-  background:rgba(0,0,0,.82);
-  color:#fff;
-  font-size:10px;
+  position:absolute;left:50%;top:146px;transform:translateX(-50%);
+  padding:6px 11px;border-radius:6px;
+  background:rgba(0,0,0,.84);font-size:10px;
 }
 .connected .status{display:none}
+
 @media(max-width:1200px){
-  .scoreboard{width:97vw;grid-template-columns:minmax(0,1fr) 74px 210px 74px minmax(0,1fr)}
-  .scorebox{height:70px}.score{font-size:45px}.center{height:80px}.name{font-size:clamp(18px,2vw,27px)}
-  .team.left{padding-right:28px}.team.right{padding-left:28px}.event{font-size:13px}.tag{min-width:270px}
+  .hud{width:96vw}
+  .row{grid-template-columns:minmax(0,1fr) 96px 260px 96px minmax(0,1fr)}
+  .teamname{font-size:clamp(22px,2.1vw,30px)}
+  .score{font-size:56px}
+  .center .event{font-size:16px}
+  .center .vs{font-size:24px}
+  .label{min-width:300px}
 }
 </style>
 </head>
 <body>
-<div class="canvas" id="canvas">
-  <div class="scoreboard">
-    <div class="team left"><div class="name" id="a">WONDERPETCHS</div></div>
-    <div class="scorebox left"><div class="score" id="sa">0</div></div>
-    <div class="center">
-      <div class="kicker">QORVO CFPH</div>
-      <div class="event">CIVIL WAR 3V3</div>
-      <div class="vs">VS</div>
-      <div class="round" id="r">MATCH 1</div>
+<div class="stage" id="stage">
+  <div class="hud">
+    <div class="row">
+      <div class="team left"><div class="teamname" id="a">WONDERPETCHS</div></div>
+      <div class="scorebox left"><div class="score" id="sa">0</div></div>
+      <div class="center">
+        <div class="brand">QORVO CFPH</div>
+        <div class="event">CIVIL WAR 3V3</div>
+        <div class="vs">VS</div>
+        <div class="round" id="r">MATCH 1</div>
+      </div>
+      <div class="scorebox right"><div class="score" id="sb">0</div></div>
+      <div class="team right"><div class="teamname" id="b">UDERDOGS</div></div>
     </div>
-    <div class="scorebox right"><div class="score" id="sb">0</div></div>
-    <div class="team right"><div class="name" id="b">UDERDOGS</div></div>
-    <div class="tag">IN-CLAN TOURNAMENT • LIVE SCOREBOARD</div>
+    <div class="subbar">
+      <div class="subline"></div>
+      <div class="label">IN-CLAN TOURNAMENT • LIVE SCOREBOARD</div>
+      <div class="subline right"></div>
+    </div>
   </div>
   <div class="status" id="status">Connecting to scoreboard control…</div>
 </div>
+
 <script>
 const HOST='qorvo-scoreboard-live-v750';
 const $=id=>document.getElementById(id);
@@ -244,17 +242,19 @@ function bump(el){
   el.classList.add('bump');
 }
 function apply(d){
-  if(!d || d.type!=='scoreboard-state') return;
+  if(!d||d.type!=='scoreboard-state') return;
   $('a').textContent=d.teamA||'WONDERPETCHS';
   $('b').textContent=d.teamB||'UDERDOGS';
+
   if(lastA!==null && String(lastA)!==String(d.scoreA)) bump($('sa'));
   if(lastB!==null && String(lastB)!==String(d.scoreB)) bump($('sb'));
+
   lastA=d.scoreA??0;
   lastB=d.scoreB??0;
   $('sa').textContent=lastA;
   $('sb').textContent=lastB;
   $('r').textContent=d.round||'MATCH';
-  $('canvas').classList.add('connected');
+  $('stage').classList.add('connected');
 }
 function connect(){
   clearTimeout(retry);
@@ -273,7 +273,7 @@ function connect(){
   peer.on('disconnected',again);
 }
 function again(){
-  $('canvas').classList.remove('connected');
+  $('stage').classList.remove('connected');
   $('status').textContent='Reconnecting…';
   try{peer?.destroy()}catch{}
   retry=setTimeout(connect,1500);
