@@ -1,3 +1,7 @@
+## WEB v7.52 — Compact Broadcast Scoreboard
+- Redesigned OBS scoreboard into a cleaner compact broadcast HUD with angled team plates, a central score core, QORVO badge, and match tab.
+- Preserved transparent OBS background and instant live score updates.
+
 ## WEB v7.51 — Redesigned Esports Scoreboard
 
 - Redesigned the OBS scoreboard with a cleaner competitive esports layout.
