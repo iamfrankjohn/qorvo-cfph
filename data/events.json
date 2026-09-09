@@ -1,16 +1,4 @@
 {
-  "events": [
-    {
-      "id": "1788434557333-ss4eu",
-      "title": "CIVIL WAR 3v3: In-Clan Tournament",
-      "category": "EVENT",
-      "badge": "CFPH",
-      "date": "2026-09-13",
-      "time": "Time: TBA",
-      "url": "https://forms.gle/XkLgBG2HRuc2UDESA",
-      "alwaysOpen": false,
-      "enabled": true
-    }
-  ],
-  "updatedAt": "2026-09-03T11:22:52.071Z"
+  "events": [],
+  "updatedAt": "2026-09-09T04:01:52.787Z"
 }
