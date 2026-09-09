@@ -30,30 +30,68 @@ body{color:var(--white)}
 /* 1920x1080 broadcast HUD: readable, compact, but visually substantial */
 .hud{
   position:absolute;
-  left:50%;top:18px;
+  left:50%;top:14px;
   transform:translateX(-50%);
-  width:min(1780px,92.7vw);
-  height:132px;
+  width:min(1860px,96.8vw);
+  height:172px;
   filter:drop-shadow(0 10px 18px rgba(0,0,0,.75));
 }
+
+/* ambient green haze behind whole board, echoes the smoke backdrop in the reference art */
+.hud:after{
+  content:"";
+  position:absolute;
+  left:-40px;right:-40px;top:-30px;bottom:-10px;
+  background:
+    radial-gradient(ellipse 420px 220px at 4% 30%,rgba(34,217,92,.30),transparent 70%),
+    radial-gradient(ellipse 420px 220px at 96% 30%,rgba(34,217,92,.30),transparent 70%);
+  z-index:-1;
+  pointer-events:none;
+}
+
 .hud:before{
   content:"";
   position:absolute;
-  left:72px;right:72px;top:0;height:3px;
+  left:150px;right:150px;top:0;height:3px;
   background:linear-gradient(90deg,transparent 0%,var(--green2) 12%,var(--green) 50%,var(--green2) 88%,transparent 100%);
   box-shadow:0 0 14px rgba(92,255,131,.45);
 }
 
+/* stylised tactical silhouettes flanking the board, generic sentry figures (not tied to any specific artwork) */
+.sentry{
+  position:absolute;
+  top:2px;width:150px;height:150px;
+  opacity:.9;
+  filter:drop-shadow(0 6px 10px rgba(0,0,0,.7));
+  pointer-events:none;
+  z-index:0;
+}
+.sentry.left{left:-6px}
+.sentry.right{right:-6px;transform:scaleX(-1)}
+.sentry svg{width:100%;height:100%;display:block}
+
 .row{
   position:absolute;
-  left:0;right:0;top:6px;height:102px;
+  left:0;right:0;top:6px;height:112px;
   display:grid;
-  grid-template-columns:minmax(0,1fr) 126px 330px 126px minmax(0,1fr);
+  grid-template-columns:150px minmax(0,1fr) 126px 340px 126px minmax(0,1fr) 150px;
   align-items:center;
+  z-index:2;
 }
+.spacer{height:1px}
 
 /* team panels */
 .team{
+  height:82px;
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:center;
+  overflow:visible;
+}
+.team-inner{
+  width:100%;
   height:82px;
   position:relative;
   display:flex;
@@ -65,7 +103,7 @@ body{color:var(--white)}
   border-bottom:1px solid rgba(92,255,131,.38);
   box-shadow:inset 0 0 28px rgba(92,255,131,.035);
 }
-.team:before{
+.team-inner:before{
   content:"";
   position:absolute;inset:0;
   background:
@@ -73,12 +111,12 @@ body{color:var(--white)}
     repeating-linear-gradient(135deg,transparent 0 42px,rgba(255,255,255,.018) 42px 43px);
   pointer-events:none;
 }
-.team.left{
+.team.left .team-inner{
   justify-content:flex-end;
   padding:0 42px 0 28px;
   clip-path:polygon(0 0,95% 0,100% 50%,95% 100%,0 100%,2% 50%);
 }
-.team.right{
+.team.right .team-inner{
   justify-content:flex-start;
   padding:0 28px 0 42px;
   clip-path:polygon(5% 0,100% 0,98% 50%,100% 100%,5% 100%,0 50%);
@@ -98,6 +136,22 @@ body{color:var(--white)}
 }
 .team.left .teamname{text-align:right}
 .team.right .teamname{text-align:left}
+
+/* round-win pip indicators under each team name (decorative) */
+.pips{
+  display:flex;
+  gap:6px;
+  margin-top:9px;
+  padding:0 30px;
+}
+.team.right .pips{padding:0 22px}
+.team.left .pips{padding:0 22px;justify-content:flex-end}
+.pip{
+  width:22px;height:22px;
+  border:2px solid #3c5a45;
+  border-radius:3px;
+  background:rgba(0,0,0,.35);
+}
 
 /* scores */
 .scorebox{
@@ -137,7 +191,7 @@ body{color:var(--white)}
   background:
     radial-gradient(circle at 50% 28%,rgba(92,255,131,.14),transparent 48%),
     linear-gradient(180deg,#131e16 0%,#050906 78%,#020403 100%);
-  clip-path:polygon(12% 0,88% 0,100% 50%,88% 100%,12% 100%,0 50%);
+  clip-path:polygon(9% 0,91% 0,100% 50%,91% 100%,9% 100%,0 50%);
   border-top:2px solid var(--green);
   border-bottom:1px solid rgba(92,255,131,.62);
 }
@@ -148,84 +202,145 @@ body{color:var(--white)}
   font-size:11px;font-weight:1000;letter-spacing:.22em;
 }
 .center .event{
-  position:absolute;left:0;right:0;top:28px;
+  position:absolute;left:0;right:0;top:25px;
   text-align:center;
-  font-size:19px;font-weight:1000;letter-spacing:.08em;
+  line-height:1;
 }
-.center .vs{
-  position:absolute;left:0;right:0;top:52px;
-  text-align:center;
-  font-size:29px;font-weight:1000;line-height:1;
+.center .event .l1{
+  font-size:20px;font-weight:1000;letter-spacing:.06em;color:var(--white);
 }
-.center .round{
-  position:absolute;left:36px;right:36px;bottom:10px;
-  text-align:center;
-  font-size:10px;font-weight:1000;letter-spacing:.16em;
-  color:#dfffe7;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+.center .event .l2{
+  display:block;
+  margin-top:2px;
+  font-size:25px;font-weight:1000;letter-spacing:.06em;
+  color:var(--green);
+  text-shadow:0 0 12px rgba(92,255,131,.55);
+}
+.center .vsrow{
+  position:absolute;left:0;right:0;bottom:14px;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.center .vsrow .chev{
+  font-size:11px;font-weight:1000;color:var(--green2);letter-spacing:1px;
+}
+.center .vsrow .vs{
+  font-size:17px;font-weight:1000;line-height:1;
 }
 
-/* bottom accent bar */
+/* bottom accent bar: SEARCH & DESTROY | round badge | QORVO IN-CLAN TOURNAMENT */
 .subbar{
   position:absolute;
-  left:14%;right:14%;top:107px;height:25px;
+  left:8%;right:8%;top:120px;height:34px;
   display:grid;
   grid-template-columns:1fr auto 1fr;
   align-items:start;
+  z-index:2;
 }
 .subline{
-  height:2px;margin-top:7px;
+  height:2px;margin-top:12px;
   background:linear-gradient(90deg,transparent,rgba(92,255,131,.72));
 }
 .subline.right{transform:scaleX(-1)}
 .label{
-  min-width:350px;height:25px;
-  padding:0 30px;
+  height:25px;
+  padding:0 22px;
   display:flex;align-items:center;justify-content:center;
   background:linear-gradient(180deg,#0b120d,#030604);
   border-top:1px solid rgba(92,255,131,.68);
-  clip-path:polygon(7% 0,93% 0,100% 50%,93% 100%,7% 100%,0 50%);
   color:#cffff0;
-  font-size:9px;font-weight:1000;letter-spacing:.19em;
+  font-size:11px;font-weight:1000;letter-spacing:.14em;
   white-space:nowrap;
 }
+.label.left{justify-self:end;clip-path:polygon(6% 0,100% 0,100% 100%,0 100%,10% 50%)}
+.label.right{justify-self:start;clip-path:polygon(0 0,94% 0,90% 50%,94% 100%,0 100%)}
+.badge{
+  min-width:150px;height:31px;margin-top:-3px;
+  padding:0 24px;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(180deg,#17321f,#071009);
+  border:1px solid var(--green);
+  border-radius:3px;
+  box-shadow:0 0 14px rgba(34,217,92,.35),inset 0 0 10px rgba(92,255,131,.12);
+  color:var(--green);
+  font-size:13px;font-weight:1000;letter-spacing:.12em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+
 .status{
-  position:absolute;left:50%;top:146px;transform:translateX(-50%);
+  position:absolute;left:50%;top:192px;transform:translateX(-50%);
   padding:6px 11px;border-radius:6px;
   background:rgba(0,0,0,.84);font-size:10px;
+  z-index:3;
 }
 .connected .status{display:none}
 
 @media(max-width:1200px){
-  .hud{width:96vw}
-  .row{grid-template-columns:minmax(0,1fr) 96px 260px 96px minmax(0,1fr)}
+  .hud{width:98vw;height:150px}
+  .row{grid-template-columns:70px minmax(0,1fr) 96px 260px 96px minmax(0,1fr) 70px}
+  .sentry{width:70px;height:70px}
   .teamname{font-size:clamp(22px,2.1vw,30px)}
   .score{font-size:56px}
-  .center .event{font-size:16px}
-  .center .vs{font-size:24px}
-  .label{min-width:300px}
+  .center .event .l1{font-size:16px}
+  .center .event .l2{font-size:20px}
+  .pip{width:16px;height:16px}
+  .label{font-size:9px;padding:0 14px}
+  .badge{font-size:11px;min-width:110px}
+  .subbar{top:104px}
 }
 </style>
 </head>
 <body>
 <div class="stage" id="stage">
   <div class="hud">
+    <div class="sentry left" aria-hidden="true">
+      <svg viewBox="0 0 100 100">
+        <defs>
+          <linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#3a5c44"/>
+            <stop offset="1" stop-color="#0a140d"/>
+          </linearGradient>
+        </defs>
+        <g fill="url(#sg)" opacity=".92">
+          <ellipse cx="52" cy="24" rx="15" ry="16"/>
+          <rect x="40" y="34" width="26" height="9" rx="3"/>
+          <path d="M18 100 L24 58 Q30 40 52 40 Q76 40 82 60 L88 100 Z"/>
+          <rect x="8" y="60" width="46" height="10" rx="4" transform="rotate(-8 8 60)"/>
+        </g>
+      </svg>
+    </div>
     <div class="row">
-      <div class="team left"><div class="teamname" id="a">WONDERPETCHS</div></div>
+      <div class="spacer"></div>
+      <div class="team left">
+        <div class="team-inner"><div class="teamname" id="a">WONDERPETCHS</div></div>
+        <div class="pips"><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div></div>
+      </div>
       <div class="scorebox left"><div class="score" id="sa">0</div></div>
       <div class="center">
         <div class="brand">QORVO CFPH</div>
-        <div class="event">CIVIL WAR 3V3</div>
-        <div class="vs">VS</div>
-        <div class="round" id="r">MATCH 1</div>
+        <div class="event"><span class="l1">CIVIL WAR</span><span class="l2">3V3</span></div>
+        <div class="vsrow"><span class="chev">&raquo;&raquo;</span><span class="vs">VS</span><span class="chev">&laquo;&laquo;</span></div>
       </div>
       <div class="scorebox right"><div class="score" id="sb">0</div></div>
-      <div class="team right"><div class="teamname" id="b">UDERDOGS</div></div>
+      <div class="team right">
+        <div class="team-inner"><div class="teamname" id="b">UDERDOGS</div></div>
+        <div class="pips"><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div></div>
+      </div>
+      <div class="spacer"></div>
     </div>
     <div class="subbar">
-      <div class="subline"></div>
-      <div class="label">IN-CLAN TOURNAMENT • LIVE SCOREBOARD</div>
-      <div class="subline right"></div>
+      <div class="label left">SEARCH &amp; DESTROY</div>
+      <div class="badge" id="r">MATCH 1</div>
+      <div class="label right">QORVO IN-CLAN TOURNAMENT</div>
+    </div>
+    <div class="sentry right" aria-hidden="true">
+      <svg viewBox="0 0 100 100">
+        <g fill="url(#sg)" opacity=".92">
+          <ellipse cx="52" cy="24" rx="15" ry="16"/>
+          <rect x="40" y="34" width="26" height="9" rx="3"/>
+          <path d="M18 100 L24 58 Q30 40 52 40 Q76 40 82 60 L88 100 Z"/>
+          <rect x="8" y="60" width="46" height="10" rx="4" transform="rotate(-8 8 60)"/>
+        </g>
+      </svg>
     </div>
   </div>
   <div class="status" id="status">Connecting to scoreboard control…</div>
