@@ -1,4 +1,16 @@
 {
-  "events": [],
-  "updatedAt": "2026-09-09T04:01:52.787Z"
+  "events": [
+    {
+      "id": "1788926552415-kwaji",
+      "title": "CIVIL WAR 3v3: In-Clan Tournament",
+      "category": "EVENT",
+      "badge": "CFPH",
+      "date": "2026-09-13",
+      "time": "12:30 PM",
+      "url": "https://www.facebook.com/qorvo-cfph",
+      "alwaysOpen": false,
+      "enabled": true
+    }
+  ],
+  "updatedAt": "2026-09-09T04:02:45.570Z"
 }
