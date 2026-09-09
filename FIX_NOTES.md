@@ -1,3 +1,8 @@
+## WEB v7.53 — Full-Width Broadcast Scoreboard
+- Scoreboard now spans the full OBS/browser-source width instead of sitting as a small centered HUD.
+- Keeps transparent background, live auto-update, team names, scores, and match/round label.
+- Redesigned for the full top strip of gameplay at 1920×1080.
+
 ## WEB v7.52 — Compact Broadcast Scoreboard
 - Redesigned OBS scoreboard into a cleaner compact broadcast HUD with angled team plates, a central score core, QORVO badge, and match tab.
 - Preserved transparent OBS background and instant live score updates.
