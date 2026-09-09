@@ -1,4 +1,8 @@
-## WEB v7.53 — Full-Width Broadcast Scoreboard
+WEB v7.54 — Full-Width Esports Scoreboard Redesign
+- Rebuilt the OBS scoreboard into a larger professional esports HUD with wing branding, angular team panels, oversized score boxes, center match core, and full-width lower rail.
+- Preserved transparent OBS background and live PeerJS score updates.
+
+## WEB v7.54 — Full-Width Broadcast Scoreboard
 - Scoreboard now spans the full OBS/browser-source width instead of sitting as a small centered HUD.
 - Keeps transparent background, live auto-update, team names, scores, and match/round label.
 - Redesigned for the full top strip of gameplay at 1920×1080.

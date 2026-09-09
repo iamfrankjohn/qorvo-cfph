@@ -5,46 +5,70 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
 <meta http-equiv="Cache-Control" content="no-store">
-<title>QORVO Scoreboard</title>
+<title>QORVO Esports Scoreboard</title>
 <script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script>
 <style>
-:root{--green:#5cff7c;--green2:#16d74a;--ink:#020503;--panel:#0a0f0b;--line:rgba(104,255,139,.48);--muted:#b8c5bc}
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent;font-family:Arial,Helvetica,sans-serif}
-.stage{width:100vw;height:100vh;display:flex;align-items:flex-start;justify-content:stretch;padding:0;background:transparent}
-.shell{position:relative;width:100vw;max-width:none;filter:drop-shadow(0 8px 14px rgba(0,0,0,.62))}
-.scorebar{position:relative;width:100vw;height:112px;display:grid;grid-template-columns:minmax(260px,1fr) 286px minmax(260px,1fr);align-items:stretch;color:#fff;background:linear-gradient(180deg,rgba(2,5,3,.98),rgba(5,10,6,.98));border-top:2px solid rgba(96,255,133,.85);border-bottom:3px solid #34e75f;overflow:hidden}
-.scorebar::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(79,255,120,.08),transparent 18%,transparent 82%,rgba(79,255,120,.08)),repeating-linear-gradient(135deg,transparent 0 22px,rgba(255,255,255,.018) 22px 23px);pointer-events:none}
-.edge{position:absolute;top:0;bottom:0;width:165px;z-index:1;opacity:.95}.edge-l{left:0;background:linear-gradient(90deg,rgba(20,210,67,.28),rgba(1,4,2,0));clip-path:polygon(0 0,82% 0,100% 50%,82% 100%,0 100%)}.edge-r{right:0;background:linear-gradient(270deg,rgba(20,210,67,.28),rgba(1,4,2,0));clip-path:polygon(18% 0,100% 0,100% 100%,18% 100%,0 50%)}
-.team{position:relative;z-index:2;display:flex;align-items:center;min-width:0;height:100%;overflow:hidden}
-.team-a{padding:0 72px 0 52px;justify-content:flex-end;background:linear-gradient(90deg,rgba(2,7,3,.86),rgba(15,27,17,.92) 50%,rgba(24,43,27,.96));clip-path:polygon(0 0,96% 0,100% 50%,96% 100%,0 100%)}
-.team-b{padding:0 52px 0 72px;justify-content:flex-start;background:linear-gradient(270deg,rgba(2,7,3,.86),rgba(15,27,17,.92) 50%,rgba(24,43,27,.96));clip-path:polygon(4% 0,100% 0,100% 100%,4% 100%,0 50%)}
-.team::before{content:"";position:absolute;top:12px;bottom:12px;width:4px;background:linear-gradient(#89ff9f,#19db4b);box-shadow:0 0 16px rgba(75,255,112,.85)}.team-a::before{right:36px}.team-b::before{left:36px}
-.team-text{min-width:0;display:flex;flex-direction:column;gap:6px}.team-a .team-text{text-align:right;align-items:flex-end}.team-b .team-text{text-align:left;align-items:flex-start}
-.name{max-width:100%;font-size:32px;line-height:1;font-weight:1000;letter-spacing:.045em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase;text-shadow:0 2px 5px #000}
-.side-label{font-size:9px;font-weight:900;letter-spacing:.24em;color:#6cff8c;opacity:.9;text-transform:uppercase}
-.center{position:relative;z-index:5;height:112px;margin:0 -15px;display:grid;grid-template-rows:24px 60px 28px;background:linear-gradient(180deg,#0c140e,#020503);clip-path:polygon(10% 0,90% 0,100% 50%,90% 100%,10% 100%,0 50%);border-top:2px solid #71ff8f;border-bottom:2px solid #41ef67;box-shadow:inset 0 0 28px rgba(67,255,106,.12)}
-.brand{display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:1000;letter-spacing:.28em;color:#67ff86;text-transform:uppercase;border-bottom:1px solid rgba(98,255,134,.22)}
-.score-row{display:grid;grid-template-columns:1fr 34px 1fr;align-items:center;justify-items:center}.score{font-size:58px;line-height:1;font-weight:1000;font-variant-numeric:tabular-nums;text-shadow:0 0 16px rgba(255,255,255,.16)}.versus{font-size:11px;font-weight:1000;letter-spacing:.12em;color:#65ff86}
-.match{display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:1000;letter-spacing:.2em;color:#e7ffec;text-transform:uppercase;background:linear-gradient(90deg,transparent,rgba(48,255,94,.11),transparent);border-top:1px solid rgba(90,255,127,.22)}
-.accent{position:absolute;bottom:0;height:3px;width:23%;background:linear-gradient(90deg,transparent,#69ff88)}.accent-l{left:0}.accent-r{right:0;transform:scaleX(-1)}
-.status{position:absolute;left:50%;top:126px;transform:translateX(-50%);padding:5px 10px;border-radius:6px;background:rgba(0,0,0,.72);color:#ddd;font-size:11px}.connected .status{display:none}
-@media(max-width:900px){.scorebar{height:92px;grid-template-columns:minmax(150px,1fr) 220px minmax(150px,1fr)}.center{height:92px;grid-template-rows:20px 49px 23px}.name{font-size:22px}.score{font-size:44px}.team-a{padding-left:24px;padding-right:52px}.team-b{padding-right:24px;padding-left:52px}.team-a::before{right:24px}.team-b::before{left:24px}.side-label{font-size:7px}.brand{font-size:7px}.match{font-size:8px}}
+:root{
+  --green:#54ff79;--green2:#12d94b;--green3:#0b8f34;
+  --black:#020503;--panel:#070b08;--panel2:#101712;
+  --white:#f7fff8;--muted:#a9b8ad;--line:rgba(84,255,121,.45)
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent;font-family:Arial,Helvetica,sans-serif}
+body{user-select:none}
+.stage{width:100vw;height:100vh;display:flex;align-items:flex-start;justify-content:center;background:transparent}
+.hud{position:relative;width:100vw;height:142px;color:#fff;filter:drop-shadow(0 10px 16px rgba(0,0,0,.72));isolation:isolate}
+.hud::after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;background:linear-gradient(90deg,transparent 0,#18b945 8%,#71ff90 22%,#71ff90 78%,#18b945 92%,transparent 100%);box-shadow:0 0 18px rgba(84,255,121,.8);z-index:8}
+
+.brand-wing{position:absolute;top:0;width:19%;height:108px;z-index:1;overflow:hidden;background:linear-gradient(180deg,rgba(3,8,4,.99),rgba(7,14,8,.97));border-top:2px solid rgba(104,255,138,.66);border-bottom:1px solid rgba(98,255,134,.22)}
+.brand-wing::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(130deg,transparent 0 20px,rgba(255,255,255,.022) 20px 21px),radial-gradient(circle at 50% 50%,rgba(47,255,91,.13),transparent 58%);pointer-events:none}
+.brand-left{left:0;clip-path:polygon(0 0,88% 0,100% 50%,88% 100%,0 100%)}
+.brand-right{right:0;clip-path:polygon(12% 0,100% 0,100% 100%,12% 100%,0 50%)}
+.brand-copy{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;gap:4px;z-index:2}
+.brand-left .brand-copy{padding:0 40px 0 26px;align-items:flex-start}.brand-right .brand-copy{padding:0 26px 0 40px;align-items:flex-end}
+.brand-title{font-size:18px;font-weight:1000;letter-spacing:.08em;color:var(--green);text-transform:uppercase;text-shadow:0 0 16px rgba(84,255,121,.35)}
+.brand-sub{font-size:8px;font-weight:900;letter-spacing:.22em;color:#d7e9db;text-transform:uppercase;opacity:.78}
+.brand-bars{display:flex;gap:4px;margin-top:4px}.brand-bars i{width:22px;height:3px;background:#123019}.brand-bars i:nth-child(-n+3){background:linear-gradient(90deg,#1dbb46,#70ff8e);box-shadow:0 0 7px rgba(84,255,121,.5)}
+
+.team-panel{position:absolute;top:10px;width:37.5%;height:92px;z-index:3;display:flex;align-items:center;background:linear-gradient(180deg,#151d17 0,#0c110d 55%,#050805 100%);border-top:2px solid rgba(124,255,151,.85);border-bottom:2px solid rgba(30,211,69,.74);box-shadow:inset 0 0 24px rgba(53,255,93,.05)}
+.team-panel::before{content:"";position:absolute;inset:8px;background:linear-gradient(110deg,rgba(68,255,107,.07),transparent 42%,rgba(255,255,255,.025));pointer-events:none}
+.team-a{left:16.5%;clip-path:polygon(0 0,94% 0,100% 50%,94% 100%,0 100%,4% 50%);padding:0 98px 0 50px;justify-content:flex-end;text-align:right}
+.team-b{right:16.5%;clip-path:polygon(6% 0,100% 0,96% 50%,100% 100%,6% 100%,0 50%);padding:0 50px 0 98px;justify-content:flex-start;text-align:left}
+.team-name{position:relative;z-index:2;max-width:100%;font-size:31px;line-height:1;font-weight:1000;letter-spacing:.035em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 3px 9px #000}
+.team-label{position:absolute;bottom:10px;font-size:8px;font-weight:1000;letter-spacing:.24em;color:var(--green);text-transform:uppercase;opacity:.78}.team-a .team-label{right:100px}.team-b .team-label{left:100px}
+
+.score-box{position:absolute;top:4px;width:92px;height:104px;z-index:7;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#18241a,#060906);border:2px solid rgba(92,255,127,.74);box-shadow:inset 0 0 28px rgba(74,255,109,.08),0 0 20px rgba(19,215,70,.16)}
+.score-a{left:calc(50% - 145px);clip-path:polygon(0 0,84% 0,100% 50%,84% 100%,0 100%,12% 50%)}
+.score-b{right:calc(50% - 145px);clip-path:polygon(16% 0,100% 0,88% 50%,100% 100%,16% 100%,0 50%)}
+.score{font-size:62px;line-height:1;font-weight:1000;font-variant-numeric:tabular-nums;color:#fff;text-shadow:0 0 18px rgba(255,255,255,.13)}
+
+.center-core{position:absolute;left:50%;top:0;transform:translateX(-50%);width:210px;height:121px;z-index:6;background:linear-gradient(180deg,#0d160f 0,#020403 100%);clip-path:polygon(13% 0,87% 0,100% 46%,86% 100%,14% 100%,0 46%);border-top:2px solid #7cff99;box-shadow:inset 0 0 34px rgba(64,255,103,.1)}
+.center-core::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 36%,rgba(72,255,112,.12),transparent 55%);pointer-events:none}
+.event{position:absolute;top:13px;left:0;right:0;text-align:center;font-size:9px;font-weight:1000;letter-spacing:.2em;color:#7cff98;text-transform:uppercase}
+.vs{position:absolute;top:37px;left:0;right:0;text-align:center;font-size:27px;font-weight:1000;letter-spacing:.06em;color:#fff;text-shadow:0 0 12px rgba(88,255,124,.18)}
+.round-pill{position:absolute;left:22px;right:22px;bottom:14px;height:27px;display:flex;align-items:center;justify-content:center;background:linear-gradient(90deg,transparent,rgba(72,255,108,.16),transparent);border-top:1px solid rgba(93,255,127,.35);border-bottom:1px solid rgba(93,255,127,.22);font-size:10px;font-weight:1000;letter-spacing:.18em;color:#ebfff0;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 10px}
+
+.lower-rail{position:absolute;left:8%;right:8%;top:108px;height:30px;z-index:2;background:linear-gradient(90deg,transparent 0,rgba(4,9,5,.96) 8%,rgba(6,13,7,.98) 50%,rgba(4,9,5,.96) 92%,transparent 100%);clip-path:polygon(2% 0,98% 0,100% 50%,98% 100%,2% 100%,0 50%);border-top:1px solid rgba(89,255,124,.3)}
+.lower-rail::before,.lower-rail::after{content:"";position:absolute;top:10px;width:27%;height:4px;background:repeating-linear-gradient(90deg,#4eff76 0 18px,#102315 18px 24px)}.lower-rail::before{left:12%}.lower-rail::after{right:12%;transform:scaleX(-1)}
+
+.status{position:absolute;left:50%;top:152px;transform:translateX(-50%);padding:6px 12px;border-radius:6px;background:rgba(0,0,0,.78);color:#e7efe9;font-size:11px;z-index:20}.connected .status{display:none}
+@media(max-width:1100px){.brand-wing{width:14%}.brand-title{font-size:12px}.brand-sub{display:none}.brand-left .brand-copy{padding-left:12px}.brand-right .brand-copy{padding-right:12px}.team-a{left:11%;padding-left:34px}.team-b{right:11%;padding-right:34px}.team-name{font-size:23px}.score-a{left:calc(50% - 134px)}.score-b{right:calc(50% - 134px)}}
 </style>
 </head>
 <body>
 <div class="stage" id="stage">
-  <div class="shell">
-    <div class="scorebar">
-      <span class="edge edge-l"></span><span class="edge edge-r"></span>
-      <div class="team team-a"><div class="team-text"><div class="side-label">TEAM A</div><div class="name" id="a">TEAM A</div></div></div>
-      <div class="center">
-        <div class="brand">QORVO CFPH</div>
-        <div class="score-row"><div class="score" id="sa">0</div><div class="versus">VS</div><div class="score" id="sb">0</div></div>
-        <div class="match" id="r">MATCH 1</div>
-      </div>
-      <div class="team team-b"><div class="team-text"><div class="side-label">TEAM B</div><div class="name" id="b">TEAM B</div></div></div>
-      <span class="accent accent-l"></span><span class="accent accent-r"></span>
-    </div>
+  <div class="hud">
+    <div class="brand-wing brand-left"><div class="brand-copy"><div class="brand-title">QORVO CFPH</div><div class="brand-sub">CrossFire Philippines</div><div class="brand-bars"><i></i><i></i><i></i><i></i><i></i></div></div></div>
+    <div class="brand-wing brand-right"><div class="brand-copy"><div class="brand-title">CIVIL WAR</div><div class="brand-sub">3V3 • Live Match</div><div class="brand-bars"><i></i><i></i><i></i><i></i><i></i></div></div></div>
+
+    <div class="team-panel team-a"><div class="team-name" id="a">TEAM A</div><div class="team-label">TEAM A</div></div>
+    <div class="team-panel team-b"><div class="team-name" id="b">TEAM B</div><div class="team-label">TEAM B</div></div>
+
+    <div class="score-box score-a"><div class="score" id="sa">0</div></div>
+    <div class="score-box score-b"><div class="score" id="sb">0</div></div>
+
+    <div class="center-core"><div class="event">QORVO ESPORTS</div><div class="vs">VS</div><div class="round-pill" id="r">MATCH 1</div></div>
+    <div class="lower-rail"></div>
     <div class="status" id="status">Connecting to scoreboard control…</div>
   </div>
 </div>
