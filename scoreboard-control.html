@@ -25,7 +25,7 @@ button{min-height:42px;border-radius:8px;border:1px solid #304b38;background:#1c
 <body>
 <main class="wrap">
 <div class="header">
-  <div><div class="eyebrow">QORVO CFPH • CIVIL WAR 3V3</div><h1>LIVE SCOREBOARD CONTROL</h1><div class="meta">WEB v7.64 • Token-paired scoreboard connection</div></div>
+  <div><div class="eyebrow">QORVO CFPH • CIVIL WAR 3V3</div><h1>LIVE SCOREBOARD CONTROL</h1><div class="meta">WEB v7.65 • Token-paired scoreboard connection</div></div>
   <div id="status" class="status">STARTING…</div>
 </div>
 
@@ -65,65 +65,166 @@ button{min-height:42px;border-radius:8px;border:1px solid #304b38;background:#1c
 const $=id=>document.getElementById(id);
 const state={teamA:'WONDERPETCHS',teamB:'UDERDOGS',scoreA:0,scoreB:0,round:'MATCH 1'};
 const conns=new Map();
-let peer=null,token='';
+let peer=null,token='',iceServers=null;
 
 function generateToken(){
   const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  const bytes=new Uint32Array(6);crypto.getRandomValues(bytes);
+  const bytes=new Uint32Array(6);
+  crypto.getRandomValues(bytes);
   return Array.from(bytes,n=>chars[n%chars.length]).join('');
 }
 function roomFor(t){return 'qorvo-scoreboard-'+t.toLowerCase()}
 function snapshot(){return {...state,type:'scoreboard-state'}}
 
+async function loadIceServers(){
+  if(iceServers) return iceServers;
+  try{
+    const res=await fetch('/api/admin-auth?mode=turn',{cache:'no-store'});
+    if(!res.ok) throw new Error('TURN config HTTP '+res.status);
+    const data=await res.json();
+    if(Array.isArray(data.iceServers)&&data.iceServers.length){
+      iceServers=data.iceServers;
+      return iceServers;
+    }
+  }catch(err){
+    console.error('TURN config failed:',err);
+  }
+  iceServers=[
+    {urls:'stun:stun.l.google.com:19302'},
+    {urls:'stun:stun1.l.google.com:19302'}
+  ];
+  return iceServers;
+}
+
 function render(){
-  ['teamA','teamB','round'].forEach(k=>{if(document.activeElement!==$(k))$(k).value=state[k]});
-  $('scoreA').textContent=state.scoreA;$('scoreB').textContent=state.scoreB;
+  ['teamA','teamB','round'].forEach(k=>{
+    if(document.activeElement!==$(k))$(k).value=state[k]
+  });
+  $('scoreA').textContent=state.scoreA;
+  $('scoreB').textContent=state.scoreB;
   $('tokenView').textContent=token||'------';
 }
 function send(){
   const d=snapshot();
   for(const [id,c] of conns){
-    if(c.open){try{c.send(d)}catch{}}
-    else conns.delete(id);
+    if(c.open){
+      try{c.send(d)}catch(err){console.error('Send failed:',err)}
+    }else{
+      conns.delete(id);
+    }
   }
   $('viewers').textContent=`${[...conns.values()].filter(c=>c.open).length} scoreboard viewer(s)`;
 }
 function changed(){render();send()}
 
-function startHost(newToken){
+async function startHost(newToken){
   token=newToken;
   localStorage.setItem('qorvoControlToken',token);
   render();
   conns.clear();
   try{peer?.destroy()}catch{}
-  $('status').textContent='STARTING…';
+  $('status').textContent='LOADING NETWORK…';
 
-  peer=new Peer(roomFor(token),{host:'0.peerjs.com',port:443,path:'/',secure:true,debug:0});
-  peer.on('open',()=>{$('status').textContent='ONLINE • '+token;send()});
+  const servers=await loadIceServers();
+
+  peer=new Peer(roomFor(token),{
+    host:'0.peerjs.com',
+    port:443,
+    path:'/',
+    secure:true,
+    debug:1,
+    config:{
+      iceServers:servers,
+      iceCandidatePoolSize:4
+    }
+  });
+
+  peer.on('open',()=>{
+    $('status').textContent='ONLINE • '+token;
+    send();
+  });
+
   peer.on('connection',c=>{
     conns.set(c.peer,c);
-    c.on('open',()=>{try{c.send(snapshot())}catch{};send()});
-    c.on('close',()=>{conns.delete(c.peer);send()});
-    c.on('error',()=>{conns.delete(c.peer);send()});
+
+    c.on('open',()=>{
+      try{c.send(snapshot())}catch{}
+      send();
+    });
+
+    c.on('data',data=>{
+      if(data&&data.type==='scoreboard-request-state'){
+        try{c.send(snapshot())}catch{}
+      }
+    });
+
+    c.on('close',()=>{
+      conns.delete(c.peer);
+      send();
+    });
+
+    c.on('error',err=>{
+      console.error('Viewer connection error:',err);
+      conns.delete(c.peer);
+      send();
+    });
   });
+
+  peer.on('disconnected',()=>{
+    $('status').textContent='SIGNALLING LOST • RECONNECTING';
+    if(peer&&!peer.destroyed){
+      try{peer.reconnect()}catch{}
+    }
+  });
+
   peer.on('error',e=>{
-    $('status').textContent=e.type==='unavailable-id'?'TOKEN IN USE — GENERATE NEW':'CONNECTION ERROR';
+    console.error('Peer error:',e);
+    if(e.type==='unavailable-id'){
+      $('status').textContent='TOKEN IN USE — CLICK NEW TOKEN';
+    }else{
+      $('status').textContent='CONNECTION ERROR • '+String(e.type||'UNKNOWN').toUpperCase();
+    }
   });
 }
 
-['teamA','teamB','round'].forEach(k=>$(k).addEventListener('input',e=>{state[k]=e.target.value;changed()}));
-document.querySelectorAll('[data-delta]').forEach(b=>b.onclick=()=>{const k=b.dataset.side==='A'?'scoreA':'scoreB';state[k]=Math.max(0,state[k]+Number(b.dataset.delta));changed()});
-$('reset').onclick=()=>{state.scoreA=0;state.scoreB=0;changed()};
-$('swap').onclick=()=>{[state.teamA,state.teamB]=[state.teamB,state.teamA];[state.scoreA,state.scoreB]=[state.scoreB,state.scoreA];changed()};
+['teamA','teamB','round'].forEach(k=>$(k).addEventListener('input',e=>{
+  state[k]=e.target.value;
+  changed();
+}));
+
+document.querySelectorAll('[data-delta]').forEach(b=>b.onclick=()=>{
+  const k=b.dataset.side==='A'?'scoreA':'scoreB';
+  state[k]=Math.max(0,state[k]+Number(b.dataset.delta));
+  changed();
+});
+
+$('reset').onclick=()=>{
+  state.scoreA=0;state.scoreB=0;changed()
+};
+
+$('swap').onclick=()=>{
+  [state.teamA,state.teamB]=[state.teamB,state.teamA];
+  [state.scoreA,state.scoreB]=[state.scoreB,state.scoreA];
+  changed()
+};
+
 $('newToken').onclick=()=>startHost(generateToken());
+
 $('copyLink').onclick=async()=>{
   const u=new URL('/scoreboard.html',location.origin);
   u.searchParams.set('token',token);
-  try{await navigator.clipboard.writeText(u.href);$('copyLink').textContent='COPIED';setTimeout(()=>$('copyLink').textContent='COPY OBS LINK',1200)}
-  catch{prompt('OBS Browser Source URL:',u.href)}
+  try{
+    await navigator.clipboard.writeText(u.href);
+    $('copyLink').textContent='COPIED';
+    setTimeout(()=>$('copyLink').textContent='COPY OBS LINK',1200)
+  }catch{
+    prompt('OBS Browser Source URL:',u.href)
+  }
 };
 
-const saved=(localStorage.getItem('qorvoControlToken')||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6);
+const saved=(localStorage.getItem('qorvoControlToken')||'')
+  .toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6);
+
 startHost(saved.length===6?saved:generateToken());
 </script>
 </body></html>

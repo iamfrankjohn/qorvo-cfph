@@ -65,50 +65,137 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent
 
 <script>
 const $=id=>document.getElementById(id);
-let peer,conn,retry,lastA=null,lastB=null,currentToken='';
+let peer,conn,retry,lastA=null,lastB=null,currentToken='',iceServers=null;
 
 function cleanToken(v){return (v||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6)}
 function roomFor(token){return 'qorvo-scoreboard-'+token.toLowerCase()}
 
+async function loadIceServers(){
+  if(iceServers) return iceServers;
+  try{
+    const res=await fetch('/api/admin-auth?mode=turn',{cache:'no-store'});
+    if(!res.ok) throw new Error('TURN config HTTP '+res.status);
+    const data=await res.json();
+    if(Array.isArray(data.iceServers)&&data.iceServers.length){
+      iceServers=data.iceServers;
+      return iceServers;
+    }
+  }catch(err){
+    console.error('TURN config failed:',err);
+  }
+  iceServers=[
+    {urls:'stun:stun.l.google.com:19302'},
+    {urls:'stun:stun1.l.google.com:19302'}
+  ];
+  return iceServers;
+}
+
 function bump(el){el.classList.remove('bump');void el.offsetWidth;el.classList.add('bump')}
 function apply(d){
   if(!d||d.type!=='scoreboard-state')return;
-  $('a').textContent=d.teamA||'WONDERPETCHS';$('b').textContent=d.teamB||'UDERDOGS';
+  $('a').textContent=d.teamA||'WONDERPETCHS';
+  $('b').textContent=d.teamB||'UDERDOGS';
   if(lastA!==null&&String(lastA)!==String(d.scoreA))bump($('sa'));
   if(lastB!==null&&String(lastB)!==String(d.scoreB))bump($('sb'));
   lastA=d.scoreA??0;lastB=d.scoreB??0;
   $('sa').textContent=lastA;$('sb').textContent=lastB;$('r').textContent=d.round||'MATCH 1';
+  $('status').textContent='CONNECTED';
   $('stage').classList.add('connected');
 }
-function again(){
+
+function scheduleReconnect(message='Reconnecting…'){
   $('stage').classList.remove('connected');
-  $('status').textContent='Reconnecting…';
-  try{peer?.destroy()}catch{}
-  if(currentToken) retry=setTimeout(()=>connect(currentToken),1500)
+  $('status').textContent=message;
+  clearTimeout(retry);
+  if(currentToken) retry=setTimeout(()=>connect(currentToken),1800);
 }
-function connect(token){
+
+async function connect(token){
   token=cleanToken(token);
   if(token.length!==6){
     $('status').textContent='Token must be 6 characters';
     return;
   }
-  currentToken=token;
-  localStorage.setItem('qorvoScoreToken',token);
-  const u=new URL(location.href);u.searchParams.set('token',token);history.replaceState(null,'',u);
-  $('status').textContent='Connecting…';
-  clearTimeout(retry);try{conn?.close()}catch{};try{peer?.destroy()}catch{}
 
-  peer=new Peer('qorvo-score-viewer-'+crypto.randomUUID().replaceAll('-','').slice(0,18),{host:'0.peerjs.com',port:443,path:'/',secure:true,debug:0});
-  peer.on('open',()=>{
-    conn=peer.connect(roomFor(token),{reliable:true,metadata:{token}});
-    conn.on('open',()=>{$('status').textContent='Connected — waiting for score…'});
-    conn.on('data',apply);
-    conn.on('close',again);
-    conn.on('error',again);
+  currentToken=token;
+  $('token').value=token;
+  localStorage.setItem('qorvoScoreToken',token);
+
+  const u=new URL(location.href);
+  u.searchParams.set('token',token);
+  history.replaceState(null,'',u);
+
+  clearTimeout(retry);
+  $('stage').classList.remove('connected');
+  $('status').textContent='Loading network configuration…';
+
+  try{conn?.close()}catch{}
+  try{peer?.destroy()}catch{}
+
+  const servers=await loadIceServers();
+  $('status').textContent='Connecting to '+token+'…';
+
+  peer=new Peer({
+    host:'0.peerjs.com',
+    port:443,
+    path:'/',
+    secure:true,
+    debug:1,
+    config:{
+      iceServers:servers,
+      iceCandidatePoolSize:4
+    }
   });
-  peer.on('error',again);
-  peer.on('disconnected',again);
+
+  peer.on('open',()=>{
+    $('status').textContent='Finding scoreboard control…';
+
+    conn=peer.connect(roomFor(token),{
+      reliable:true,
+      serialization:'json',
+      metadata:{token}
+    });
+
+    conn.on('open',()=>{
+      $('status').textContent='CONNECTED — waiting for score…';
+      $('stage').classList.add('connected');
+    });
+
+    conn.on('data',apply);
+
+    conn.on('close',()=>{
+      scheduleReconnect('Connection lost — reconnecting…');
+    });
+
+    conn.on('error',err=>{
+      console.error('Data connection error:',err);
+      scheduleReconnect('Data connection failed — retrying…');
+    });
+  });
+
+  peer.on('error',err=>{
+    console.error('Peer error:',err);
+    if(err.type==='peer-unavailable'){
+      scheduleReconnect('Control not found — retrying…');
+    }else if(err.type==='webrtc'){
+      scheduleReconnect('Direct connection failed — trying TURN…');
+    }else{
+      scheduleReconnect('Connection error — retrying…');
+    }
+  });
+
+  peer.on('disconnected',()=>{
+    if(peer && !peer.destroyed){
+      try{
+        $('status').textContent='Signalling disconnected — reconnecting…';
+        peer.reconnect();
+      }catch{
+        scheduleReconnect();
+      }
+    }
+  });
 }
+
 $('connectBtn').onclick=()=>connect($('token').value);
 $('token').addEventListener('keydown',e=>{if(e.key==='Enter')connect(e.target.value)});
 $('token').addEventListener('input',e=>e.target.value=cleanToken(e.target.value));
@@ -116,7 +203,10 @@ $('token').addEventListener('input',e=>e.target.value=cleanToken(e.target.value)
 const urlToken=cleanToken(new URLSearchParams(location.search).get('token'));
 const savedToken=cleanToken(localStorage.getItem('qorvoScoreToken'));
 const startToken=urlToken||savedToken;
-if(startToken){$('token').value=startToken;connect(startToken)}
+if(startToken){
+  $('token').value=startToken;
+  connect(startToken);
+}
 </script>
 </body>
 </html>
