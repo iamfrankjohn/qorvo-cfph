@@ -1,3 +1,11 @@
+## WEB v7.51 — Redesigned Esports Scoreboard
+
+- Redesigned the OBS scoreboard with a cleaner competitive esports layout.
+
+- Larger score display, sharper team-name panels, QORVO CFPH center branding, and compact match/round pill.
+
+- Transparent OBS background and live score synchronization are unchanged.
+
 ## WEB v7.50 — Live Scoreboard
 - Added scoreboard-control.html for live score/team editing.
 - Added scoreboard.html transparent OBS overlay.
