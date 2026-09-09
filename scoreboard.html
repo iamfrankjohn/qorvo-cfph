@@ -8,390 +8,94 @@
 <title>QORVO Civil War Scoreboard</title>
 <script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script>
 <style>
-:root{
-  --green:#5cff83;
-  --green2:#22d95c;
-  --green3:#11843a;
-  --white:#ffffff;
-  --muted:#b7c4ba;
-  --dark:#040705;
-  --dark2:#0a110c;
-  --dark3:#111a13;
-}
+:root{--g:#42f57b;--g2:#18ca55;--g3:#0d6f30;--w:#f7fff9}
 *{box-sizing:border-box}
-html,body{
-  width:100%;height:100%;
-  margin:0;overflow:hidden;background:transparent;
-  font-family:Arial,Helvetica,sans-serif;
-}
-body{color:var(--white)}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent;font-family:Arial,Helvetica,sans-serif;color:var(--w)}
 .stage{position:relative;width:100vw;height:100vh;background:transparent}
-
-/* 1920x1080 broadcast HUD: readable, compact, but visually substantial */
-.hud{
-  position:absolute;
-  left:50%;top:14px;
-  transform:translateX(-50%);
-  width:min(1860px,96.8vw);
-  height:172px;
-  filter:drop-shadow(0 10px 18px rgba(0,0,0,.75));
-}
-
-/* ambient green haze behind whole board, echoes the smoke backdrop in the reference art */
-.hud:after{
-  content:"";
-  position:absolute;
-  left:-40px;right:-40px;top:-30px;bottom:-10px;
-  background:
-    radial-gradient(ellipse 420px 220px at 4% 30%,rgba(34,217,92,.30),transparent 70%),
-    radial-gradient(ellipse 420px 220px at 96% 30%,rgba(34,217,92,.30),transparent 70%);
-  z-index:-1;
-  pointer-events:none;
-}
-
-.hud:before{
-  content:"";
-  position:absolute;
-  left:150px;right:150px;top:0;height:3px;
-  background:linear-gradient(90deg,transparent 0%,var(--green2) 12%,var(--green) 50%,var(--green2) 88%,transparent 100%);
-  box-shadow:0 0 14px rgba(92,255,131,.45);
-}
-
-/* stylised tactical silhouettes flanking the board, generic sentry figures (not tied to any specific artwork) */
-.sentry{
-  position:absolute;
-  top:2px;width:150px;height:150px;
-  opacity:.9;
-  filter:drop-shadow(0 6px 10px rgba(0,0,0,.7));
-  pointer-events:none;
-  z-index:0;
-}
-.sentry.left{left:-6px}
-.sentry.right{right:-6px;transform:scaleX(-1)}
-.sentry svg{width:100%;height:100%;display:block}
-
-.row{
-  position:absolute;
-  left:0;right:0;top:6px;height:112px;
-  display:grid;
-  grid-template-columns:150px minmax(0,1fr) 126px 340px 126px minmax(0,1fr) 150px;
-  align-items:center;
-  z-index:2;
-}
-.spacer{height:1px}
-
-/* team panels */
-.team{
-  height:82px;
-  position:relative;
-  display:flex;
-  flex-direction:column;
-  align-items:flex-start;
-  justify-content:center;
-  overflow:visible;
-}
-.team-inner{
-  width:100%;
-  height:82px;
-  position:relative;
-  display:flex;
-  align-items:center;
-  overflow:hidden;
-  background:
-    linear-gradient(180deg,rgba(17,28,20,.98),rgba(5,8,6,.995));
-  border-top:2px solid rgba(92,255,131,.72);
-  border-bottom:1px solid rgba(92,255,131,.38);
-  box-shadow:inset 0 0 28px rgba(92,255,131,.035);
-}
-.team-inner:before{
-  content:"";
-  position:absolute;inset:0;
-  background:
-    linear-gradient(120deg,transparent 22%,rgba(92,255,131,.08) 48%,transparent 74%),
-    repeating-linear-gradient(135deg,transparent 0 42px,rgba(255,255,255,.018) 42px 43px);
-  pointer-events:none;
-}
-.team.left .team-inner{
-  justify-content:flex-end;
-  padding:0 42px 0 28px;
-  clip-path:polygon(0 0,95% 0,100% 50%,95% 100%,0 100%,2% 50%);
-}
-.team.right .team-inner{
-  justify-content:flex-start;
-  padding:0 28px 0 42px;
-  clip-path:polygon(5% 0,100% 0,98% 50%,100% 100%,5% 100%,0 50%);
-}
-.teamname{
-  position:relative;z-index:2;
-  width:100%;
-  font-size:clamp(28px,2.1vw,40px);
-  line-height:1;
-  font-weight:1000;
-  letter-spacing:.035em;
-  text-transform:uppercase;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  text-shadow:0 3px 8px rgba(0,0,0,.88);
-}
-.team.left .teamname{text-align:right}
-.team.right .teamname{text-align:left}
-
-/* round-win pip indicators under each team name (decorative) */
-.pips{
-  display:flex;
-  gap:6px;
-  margin-top:9px;
-  padding:0 30px;
-}
-.team.right .pips{padding:0 22px}
-.team.left .pips{padding:0 22px;justify-content:flex-end}
-.pip{
-  width:22px;height:22px;
-  border:2px solid #3c5a45;
-  border-radius:3px;
-  background:rgba(0,0,0,.35);
-}
-
-/* scores */
-.scorebox{
-  position:relative;z-index:5;
-  height:94px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:
-    radial-gradient(circle at 50% 28%,rgba(92,255,131,.17),transparent 45%),
-    linear-gradient(180deg,#17321f 0%,#071009 64%,#020403 100%);
-  border:2px solid rgba(92,255,131,.86);
-  box-shadow:
-    inset 0 0 26px rgba(92,255,131,.1),
-    0 0 18px rgba(34,217,92,.16);
-}
-.scorebox.left{clip-path:polygon(0 6%,82% 6%,100% 50%,82% 94%,0 94%,13% 50%)}
-.scorebox.right{clip-path:polygon(18% 6%,100% 6%,87% 50%,100% 94%,18% 94%,0 50%)}
-.score{
-  font-size:68px;
-  line-height:1;
-  font-weight:1000;
-  font-variant-numeric:tabular-nums;
-  text-shadow:0 0 12px rgba(92,255,131,.12);
-}
-.score.bump{animation:bump .22s ease-out}
-@keyframes bump{
-  0%{transform:scale(1)}
-  45%{transform:scale(1.22);color:var(--green)}
-  100%{transform:scale(1)}
-}
-
-/* center */
-.center{
-  position:relative;z-index:7;
-  height:104px;
-  background:
-    radial-gradient(circle at 50% 28%,rgba(92,255,131,.14),transparent 48%),
-    linear-gradient(180deg,#131e16 0%,#050906 78%,#020403 100%);
-  clip-path:polygon(9% 0,91% 0,100% 50%,91% 100%,9% 100%,0 50%);
-  border-top:2px solid var(--green);
-  border-bottom:1px solid rgba(92,255,131,.62);
-}
-.center .brand{
-  position:absolute;left:0;right:0;top:9px;
-  text-align:center;
-  color:var(--green);
-  font-size:11px;font-weight:1000;letter-spacing:.22em;
-}
-.center .event{
-  position:absolute;left:0;right:0;top:25px;
-  text-align:center;
-  line-height:1;
-}
-.center .event .l1{
-  font-size:20px;font-weight:1000;letter-spacing:.06em;color:var(--white);
-}
-.center .event .l2{
-  display:block;
-  margin-top:2px;
-  font-size:25px;font-weight:1000;letter-spacing:.06em;
-  color:var(--green);
-  text-shadow:0 0 12px rgba(92,255,131,.55);
-}
-.center .vsrow{
-  position:absolute;left:0;right:0;bottom:14px;
-  display:flex;align-items:center;justify-content:center;gap:8px;
-}
-.center .vsrow .chev{
-  font-size:11px;font-weight:1000;color:var(--green2);letter-spacing:1px;
-}
-.center .vsrow .vs{
-  font-size:17px;font-weight:1000;line-height:1;
-}
-
-/* bottom accent bar: SEARCH & DESTROY | round badge | QORVO IN-CLAN TOURNAMENT */
-.subbar{
-  position:absolute;
-  left:8%;right:8%;top:120px;height:34px;
-  display:grid;
-  grid-template-columns:1fr auto 1fr;
-  align-items:start;
-  z-index:2;
-}
-.subline{
-  height:2px;margin-top:12px;
-  background:linear-gradient(90deg,transparent,rgba(92,255,131,.72));
-}
-.subline.right{transform:scaleX(-1)}
-.label{
-  height:25px;
-  padding:0 22px;
-  display:flex;align-items:center;justify-content:center;
-  background:linear-gradient(180deg,#0b120d,#030604);
-  border-top:1px solid rgba(92,255,131,.68);
-  color:#cffff0;
-  font-size:11px;font-weight:1000;letter-spacing:.14em;
-  white-space:nowrap;
-}
-.label.left{justify-self:end;clip-path:polygon(6% 0,100% 0,100% 100%,0 100%,10% 50%)}
-.label.right{justify-self:start;clip-path:polygon(0 0,94% 0,90% 50%,94% 100%,0 100%)}
-.badge{
-  min-width:150px;height:31px;margin-top:-3px;
-  padding:0 24px;
-  display:flex;align-items:center;justify-content:center;
-  background:linear-gradient(180deg,#17321f,#071009);
-  border:1px solid var(--green);
-  border-radius:3px;
-  box-shadow:0 0 14px rgba(34,217,92,.35),inset 0 0 10px rgba(92,255,131,.12);
-  color:var(--green);
-  font-size:13px;font-weight:1000;letter-spacing:.12em;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-
-.status{
-  position:absolute;left:50%;top:192px;transform:translateX(-50%);
-  padding:6px 11px;border-radius:6px;
-  background:rgba(0,0,0,.84);font-size:10px;
-  z-index:3;
-}
-.connected .status{display:none}
-
-@media(max-width:1200px){
-  .hud{width:98vw;height:150px}
-  .row{grid-template-columns:70px minmax(0,1fr) 96px 260px 96px minmax(0,1fr) 70px}
-  .sentry{width:70px;height:70px}
-  .teamname{font-size:clamp(22px,2.1vw,30px)}
-  .score{font-size:56px}
-  .center .event .l1{font-size:16px}
-  .center .event .l2{font-size:20px}
-  .pip{width:16px;height:16px}
-  .label{font-size:9px;padding:0 14px}
-  .badge{font-size:11px;min-width:110px}
-  .subbar{top:104px}
-}
+.hud{position:absolute;left:0;right:0;top:0;height:170px;filter:drop-shadow(0 8px 16px rgba(0,0,0,.75))}
+.cap{position:absolute;left:0;right:0;top:0;height:4px;background:linear-gradient(90deg,transparent 0,var(--g2) 5%,var(--g) 20%,var(--g3) 35%,var(--g) 50%,var(--g3) 65%,var(--g) 80%,var(--g2) 95%,transparent 100%);box-shadow:0 0 14px rgba(66,245,123,.5)}
+.main{position:absolute;left:0;right:0;top:4px;height:138px;display:grid;grid-template-columns:190px minmax(0,1fr) 142px 370px 142px minmax(0,1fr) 190px;align-items:start}
+.edge{position:relative;height:138px;overflow:hidden;background:radial-gradient(circle at 55% 35%,rgba(80,255,130,.45),transparent 34%),linear-gradient(180deg,#0d3e1f,#06110a 72%,#020503);border-top:2px solid var(--g)}
+.edge.left{clip-path:polygon(0 0,100% 0,78% 100%,0 100%)}
+.edge.right{clip-path:polygon(0 0,100% 0,100% 100%,22% 100%)}
+.edge:before{content:"";position:absolute;width:82px;height:108px;top:18px;background:radial-gradient(circle at 50% 14%,#020403 0 13%,transparent 14%),linear-gradient(155deg,transparent 0 33%,#020403 34% 72%,transparent 73%);opacity:.92;filter:drop-shadow(0 0 10px rgba(66,245,123,.35))}
+.edge.left:before{left:34px;transform:skewX(-8deg)}
+.edge.right:before{right:34px;transform:scaleX(-1) skewX(-8deg)}
+.edge:after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(135deg,transparent 0 21px,rgba(255,255,255,.025) 21px 22px),linear-gradient(90deg,rgba(66,245,123,.11),transparent 45%,rgba(66,245,123,.05))}
+.team{position:relative;height:92px;margin-top:12px;display:flex;align-items:center;overflow:hidden;background:linear-gradient(180deg,rgba(17,31,21,.99),rgba(4,8,5,.995));border-top:2px solid var(--g);border-bottom:2px solid rgba(66,245,123,.72);box-shadow:inset 0 0 28px rgba(66,245,123,.045)}
+.team.left{justify-content:flex-end;padding:0 42px 0 30px;clip-path:polygon(0 0,94% 0,100% 50%,94% 100%,0 100%,3% 50%)}
+.team.right{justify-content:flex-start;padding:0 30px 0 42px;clip-path:polygon(6% 0,100% 0,97% 50%,100% 100%,6% 100%,0 50%)}
+.team:before{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 10%,rgba(66,245,123,.08) 48%,transparent 84%),repeating-linear-gradient(135deg,transparent 0 46px,rgba(255,255,255,.015) 46px 47px)}
+.name{position:relative;z-index:2;width:100%;font-size:clamp(30px,2.2vw,42px);font-weight:1000;line-height:1;letter-spacing:.025em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 3px 7px rgba(0,0,0,.9)}
+.team.left .name{text-align:right}.team.right .name{text-align:left}
+.scorebox{position:relative;z-index:5;height:112px;margin-top:2px;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 30%,rgba(66,245,123,.20),transparent 42%),linear-gradient(180deg,#163720,#071009 63%,#020403);border:2px solid var(--g);box-shadow:inset 0 0 28px rgba(66,245,123,.11),0 0 18px rgba(66,245,123,.18)}
+.scorebox.left{clip-path:polygon(8% 6%,82% 6%,100% 50%,82% 94%,8% 94%,0 50%)}
+.scorebox.right{clip-path:polygon(18% 6%,92% 6%,100% 50%,92% 94%,18% 94%,0 50%)}
+.score{font-size:78px;line-height:1;font-weight:1000;font-variant-numeric:tabular-nums;text-shadow:0 0 14px rgba(66,245,123,.18)}
+.score.bump{animation:scorepop .22s ease-out}
+@keyframes scorepop{0%{transform:scale(1)}45%{transform:scale(1.18);color:var(--g)}100%{transform:scale(1)}}
+.center{position:relative;z-index:8;height:132px;background:radial-gradient(circle at 50% 32%,rgba(66,245,123,.12),transparent 46%),linear-gradient(180deg,#101a12,#040705 79%,#020403);clip-path:polygon(12% 0,88% 0,100% 52%,88% 100%,12% 100%,0 52%);border-top:2px solid var(--g);border-bottom:2px solid rgba(66,245,123,.72);box-shadow:inset 0 0 34px rgba(66,245,123,.08)}
+.brand{position:absolute;left:0;right:0;top:8px;text-align:center;color:#bffff0;font-size:11px;font-weight:1000;letter-spacing:.22em}
+.event{position:absolute;left:0;right:0;top:27px;text-align:center;font-size:26px;font-weight:1000;letter-spacing:.04em}
+.event span{display:block;margin-top:-2px;color:var(--g);font-size:24px;font-style:italic}
+.vs{position:absolute;left:0;right:0;top:76px;text-align:center;font-size:28px;font-weight:1000;line-height:1}
+.round{position:absolute;left:38px;right:38px;bottom:9px;text-align:center;font-size:9px;font-weight:1000;letter-spacing:.14em;color:#dfffe7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lower{position:absolute;left:190px;right:190px;top:122px;height:48px;display:grid;grid-template-columns:minmax(0,1fr) 360px minmax(0,1fr);align-items:start;z-index:4}
+.lower-side{position:relative;height:28px;margin-top:3px;background:linear-gradient(180deg,#0b120d,#030604);border-top:1px solid rgba(66,245,123,.55)}
+.lower-side.left,.lower-side.right{clip-path:polygon(0 0,100% 0,96% 100%,4% 100%)}
+.lower-side .text{height:100%;display:flex;align-items:center;justify-content:center;color:#dfffe7;font-size:10px;font-weight:1000;letter-spacing:.15em}
+.lower-center{height:38px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#17351f,#071009);border-top:2px solid var(--g);border-bottom:1px solid rgba(66,245,123,.6);clip-path:polygon(10% 0,90% 0,100% 50%,90% 100%,10% 100%,0 50%);color:#8dffb0;font-size:16px;font-weight:1000;letter-spacing:.08em}
+.status{position:absolute;left:50%;top:178px;transform:translateX(-50%);padding:5px 10px;border-radius:5px;background:rgba(0,0,0,.82);font-size:10px}.connected .status{display:none}
+@media(max-width:1250px){.main{grid-template-columns:120px minmax(0,1fr) 104px 280px 104px minmax(0,1fr) 120px}.lower{left:120px;right:120px;grid-template-columns:minmax(0,1fr) 280px minmax(0,1fr)}.name{font-size:clamp(22px,2.2vw,30px)}.score{font-size:60px}.event{font-size:20px}.event span{font-size:19px}.edge:before{width:60px;height:90px}}
 </style>
 </head>
 <body>
 <div class="stage" id="stage">
   <div class="hud">
-    <div class="sentry left" aria-hidden="true">
-      <svg viewBox="0 0 100 100">
-        <defs>
-          <linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#3a5c44"/>
-            <stop offset="1" stop-color="#0a140d"/>
-          </linearGradient>
-        </defs>
-        <g fill="url(#sg)" opacity=".92">
-          <ellipse cx="52" cy="24" rx="15" ry="16"/>
-          <rect x="40" y="34" width="26" height="9" rx="3"/>
-          <path d="M18 100 L24 58 Q30 40 52 40 Q76 40 82 60 L88 100 Z"/>
-          <rect x="8" y="60" width="46" height="10" rx="4" transform="rotate(-8 8 60)"/>
-        </g>
-      </svg>
-    </div>
-    <div class="row">
-      <div class="spacer"></div>
-      <div class="team left">
-        <div class="team-inner"><div class="teamname" id="a">WONDERPETCHS</div></div>
-        <div class="pips"><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div></div>
-      </div>
+    <div class="cap"></div>
+    <div class="main">
+      <div class="edge left"></div>
+      <div class="team left"><div class="name" id="a">WONDERPETCHS</div></div>
       <div class="scorebox left"><div class="score" id="sa">0</div></div>
       <div class="center">
         <div class="brand">QORVO CFPH</div>
-        <div class="event"><span class="l1">CIVIL WAR</span><span class="l2">3V3</span></div>
-        <div class="vsrow"><span class="chev">&raquo;&raquo;</span><span class="vs">VS</span><span class="chev">&laquo;&laquo;</span></div>
+        <div class="event">CIVIL WAR <span>3V3</span></div>
+        <div class="vs">VS</div>
+        <div class="round" id="r">MATCH 1</div>
       </div>
       <div class="scorebox right"><div class="score" id="sb">0</div></div>
-      <div class="team right">
-        <div class="team-inner"><div class="teamname" id="b">UDERDOGS</div></div>
-        <div class="pips"><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div></div>
-      </div>
-      <div class="spacer"></div>
+      <div class="team right"><div class="name" id="b">UDERDOGS</div></div>
+      <div class="edge right"></div>
     </div>
-    <div class="subbar">
-      <div class="label left">SEARCH &amp; DESTROY</div>
-      <div class="badge" id="r">MATCH 1</div>
-      <div class="label right">QORVO IN-CLAN TOURNAMENT</div>
-    </div>
-    <div class="sentry right" aria-hidden="true">
-      <svg viewBox="0 0 100 100">
-        <g fill="url(#sg)" opacity=".92">
-          <ellipse cx="52" cy="24" rx="15" ry="16"/>
-          <rect x="40" y="34" width="26" height="9" rx="3"/>
-          <path d="M18 100 L24 58 Q30 40 52 40 Q76 40 82 60 L88 100 Z"/>
-          <rect x="8" y="60" width="46" height="10" rx="4" transform="rotate(-8 8 60)"/>
-        </g>
-      </svg>
+    <div class="lower">
+      <div class="lower-side left"><div class="text">SEARCH &amp; DESTROY</div></div>
+      <div class="lower-center">BEST OF 1</div>
+      <div class="lower-side right"><div class="text">QORVO IN-CLAN TOURNAMENT</div></div>
     </div>
   </div>
   <div class="status" id="status">Connecting to scoreboard control…</div>
 </div>
-
 <script>
-const HOST='qorvo-scoreboard-live-v750';
-const $=id=>document.getElementById(id);
+const HOST='qorvo-scoreboard-live-v750', $=id=>document.getElementById(id);
 let peer,conn,retry,lastA=null,lastB=null;
-
-function bump(el){
-  el.classList.remove('bump');
-  void el.offsetWidth;
-  el.classList.add('bump');
-}
+function bump(el){el.classList.remove('bump');void el.offsetWidth;el.classList.add('bump')}
 function apply(d){
-  if(!d||d.type!=='scoreboard-state') return;
-  $('a').textContent=d.teamA||'WONDERPETCHS';
-  $('b').textContent=d.teamB||'UDERDOGS';
-
-  if(lastA!==null && String(lastA)!==String(d.scoreA)) bump($('sa'));
-  if(lastB!==null && String(lastB)!==String(d.scoreB)) bump($('sb'));
-
-  lastA=d.scoreA??0;
-  lastB=d.scoreB??0;
-  $('sa').textContent=lastA;
-  $('sb').textContent=lastB;
-  $('r').textContent=d.round||'MATCH';
-  $('stage').classList.add('connected');
+  if(!d||d.type!=='scoreboard-state')return;
+  $('a').textContent=d.teamA||'WONDERPETCHS';$('b').textContent=d.teamB||'UDERDOGS';
+  if(lastA!==null&&String(lastA)!==String(d.scoreA))bump($('sa'));
+  if(lastB!==null&&String(lastB)!==String(d.scoreB))bump($('sb'));
+  lastA=d.scoreA??0;lastB=d.scoreB??0;$('sa').textContent=lastA;$('sb').textContent=lastB;
+  $('r').textContent=d.round||'MATCH 1';$('stage').classList.add('connected')
 }
 function connect(){
-  clearTimeout(retry);
-  try{conn?.close()}catch{}
-  peer=new Peer(
-    'qorvo-score-viewer-'+crypto.randomUUID().replaceAll('-','').slice(0,18),
-    {host:'0.peerjs.com',port:443,path:'/',secure:true,debug:0}
-  );
-  peer.on('open',()=>{
-    conn=peer.connect(HOST,{reliable:true});
-    conn.on('data',apply);
-    conn.on('close',again);
-    conn.on('error',again);
-  });
-  peer.on('error',again);
-  peer.on('disconnected',again);
+  clearTimeout(retry);try{conn?.close()}catch{}
+  peer=new Peer('qorvo-score-viewer-'+crypto.randomUUID().replaceAll('-','').slice(0,18),{host:'0.peerjs.com',port:443,path:'/',secure:true,debug:0});
+  peer.on('open',()=>{conn=peer.connect(HOST,{reliable:true});conn.on('data',apply);conn.on('close',again);conn.on('error',again)});
+  peer.on('error',again);peer.on('disconnected',again)
 }
 function again(){
-  $('stage').classList.remove('connected');
-  $('status').textContent='Reconnecting…';
-  try{peer?.destroy()}catch{}
-  retry=setTimeout(connect,1500);
+  $('stage').classList.remove('connected');$('status').textContent='Reconnecting…';
+  try{peer?.destroy()}catch{};retry=setTimeout(connect,1500)
 }
 connect();
 </script>
