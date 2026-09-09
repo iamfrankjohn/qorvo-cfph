@@ -1,3 +1,10 @@
+## WEB v7.50 — Live Scoreboard
+- Added scoreboard-control.html for live score/team editing.
+- Added scoreboard.html transparent OBS overlay.
+- Scores update instantly through PeerJS without page refresh.
+- OBS overlay automatically reconnects if control page temporarily disconnects.
+- No additional Vercel API function added.
+
 WEB v7.49 — Clear HD Game Livestream
 - Upgraded capture to 1920x1080 at 30 FPS.
 - Increased video ceiling to ~4.0 Mbps for sharper game text/details.

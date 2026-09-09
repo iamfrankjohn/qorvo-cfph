@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
+<title>QORVO Live Scoreboard Control</title>
+<script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script>
+<style>
+:root{font-family:Inter,Arial,sans-serif;color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#090d0b;color:#f4fff7}.wrap{max-width:980px;margin:auto;padding:24px}.card{background:#111814;border:1px solid #294334;border-radius:18px;padding:20px;margin-bottom:16px}.top{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}h1{margin:0;font-size:26px}.live{font-weight:800;color:#74ff9a}.grid{display:grid;grid-template-columns:1fr 160px 1fr;gap:14px;align-items:end}.team input,.label input{width:100%;padding:12px;border-radius:10px;border:1px solid #355640;background:#0b100d;color:white;font-size:18px}.score{font-size:64px;font-weight:900;text-align:center;padding:10px}.buttons{display:flex;gap:8px;justify-content:center}.buttons button,.actions button{border:0;border-radius:10px;padding:11px 15px;font-weight:800;cursor:pointer}.plus{background:#62f58c}.minus{background:#27382d;color:white}.actions{display:flex;gap:10px;flex-wrap:wrap}.actions button{background:#62f58c}.actions .danger{background:#d94d4d;color:white}.meta{font-size:13px;color:#9fb5a6}.preview{height:170px;background:#060806;border-radius:14px;display:flex;align-items:center;justify-content:center;overflow:hidden}.board{width:92%;display:grid;grid-template-columns:1fr 100px 1fr;align-items:center;text-align:center}.pname{font-size:25px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pscore{font-size:52px;font-weight:1000}.round{grid-column:1/4;font-size:14px;letter-spacing:.18em;color:#72ff99;margin-bottom:8px}.footer{font-size:12px;color:#738379;text-align:center}@media(max-width:650px){.grid{grid-template-columns:1fr}.score{font-size:48px}}
+</style></head>
+<body><main class="wrap">
+<div class="card top"><div><h1>QORVO LIVE SCOREBOARD</h1><div class="meta">WEB v7.50 • Keep this page open while the OBS scoreboard is in use.</div></div><div id="status" class="live">STARTING…</div></div>
+<div class="card">
+<div class="label"><label>Match / Round</label><input id="round" value="MATCH 1"></div><br>
+<div class="grid">
+<div class="team"><label>Team A</label><input id="teamA" value="WONDERPETCHS"><div class="score" id="scoreA">0</div><div class="buttons"><button class="minus" data-side="A" data-delta="-1">−1</button><button class="plus" data-side="A" data-delta="1">+1</button></div></div>
+<div style="text-align:center;font-weight:900;font-size:28px;padding-bottom:55px">VS</div>
+<div class="team"><label>Team B</label><input id="teamB" value="UDERDOGS"><div class="score" id="scoreB">0</div><div class="buttons"><button class="minus" data-side="B" data-delta="-1">−1</button><button class="plus" data-side="B" data-delta="1">+1</button></div></div>
+</div></div>
+<div class="card actions"><button id="swap">SWAP TEAMS</button><button id="reset" class="danger">RESET SCORE</button><button id="copy">COPY OBS LINK</button><span class="meta" id="viewers">0 scoreboard viewer(s)</span></div>
+<div class="card"><div class="preview"><div class="board"><div class="round" id="pRound">MATCH 1</div><div class="pname" id="pA">WONDERPETCHS</div><div class="pscore"><span id="pSA">0</span> - <span id="pSB">0</span></div><div class="pname" id="pB">UDERDOGS</div></div></div></div>
+<div class="footer">QORVO CFPH • Live scoreboard control</div>
+</main>
+<script>
+const ROOM='qorvo-scoreboard-live-v750';
+const state={teamA:'WONDERPETCHS',teamB:'UDERDOGS',scoreA:0,scoreB:0,round:'MATCH 1'};
+const conns=new Map();
+const $=id=>document.getElementById(id);
+function snapshot(){return {...state,type:'scoreboard-state'};}
+function render(){['teamA','teamB','round'].forEach(k=>{if(document.activeElement!==$(k))$(k).value=state[k]});$('scoreA').textContent=state.scoreA;$('scoreB').textContent=state.scoreB;$('pA').textContent=state.teamA;$('pB').textContent=state.teamB;$('pSA').textContent=state.scoreA;$('pSB').textContent=state.scoreB;$('pRound').textContent=state.round;}
+function send(){const d=snapshot();for(const [id,c] of conns){if(c.open){try{c.send(d)}catch{}}else conns.delete(id)}$('viewers').textContent=`${[...conns.values()].filter(c=>c.open).length} scoreboard viewer(s)`;}
+function changed(){render();send();}
+['teamA','teamB','round'].forEach(k=>$(k).addEventListener('input',e=>{state[k]=e.target.value;changed()}));
+document.querySelectorAll('[data-delta]').forEach(b=>b.onclick=()=>{const k=b.dataset.side==='A'?'scoreA':'scoreB';state[k]=Math.max(0,state[k]+Number(b.dataset.delta));changed()});
+$('reset').onclick=()=>{state.scoreA=0;state.scoreB=0;changed()};
+$('swap').onclick=()=>{[state.teamA,state.teamB]=[state.teamB,state.teamA];[state.scoreA,state.scoreB]=[state.scoreB,state.scoreA];changed()};
+$('copy').onclick=async()=>{const u=new URL('/scoreboard.html',location.origin).href;try{await navigator.clipboard.writeText(u);$('copy').textContent='COPIED';setTimeout(()=>$('copy').textContent='COPY OBS LINK',1200)}catch{prompt('OBS Browser Source URL:',u)}};
+const peer=new Peer(ROOM,{host:'0.peerjs.com',port:443,path:'/',secure:true,debug:0});
+peer.on('open',()=>{$('status').textContent='ONLINE • READY';send()});
+peer.on('connection',c=>{conns.set(c.peer,c);c.on('open',()=>{try{c.send(snapshot())}catch{};send()});c.on('close',()=>{conns.delete(c.peer);send()});c.on('error',()=>{conns.delete(c.peer);send()})});
+peer.on('error',e=>{$('status').textContent=e.type==='unavailable-id'?'CONTROL ALREADY OPEN':'CONNECTION ERROR'});
+render();
+</script></body></html>
