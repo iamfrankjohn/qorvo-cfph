@@ -25,8 +25,8 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent
 .scorebox.left{border-radius:8px 0 0 8px}.scorebox.right{border-radius:0 8px 8px 0}
 .score{font-size:52px;line-height:1;font-weight:1000;font-variant-numeric:tabular-nums}
 .score.bump{animation:bump .2s ease-out}@keyframes bump{45%{transform:scale(1.18);color:var(--green)}}
-.center{position:relative;z-index:4;height:82px;background:linear-gradient(180deg,#111a13,#050806);border-top:2px solid var(--green);border-bottom:2px solid var(--green-soft);display:flex;flex-direction:column;align-items:center;justify-content:center}
-.event{color:var(--green);font-size:10px;font-weight:900;letter-spacing:.15em;margin-bottom:3px}.vs{font-size:25px;line-height:1;font-weight:1000}.round{max-width:190px;margin-top:5px;color:#d9e5dc;font-size:9px;line-height:1;font-weight:900;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.center{position:relative;z-index:4;height:82px;cursor:pointer;background:linear-gradient(180deg,#111a13,#050806);border-top:2px solid var(--green);border-bottom:2px solid var(--green-soft);display:flex;flex-direction:column;align-items:center;justify-content:center}
+.center:hover{box-shadow:0 0 0 2px rgba(86,239,124,.32),0 0 18px rgba(86,239,124,.18)}.event{color:var(--green);font-size:10px;font-weight:900;letter-spacing:.15em;margin-bottom:3px}.vs{font-size:25px;line-height:1;font-weight:1000}.round{max-width:190px;margin-top:5px;color:#d9e5dc;font-size:9px;line-height:1;font-weight:900;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 .setup{
   position:absolute;left:50%;top:150px;transform:translateX(-50%);
@@ -46,7 +46,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent
   <div class="board">
     <div class="team left"><div class="name" id="a">WONDERPETCHS</div></div>
     <div class="scorebox left"><div class="score" id="sa">0</div></div>
-    <div class="center"><div class="event">CIVIL WAR 3V3</div><div class="vs">VS</div><div class="round" id="r">MATCH 1</div></div>
+    <div class="center" id="vsPanel" title="Click to enter a new pairing token"><div class="event">CIVIL WAR 3V3</div><div class="vs">VS</div><div class="round" id="r">MATCH 1</div></div>
     <div class="scorebox right"><div class="score" id="sb">0</div></div>
     <div class="team right"><div class="name" id="b">UDERDOGS</div></div>
   </div>
@@ -195,6 +195,37 @@ async function connect(token){
     }
   });
 }
+
+$('vsPanel').addEventListener('click',()=>{
+  const entered=prompt(
+    'Enter a NEW 6-character scoreboard token.\n\nCurrent token: '+(currentToken||'NONE'),
+    ''
+  );
+  if(entered===null) return;
+
+  const newToken=cleanToken(entered);
+  if(newToken.length!==6){
+    alert('Please enter a valid 6-character token.');
+    return;
+  }
+
+  // Replace the saved token FIRST, preventing the previous token from auto-reconnecting.
+  clearTimeout(retry);
+  currentToken=newToken;
+  localStorage.setItem('qorvoScoreToken',newToken);
+  $('token').value=newToken;
+
+  const u=new URL(location.href);
+  u.searchParams.set('token',newToken);
+  history.replaceState(null,'',u);
+
+  try{conn?.close()}catch{}
+  try{peer?.destroy()}catch{}
+
+  $('stage').classList.remove('connected');
+  $('status').textContent='Switching to '+newToken+'…';
+  connect(newToken);
+});
 
 $('connectBtn').onclick=()=>connect($('token').value);
 $('token').addEventListener('keydown',e=>{if(e.key==='Enter')connect(e.target.value)});
