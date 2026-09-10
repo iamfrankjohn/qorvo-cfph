@@ -25,7 +25,7 @@ button{min-height:42px;border-radius:8px;border:1px solid #304b38;background:#1c
 <body>
 <main class="wrap">
 <div class="header">
-  <div><div class="eyebrow">QORVO CFPH • CIVIL WAR 3V3</div><h1>LIVE SCOREBOARD CONTROL</h1><div class="meta">WEB v7.70 • Token-paired scoreboard connection</div></div>
+  <div><div class="eyebrow">QORVO CFPH • CIVIL WAR 3V3</div><h1>LIVE SCOREBOARD CONTROL</h1><div class="meta">WEB v7.71 • Token-paired scoreboard connection</div></div>
   <div id="status" class="status">STARTING…</div>
 </div>
 
@@ -65,7 +65,13 @@ button{min-height:42px;border-radius:8px;border:1px solid #304b38;background:#1c
 const $=id=>document.getElementById(id);
 const state={teamA:'WONDERPETCHS',teamB:'UDERDOGS',scoreA:0,scoreB:0,round:'MATCH 1'};
 const conns=new Map();
-let peer=null,token='',iceServers=null;
+
+let peer=null;
+let token='';
+let iceServers=null;
+let hostRetryTimer=null;
+let hostGeneration=0;
+let hostStarting=false;
 
 function generateToken(){
   const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -104,87 +110,196 @@ function render(){
   $('scoreB').textContent=state.scoreB;
   $('tokenView').textContent=token||'------';
 }
+
+function updateViewerCount(){
+  $('viewers').textContent=
+    `${[...conns.values()].filter(c=>c && c.open).length} scoreboard viewer(s)`;
+}
+
 function send(){
   const d=snapshot();
-  for(const [id,c] of conns){
-    if(c.open){
+  for(const [id,c] of [...conns]){
+    if(c && c.open){
       try{c.send(d)}catch(err){console.error('Send failed:',err)}
     }else{
       conns.delete(id);
     }
   }
-  $('viewers').textContent=`${[...conns.values()].filter(c=>c.open).length} scoreboard viewer(s)`;
+  updateViewerCount();
 }
 function changed(){render();send()}
 
-async function startHost(newToken){
-  token=newToken;
-  localStorage.setItem('qorvoControlToken',token);
-  render();
+function closeHost(){
+  hostGeneration++;
+  clearTimeout(hostRetryTimer);
+  hostRetryTimer=null;
+  hostStarting=false;
+
+  for(const [,c] of [...conns]){
+    try{c.close()}catch{}
+  }
   conns.clear();
-  try{peer?.destroy()}catch{}
-  $('status').textContent='LOADING NETWORK…';
+  updateViewerCount();
+
+  const oldPeer=peer;
+  peer=null;
+  try{oldPeer?.destroy()}catch{}
+}
+
+function scheduleHostRestart(message='SIGNALLING LOST • RETRYING'){
+  const expectedToken=token;
+  const expectedGeneration=hostGeneration;
+
+  clearTimeout(hostRetryTimer);
+  $('status').textContent=message;
+
+  hostRetryTimer=setTimeout(()=>{
+    if(expectedToken===token && expectedGeneration===hostGeneration){
+      createHost(expectedToken,true);
+    }
+  },1500);
+}
+
+async function createHost(hostToken,isRecovery=false){
+  if(!hostToken) return;
+
+  // Kill any old PeerJS object instead of peer.reconnect().
+  // This avoids getting stuck in PeerJS's stale signalling state.
+  hostGeneration++;
+  const myGeneration=hostGeneration;
+  clearTimeout(hostRetryTimer);
+  hostRetryTimer=null;
+  hostStarting=true;
+
+  const oldPeer=peer;
+  peer=null;
+  try{oldPeer?.destroy()}catch{}
+
+  for(const [,c] of [...conns]){
+    try{c.close()}catch{}
+  }
+  conns.clear();
+  updateViewerCount();
+
+  $('status').textContent=isRecovery
+    ? 'SIGNALLING LOST • CREATING FRESH CONNECTION'
+    : 'LOADING NETWORK…';
 
   const servers=await loadIceServers();
+  if(myGeneration!==hostGeneration || hostToken!==token) return;
 
-  peer=new Peer(roomFor(token),{
-    host:'0.peerjs.com',
-    port:443,
-    path:'/',
-    secure:true,
+  $('status').textContent='CONNECTING • '+hostToken;
+
+  // Use PeerJS Cloud defaults for signalling. We only override WebRTC ICE/TURN.
+  const thisPeer=new Peer(roomFor(hostToken),{
     debug:1,
+    pingInterval:5000,
     config:{
       iceServers:servers,
       iceCandidatePoolSize:4
     }
   });
+  peer=thisPeer;
 
-  peer.on('open',()=>{
-    $('status').textContent='ONLINE • '+token;
+  // If PeerJS never reaches "open", rebuild it rather than remaining stuck.
+  const openTimeout=setTimeout(()=>{
+    if(myGeneration!==hostGeneration || peer!==thisPeer || thisPeer.open) return;
+    try{thisPeer.destroy()}catch{}
+    peer=null;
+    hostStarting=false;
+    scheduleHostRestart('SIGNALLING TIMEOUT • RETRYING');
+  },10000);
+
+  thisPeer.on('open',()=>{
+    if(myGeneration!==hostGeneration || peer!==thisPeer) return;
+    clearTimeout(openTimeout);
+    hostStarting=false;
+    $('status').textContent='ONLINE • '+hostToken;
     send();
   });
 
-  peer.on('connection',c=>{
-    conns.set(c.peer,c);
+  thisPeer.on('connection',c=>{
+    if(myGeneration!==hostGeneration || peer!==thisPeer){
+      try{c.close()}catch{}
+      return;
+    }
+
+    // Use a unique key so reconnecting viewers never overwrite a live connection.
+    const key=`${c.peer}-${Date.now()}-${Math.random()}`;
+    conns.set(key,c);
 
     c.on('open',()=>{
+      if(myGeneration!==hostGeneration) return;
       try{c.send(snapshot())}catch{}
-      send();
+      updateViewerCount();
     });
 
     c.on('data',data=>{
+      if(myGeneration!==hostGeneration) return;
       if(data&&data.type==='scoreboard-request-state'){
         try{c.send(snapshot())}catch{}
       }
     });
 
-    c.on('close',()=>{
-      conns.delete(c.peer);
-      send();
-    });
-
+    const remove=()=>{
+      conns.delete(key);
+      updateViewerCount();
+    };
+    c.on('close',remove);
     c.on('error',err=>{
       console.error('Viewer connection error:',err);
-      conns.delete(c.peer);
-      send();
+      remove();
     });
   });
 
-  peer.on('disconnected',()=>{
-    $('status').textContent='SIGNALLING LOST • RECONNECTING';
-    if(peer&&!peer.destroyed){
-      try{peer.reconnect()}catch{}
-    }
+  thisPeer.on('disconnected',()=>{
+    if(myGeneration!==hostGeneration || peer!==thisPeer) return;
+    clearTimeout(openTimeout);
+
+    // IMPORTANT: do NOT call peer.reconnect(). Create a brand-new Peer object.
+    try{thisPeer.destroy()}catch{}
+    if(peer===thisPeer) peer=null;
+    hostStarting=false;
+    scheduleHostRestart('SIGNALLING LOST • RETRYING');
   });
 
-  peer.on('error',e=>{
+  thisPeer.on('error',e=>{
+    if(myGeneration!==hostGeneration || peer!==thisPeer) return;
     console.error('Peer error:',e);
-    if(e.type==='unavailable-id'){
-      $('status').textContent='TOKEN IN USE — CLICK NEW TOKEN';
-    }else{
-      $('status').textContent='CONNECTION ERROR • '+String(e.type||'UNKNOWN').toUpperCase();
+
+    clearTimeout(openTimeout);
+    const type=String(e.type||'unknown');
+
+    if(type==='unavailable-id'){
+      // The cloud server may still be releasing our previous host ID.
+      try{thisPeer.destroy()}catch{}
+      if(peer===thisPeer) peer=null;
+      hostStarting=false;
+      scheduleHostRestart('TOKEN TEMPORARILY BUSY • RETRYING');
+      return;
     }
+
+    if(type==='network' || type==='socket-error' || type==='socket-closed' ||
+       type==='server-error' || type==='disconnected'){
+      try{thisPeer.destroy()}catch{}
+      if(peer===thisPeer) peer=null;
+      hostStarting=false;
+      scheduleHostRestart('SIGNALLING ERROR • RETRYING');
+      return;
+    }
+
+    $('status').textContent='CONNECTION ERROR • '+type.toUpperCase();
   });
+}
+
+async function startHost(newToken){
+  token=newToken;
+  localStorage.setItem('qorvoControlToken',token);
+  render();
+
+  // Invalidate every previous host/retry, then create a clean host.
+  closeHost();
+  await createHost(token,false);
 }
 
 ['teamA','teamB','round'].forEach(k=>$(k).addEventListener('input',e=>{
@@ -218,13 +333,14 @@ $('copyLink').onclick=async()=>{
     $('copyLink').textContent='COPIED';
     setTimeout(()=>$('copyLink').textContent='COPY OBS LINK',1200)
   }catch{
-    prompt('OBS Browser Source URL:',u.href)
+    prompt('Copy this OBS URL:',u.href)
   }
 };
 
-const saved=(localStorage.getItem('qorvoControlToken')||'')
+const saved=String(localStorage.getItem('qorvoControlToken')||'')
   .toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6);
 
 startHost(saved.length===6?saved:generateToken());
+render();
 </script>
 </body></html>

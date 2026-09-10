@@ -193,11 +193,8 @@ async function connectToToken(rawToken,isAuto=false){
   setStatus('Connecting to '+token+'…');
 
   const thisPeer=new Peer({
-    host:'0.peerjs.com',
-    port:443,
-    path:'/',
-    secure:true,
     debug:1,
+    pingInterval:5000,
     config:{
       iceServers:servers,
       iceCandidatePoolSize:4
