@@ -25,7 +25,7 @@ button{min-height:42px;border-radius:8px;border:1px solid #304b38;background:#1c
 <body>
 <main class="wrap">
 <div class="header">
-  <div><div class="eyebrow">QORVO CFPH • CIVIL WAR 3V3</div><h1>LIVE SCOREBOARD CONTROL</h1><div class="meta">WEB v7.74 • Token-paired scoreboard connection</div></div>
+  <div><div class="eyebrow">QORVO CFPH • CIVIL WAR 3V3</div><h1>LIVE SCOREBOARD CONTROL</h1><div class="meta">WEB v7.75 • Token-paired scoreboard connection</div></div>
   <div id="status" class="status">STARTING…</div>
 </div>
 
@@ -65,16 +65,17 @@ button{min-height:42px;border-radius:8px;border:1px solid #304b38;background:#1c
 const $=id=>document.getElementById(id);
 const SCOREBOARD_WS_URL='wss://scoreboard.koufuprinting.com/scoreboard-ws';
 const state={teamA:'WONDERPETCHS',teamB:'UDERDOGS',scoreA:0,scoreB:0,round:'MATCH 1'};
-let ws=null,retry=null,token='',manualClose=false;
+let ws=null,retry=null,token='',manualClose=false,joined=false,revision=0;
 
 function generateToken(){
   const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   const bytes=new Uint32Array(6); crypto.getRandomValues(bytes);
   return Array.from(bytes,n=>chars[n%chars.length]).join('');
 }
-function snapshot(){return {...state,type:'scoreboard-state'}}
+function snapshot(){return {...state,type:'scoreboard-state',token,revision}}
 function socketReady(){return ws&&ws.readyState===WebSocket.OPEN}
 function send(obj){if(socketReady())ws.send(JSON.stringify(obj))}
+function sendState(){if(socketReady()&&joined){revision++;ws.send(JSON.stringify(snapshot()))}}
 function render(){
   ['teamA','teamB','round'].forEach(k=>{if(document.activeElement!==$(k))$(k).value=state[k]});
   $('scoreA').textContent=state.scoreA; $('scoreB').textContent=state.scoreB;
@@ -91,16 +92,18 @@ function connect(){
 
   ws.onopen=()=>{
     $('status').textContent='ONLINE • '+token;
+    joined=false;
     send({type:'join',role:'controller',token});
-    setTimeout(()=>send(snapshot()),100);
   };
   ws.onmessage=e=>{
     let m; try{m=JSON.parse(e.data)}catch{return}
-    if(m.type==='joined'){send(snapshot())}
+    if(m.type==='joined'&&m.role==='controller'){joined=true;sendState()}
+    if(m.type==='scoreboard-request-state'){sendState()}
     if(m.type==='viewer-count')$('viewers').textContent=`${m.count} scoreboard viewer(s)`;
   };
   ws.onerror=()=>{};
   ws.onclose=()=>{
+    joined=false;
     if(!manualClose)schedule();
   };
 }
@@ -108,7 +111,7 @@ function schedule(){
   $('status').textContent='OFFLINE • RETRYING';
   clearTimeout(retry); retry=setTimeout(connect,1500);
 }
-function changed(){render();send(snapshot())}
+function changed(){render();sendState()}
 
 ['teamA','teamB','round'].forEach(k=>$(k).addEventListener('input',e=>{state[k]=e.target.value;changed()}));
 document.querySelectorAll('[data-delta]').forEach(b=>b.onclick=()=>{

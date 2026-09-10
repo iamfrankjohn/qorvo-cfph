@@ -66,7 +66,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent
 <script>
 const $=id=>document.getElementById(id);
 const SCOREBOARD_WS_URL='wss://scoreboard.koufuprinting.com/scoreboard-ws';
-let ws=null,retry=null,currentToken='',reconnectEnabled=true,lastA=null,lastB=null;
+let ws=null,retry=null,currentToken='',reconnectEnabled=true,lastA=null,lastB=null,lastRevision=-1;
 
 function cleanToken(v){return (v||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6)}
 function bump(el){el.classList.remove('bump');void el.offsetWidth;el.classList.add('bump')}
@@ -78,6 +78,9 @@ function setConnectedUI(){
 }
 function apply(d){
   if(!d||d.type!=='scoreboard-state')return;
+  if(d.token&&cleanToken(d.token)!==currentToken)return;
+  if(Number.isFinite(d.revision)&&d.revision<lastRevision)return;
+  if(Number.isFinite(d.revision))lastRevision=d.revision;
   $('a').textContent=d.teamA||'WONDERPETCHS';$('b').textContent=d.teamB||'UDERDOGS';
   if(lastA!==null&&String(lastA)!==String(d.scoreA))bump($('sa'));
   if(lastB!==null&&String(lastB)!==String(d.scoreB))bump($('sb'));
@@ -91,7 +94,7 @@ function stop(){
 function connect(raw){
   const token=cleanToken(raw);
   if(token.length!==6){setStatus('Token must be 6 characters');return}
-  stop(); currentToken=token; reconnectEnabled=true;
+  stop(); currentToken=token; reconnectEnabled=true;lastRevision=-1;
   localStorage.setItem('qorvoScoreToken',token);$('token').value=token;
   const u=new URL(location.href);u.searchParams.set('token',token);history.replaceState(null,'',u);
   $('stage').classList.remove('connected');setStatus('Connecting to '+token+'…');
