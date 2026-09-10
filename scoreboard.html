@@ -65,7 +65,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent
 
 <script>
 const $=id=>document.getElementById(id);
-let peer,conn,retry,lastA=null,lastB=null,currentToken='',iceServers=null;
+let peer,conn,retry,lastA=null,lastB=null,currentToken='',iceServers=null,changingToken=false;
 
 function cleanToken(v){return (v||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6)}
 function roomFor(token){return 'qorvo-scoreboard-'+token.toLowerCase()}
@@ -104,10 +104,18 @@ function apply(d){
 }
 
 function scheduleReconnect(message='Reconnecting…'){
+  if(changingToken) return;
   $('stage').classList.remove('connected');
   $('status').textContent=message;
   clearTimeout(retry);
-  if(currentToken) retry=setTimeout(()=>connect(currentToken),1800);
+  const tokenToReconnect=currentToken;
+  if(tokenToReconnect){
+    retry=setTimeout(()=>{
+      if(!changingToken && currentToken===tokenToReconnect){
+        connect(tokenToReconnect);
+      }
+    },1800);
+  }
 }
 
 async function connect(token){
@@ -117,6 +125,8 @@ async function connect(token){
     return;
   }
 
+  clearTimeout(retry);
+  changingToken=false;
   currentToken=token;
   $('token').value=token;
   localStorage.setItem('qorvoScoreToken',token);
@@ -199,7 +209,22 @@ async function connect(token){
 }
 
 $('vsPanel').addEventListener('click',()=>{
-  // Re-open the original inline token entry instead of using a browser message box.
+  // Stop the old room from auto-reconnecting while a new token is being entered.
+  changingToken=true;
+  clearTimeout(retry);
+
+  try{
+    conn?.removeAllListeners?.();
+    conn?.close();
+  }catch{}
+  conn=null;
+
+  try{
+    peer?.removeAllListeners?.();
+    peer?.destroy();
+  }catch{}
+  peer=null;
+
   $('stage').classList.remove('connected');
   $('setup').style.display='block';
   $('status').style.display='block';
@@ -208,8 +233,8 @@ $('vsPanel').addEventListener('click',()=>{
   setTimeout(()=>$('token').focus(),50);
 });
 
-$('connectBtn').onclick=()=>connect($('token').value);
-$('token').addEventListener('keydown',e=>{if(e.key==='Enter')connect(e.target.value)});
+$('connectBtn').onclick=()=>{clearTimeout(retry);connect($('token').value)};
+$('token').addEventListener('keydown',e=>{if(e.key==='Enter'){clearTimeout(retry);connect(e.target.value)}});
 $('token').addEventListener('input',e=>e.target.value=cleanToken(e.target.value));
 
 const urlToken=cleanToken(new URLSearchParams(location.search).get('token'));
