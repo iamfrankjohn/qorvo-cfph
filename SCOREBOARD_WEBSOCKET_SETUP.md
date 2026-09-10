@@ -1,4 +1,4 @@
-# QORVO Scoreboard WebSocket Relay — WEB v7.73
+# QORVO Scoreboard WebSocket Relay — WEB v7.74
 
 This replaces PeerJS/WebRTC for the scoreboard only.
 
@@ -123,4 +123,4 @@ It should show `ONLINE • TOKEN`.
 Open `scoreboard.html?token=SAME_TOKEN`.
 The controller should show `1 scoreboard viewer(s)`.
 
-No TURN, STUN, WebRTC, or PeerJS is used by the scoreboard in v7.73.
+No TURN, STUN, WebRTC, or PeerJS is used by the scoreboard in v7.74.

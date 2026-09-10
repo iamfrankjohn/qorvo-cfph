@@ -71,13 +71,18 @@ let ws=null,retry=null,currentToken='',reconnectEnabled=true,lastA=null,lastB=nu
 function cleanToken(v){return (v||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6)}
 function bump(el){el.classList.remove('bump');void el.offsetWidth;el.classList.add('bump')}
 function setStatus(s){$('status').style.display='block';$('status').textContent=s}
+function setConnectedUI(){
+  $('stage').classList.add('connected');
+  $('setup').style.display='none';
+  $('status').style.display='none';
+}
 function apply(d){
   if(!d||d.type!=='scoreboard-state')return;
   $('a').textContent=d.teamA||'WONDERPETCHS';$('b').textContent=d.teamB||'UDERDOGS';
   if(lastA!==null&&String(lastA)!==String(d.scoreA))bump($('sa'));
   if(lastB!==null&&String(lastB)!==String(d.scoreB))bump($('sb'));
   lastA=d.scoreA??0;lastB=d.scoreB??0;$('sa').textContent=lastA;$('sb').textContent=lastB;
-  $('r').textContent=d.round||'MATCH 1';$('stage').classList.add('connected');
+  $('r').textContent=d.round||'MATCH 1';setConnectedUI();
 }
 function stop(){
   clearTimeout(retry);retry=null;
@@ -103,7 +108,10 @@ function connect(raw){
   mine.onmessage=e=>{
     if(ws!==mine)return;
     let m;try{m=JSON.parse(e.data)}catch{return}
-    if(m.type==='joined')mine.send(JSON.stringify({type:'scoreboard-request-state'}));
+    if(m.type==='joined'){
+      setConnectedUI();
+      mine.send(JSON.stringify({type:'scoreboard-request-state'}));
+    }
     apply(m);
   };
   mine.onerror=()=>{};
