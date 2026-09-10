@@ -65,249 +65,68 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent
 
 <script>
 const $=id=>document.getElementById(id);
+const SCOREBOARD_WS_URL='wss://scoreboard.koufuprinting.com/scoreboard-ws';
+let ws=null,retry=null,currentToken='',reconnectEnabled=true,lastA=null,lastB=null;
 
-let peer=null;
-let conn=null;
-let retryTimer=null;
-let currentToken='';
-let iceServers=null;
-let reconnectEnabled=true;
-let connectionGeneration=0;
-let lastA=null,lastB=null;
-
-function cleanToken(v){
-  return (v||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6);
-}
-function roomFor(token){
-  return 'qorvo-scoreboard-'+token.toLowerCase();
-}
-function setStatus(text){
-  $('status').style.display='block';
-  $('status').textContent=text;
-}
-function stopConnection(){
-  connectionGeneration++;
-  clearTimeout(retryTimer);
-  retryTimer=null;
-
-  const oldConn=conn;
-  const oldPeer=peer;
-  conn=null;
-  peer=null;
-
-  try{oldConn?.close()}catch{}
-  try{oldPeer?.destroy()}catch{}
-}
-async function loadIceServers(){
-  if(iceServers) return iceServers;
-  try{
-    const res=await fetch('/api/admin-auth?mode=turn',{cache:'no-store'});
-    if(!res.ok) throw new Error('TURN config HTTP '+res.status);
-    const data=await res.json();
-    if(Array.isArray(data.iceServers) && data.iceServers.length){
-      iceServers=data.iceServers;
-      return iceServers;
-    }
-  }catch(err){
-    console.error('TURN config failed:',err);
-  }
-  iceServers=[
-    {urls:'stun:stun.l.google.com:19302'},
-    {urls:'stun:stun1.l.google.com:19302'}
-  ];
-  return iceServers;
-}
-
-function bump(el){
-  el.classList.remove('bump');
-  void el.offsetWidth;
-  el.classList.add('bump');
-}
+function cleanToken(v){return (v||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6)}
+function bump(el){el.classList.remove('bump');void el.offsetWidth;el.classList.add('bump')}
+function setStatus(s){$('status').style.display='block';$('status').textContent=s}
 function apply(d){
-  if(!d || d.type!=='scoreboard-state') return;
-
-  $('a').textContent=d.teamA||'WONDERPETCHS';
-  $('b').textContent=d.teamB||'UDERDOGS';
-
-  if(lastA!==null && String(lastA)!==String(d.scoreA)) bump($('sa'));
-  if(lastB!==null && String(lastB)!==String(d.scoreB)) bump($('sb'));
-
-  lastA=d.scoreA??0;
-  lastB=d.scoreB??0;
-  $('sa').textContent=lastA;
-  $('sb').textContent=lastB;
-  $('r').textContent=d.round||'MATCH 1';
-
-  $('setup').style.display='';
-  $('status').style.display='';
-  $('stage').classList.add('connected');
+  if(!d||d.type!=='scoreboard-state')return;
+  $('a').textContent=d.teamA||'WONDERPETCHS';$('b').textContent=d.teamB||'UDERDOGS';
+  if(lastA!==null&&String(lastA)!==String(d.scoreA))bump($('sa'));
+  if(lastB!==null&&String(lastB)!==String(d.scoreB))bump($('sb'));
+  lastA=d.scoreA??0;lastB=d.scoreB??0;$('sa').textContent=lastA;$('sb').textContent=lastB;
+  $('r').textContent=d.round||'MATCH 1';$('stage').classList.add('connected');
 }
-
-function scheduleReconnect(generation,message='Connection lost — reconnecting…'){
-  if(!reconnectEnabled || generation!==connectionGeneration) return;
-
-  $('stage').classList.remove('connected');
-  setStatus(message);
-  clearTimeout(retryTimer);
-
-  const token=currentToken;
-  retryTimer=setTimeout(()=>{
-    if(reconnectEnabled &&
-       generation===connectionGeneration &&
-       token===currentToken){
-      connectToToken(token,true);
-    }
-  },1800);
+function stop(){
+  clearTimeout(retry);retry=null;
+  if(ws){const old=ws;ws=null;try{old.onclose=null;old.close()}catch{}}
 }
+function connect(raw){
+  const token=cleanToken(raw);
+  if(token.length!==6){setStatus('Token must be 6 characters');return}
+  stop(); currentToken=token; reconnectEnabled=true;
+  localStorage.setItem('qorvoScoreToken',token);$('token').value=token;
+  const u=new URL(location.href);u.searchParams.set('token',token);history.replaceState(null,'',u);
+  $('stage').classList.remove('connected');setStatus('Connecting to '+token+'…');
 
-async function connectToToken(rawToken,isAuto=false){
-  const token=cleanToken(rawToken);
+  try{ws=new WebSocket(SCOREBOARD_WS_URL)}
+  catch(e){return schedule()}
 
-  if(token.length!==6){
-    setStatus('Token must be 6 characters');
-    return;
-  }
-  if(isAuto && !reconnectEnabled) return;
-
-  // A manual CONNECT is the only action that turns reconnecting back on.
-  if(!isAuto) reconnectEnabled=true;
-
-  stopConnection();
-  // stopConnection increments the generation. This attempt owns the new value.
-  const generation=connectionGeneration;
-
-  currentToken=token;
-  $('token').value=token;
-  localStorage.setItem('qorvoScoreToken',token);
-
-  const url=new URL(location.href);
-  url.searchParams.set('token',token);
-  history.replaceState(null,'',url);
-
-  $('stage').classList.remove('connected');
-  setStatus('Loading network configuration…');
-
-  const servers=await loadIceServers();
-  if(generation!==connectionGeneration || !reconnectEnabled) return;
-
-  setStatus('Connecting to '+token+'…');
-
-  const thisPeer=new Peer({
-    debug:1,
-    pingInterval:5000,
-    config:{
-      iceServers:servers,
-      iceCandidatePoolSize:4
-    }
-  });
-  peer=thisPeer;
-
-  thisPeer.on('open',()=>{
-    if(generation!==connectionGeneration || peer!==thisPeer) return;
-
-    setStatus('Finding scoreboard control…');
-
-    const thisConn=thisPeer.connect(roomFor(token),{
-      reliable:true,
-      serialization:'json',
-      metadata:{token}
-    });
-    conn=thisConn;
-
-    thisConn.on('open',()=>{
-      if(generation!==connectionGeneration || conn!==thisConn) return;
-      setStatus('CONNECTED — waiting for score…');
-      $('setup').style.display='';
-      $('status').style.display='';
-      $('stage').classList.add('connected');
-
-      // Ask for state immediately instead of waiting for the next score change.
-      try{thisConn.send({type:'scoreboard-request-state'})}catch{}
-    });
-
-    thisConn.on('data',data=>{
-      if(generation!==connectionGeneration || conn!==thisConn) return;
-      apply(data);
-    });
-
-    thisConn.on('close',()=>{
-      if(generation!==connectionGeneration || conn!==thisConn) return;
-      scheduleReconnect(generation);
-    });
-
-    thisConn.on('error',err=>{
-      console.error('Data connection error:',err);
-      if(generation!==connectionGeneration || conn!==thisConn) return;
-      scheduleReconnect(generation,'Data connection failed — retrying…');
-    });
-  });
-
-  thisPeer.on('error',err=>{
-    console.error('Peer error:',err);
-    if(generation!==connectionGeneration || peer!==thisPeer) return;
-
-    if(err.type==='peer-unavailable'){
-      scheduleReconnect(generation,'Control not found — check token…');
-    }else if(err.type==='webrtc'){
-      scheduleReconnect(generation,'WebRTC/TURN connection failed — retrying…');
-    }else{
-      scheduleReconnect(generation,'Connection error — retrying…');
-    }
-  });
-
-  thisPeer.on('disconnected',()=>{
-    if(generation!==connectionGeneration || peer!==thisPeer) return;
-    // Recreate the viewer cleanly rather than PeerJS reconnecting stale state.
-    scheduleReconnect(generation,'Signalling disconnected — retrying…');
-  });
+  const mine=ws;
+  mine.onopen=()=>{
+    if(ws!==mine)return;
+    mine.send(JSON.stringify({type:'join',role:'viewer',token}));
+    setStatus('CONNECTED • '+token);
+  };
+  mine.onmessage=e=>{
+    if(ws!==mine)return;
+    let m;try{m=JSON.parse(e.data)}catch{return}
+    if(m.type==='joined')mine.send(JSON.stringify({type:'scoreboard-request-state'}));
+    apply(m);
+  };
+  mine.onerror=()=>{};
+  mine.onclose=()=>{if(ws===mine){ws=null;schedule()}};
 }
-
-/* Clicking VS is now a HARD pause:
-   no old token, peer, timer, or callback is allowed to reconnect. */
+function schedule(){
+  if(!reconnectEnabled)return;
+  $('stage').classList.remove('connected');setStatus('Disconnected — retrying…');
+  clearTimeout(retry);retry=setTimeout(()=>{if(reconnectEnabled&&currentToken)connect(currentToken)},1500);
+}
 $('vsPanel').addEventListener('click',()=>{
-  reconnectEnabled=false;
-  stopConnection();
-
-  $('stage').classList.remove('connected');
-  $('setup').style.display='block';
-  setStatus('Reconnect disabled — enter token and click CONNECT');
-  $('token').value='';
-  setTimeout(()=>$('token').focus(),50);
+  reconnectEnabled=false;stop();$('stage').classList.remove('connected');
+  $('setup').style.display='block';setStatus('Reconnect disabled — enter token and click CONNECT');
+  $('token').value='';setTimeout(()=>$('token').focus(),50);
 });
-
-$('connectBtn').onclick=()=>{
-  const token=cleanToken($('token').value);
-  if(token.length!==6){
-    setStatus('Token must be 6 characters');
-    return;
-  }
-  reconnectEnabled=true;
-  connectToToken(token,false);
-};
-
-$('token').addEventListener('keydown',e=>{
-  if(e.key==='Enter'){
-    const token=cleanToken(e.target.value);
-    if(token.length!==6){
-      setStatus('Token must be 6 characters');
-      return;
-    }
-    reconnectEnabled=true;
-    connectToToken(token,false);
-  }
-});
-$('token').addEventListener('input',e=>{
-  e.target.value=cleanToken(e.target.value);
-});
+$('connectBtn').onclick=()=>connect($('token').value);
+$('token').addEventListener('keydown',e=>{if(e.key==='Enter')connect(e.target.value)});
+$('token').addEventListener('input',e=>e.target.value=cleanToken(e.target.value));
 
 const urlToken=cleanToken(new URLSearchParams(location.search).get('token'));
 const savedToken=cleanToken(localStorage.getItem('qorvoScoreToken'));
 const startToken=urlToken||savedToken;
-
-if(startToken){
-  $('token').value=startToken;
-  connectToToken(startToken,false);
-}
+if(startToken){$('token').value=startToken;connect(startToken)}
 </script>
 </body>
 </html>
