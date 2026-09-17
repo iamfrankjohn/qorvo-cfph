@@ -10,7 +10,7 @@ async function checkOnce() {
       method: 'GET',
       cache: 'no-store',
       signal: controller.signal,
-      headers: { 'User-Agent': 'QORVO-CFPH-Health/7.83' }
+      headers: { 'User-Agent': 'QORVO-CFPH-Health/7.84' }
     });
     if (!response.ok) return false;
     const data = await response.json().catch(() => null);
