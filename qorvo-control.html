@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>QORVO Control Panel</title>
+  <link rel="icon" href="https://media.koufuprinting.com/assets/qorvo.ico">
+  <style>
+    :root{color-scheme:dark;--bg:#070a0d;--panel:#0f141a;--panel2:#131a22;--line:#27313c;--text:#f5f7fa;--muted:#94a0ad;--accent:#24f05a;--accent2:#ff6b00;--danger:#ff5a5f;--shadow:0 24px 80px rgba(0,0,0,.46)}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;font-family:Inter,Arial,sans-serif;background:radial-gradient(circle at 18% 0,#16231b 0,#090d11 33%,#06080b 70%);color:var(--text);padding:24px}
+    .shell{width:min(1180px,100%);margin:0 auto;display:grid;grid-template-columns:260px minmax(0,1fr);gap:18px}
+    .sidebar,.content{background:rgba(15,20,26,.96);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow)}
+    .sidebar{position:sticky;top:24px;height:fit-content;overflow:hidden}
+    .brand{display:flex;align-items:center;gap:12px;padding:20px;border-bottom:1px solid var(--line)}
+    .brand img{width:44px;height:44px;object-fit:contain}.brand h1{font-size:1rem;margin:0;letter-spacing:.08em}.brand p{margin:4px 0 0;color:var(--muted);font-size:.78rem}
+    .nav{padding:14px}.nav-title{font-size:.68rem;letter-spacing:.18em;color:#6f7b88;padding:6px 10px 10px;font-weight:800}
+    .nav-btn{width:100%;border:1px solid transparent;background:transparent;color:#cbd3dc;border-radius:12px;padding:12px 13px;text-align:left;display:flex;align-items:center;gap:11px;font-weight:800;cursor:pointer;margin-bottom:6px}.nav-btn:disabled{cursor:not-allowed;opacity:.42;filter:saturate(.45)}
+    .nav-btn:not(:disabled):hover{background:#141b22;border-color:#26313b}.nav-btn.active:not(:disabled){background:linear-gradient(90deg,rgba(36,240,90,.15),rgba(36,240,90,.04));border-color:rgba(36,240,90,.35);color:#fff}.nav-btn .icon{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:#0a0f13;border:1px solid #26313b;color:var(--accent);font-size:.95rem}
+    .sidebar-foot{padding:14px;border-top:1px solid var(--line)}
+    .view-site{display:flex;justify-content:center;text-decoration:none;color:#061006;background:var(--accent);font-weight:900;padding:11px 14px;border-radius:10px}
+    .content{overflow:hidden}.head{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:22px 24px;border-bottom:1px solid var(--line)}.head h2{margin:0;font-size:1.15rem;letter-spacing:.04em}.head p{margin:5px 0 0;color:var(--muted);font-size:.86rem}.head-badge{font-size:.72rem;letter-spacing:.14em;color:var(--accent);border:1px solid rgba(36,240,90,.35);background:rgba(36,240,90,.08);padding:8px 10px;border-radius:999px;font-weight:900;white-space:nowrap}
+    .body{padding:24px}.note{padding:12px 14px;border:1px solid var(--line);border-radius:12px;color:var(--muted);font-size:.9rem;background:#0a0f14}
+    .login-card{max-width:560px;margin:20px auto}.login-card .note{margin-bottom:18px}
+    .pin-lock{text-align:center;padding:8px 0 4px}.pin-lock-icon{width:66px;height:66px;margin:0 auto 14px;border-radius:18px;display:grid;place-items:center;border:1px solid rgba(36,240,90,.32);background:linear-gradient(180deg,rgba(36,240,90,.12),rgba(36,240,90,.03));color:var(--accent);font-size:1.8rem;box-shadow:0 0 34px rgba(36,240,90,.08)}.pin-lock h3{margin:0;font-size:1.08rem;letter-spacing:.14em}.pin-lock p{margin:8px auto 20px;color:var(--muted);font-size:.86rem;line-height:1.5;max-width:430px}.pin-inputs{display:flex;justify-content:center;gap:10px;margin:18px 0 8px}.pin-digit{width:58px!important;height:64px;padding:0!important;text-align:center;font-size:1.65rem;font-weight:900;line-height:64px;border-radius:13px!important;caret-color:var(--accent)}.pin-digit.filled{border-color:rgba(36,240,90,.55);background:rgba(36,240,90,.05)}.pin-digit:disabled{opacity:.45}.pin-actions{justify-content:center}.pin-actions .btn{min-width:150px}.pin-hint{font-size:.74rem;color:#6f7b88;letter-spacing:.04em;margin-top:10px}.shake{animation:pin-shake .28s linear}@keyframes pin-shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+    label{display:block;font-weight:800;font-size:.82rem;margin:16px 0 8px;color:#d8dee6}input,select{width:100%;padding:13px 14px;border-radius:11px;border:1px solid var(--line);background:#090d12;color:var(--text);outline:none}input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(36,240,90,.08)}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}.btn{border:0;border-radius:10px;padding:11px 15px;font-weight:900;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}.primary{background:var(--accent);color:#071108}.secondary{background:#202832;color:#fff;border:1px solid #303b47}.danger{background:#35171b;color:#ffd6d8;border:1px solid #6d282d}
+    #status{min-height:22px;margin-top:16px;color:var(--muted);font-size:.9rem}.ok{color:#7ee787!important}.err{color:#ff8e93!important}.hidden{display:none!important}
+    .tool-panel{display:none}.tool-panel.active{display:block}.tool-card{background:linear-gradient(180deg,#111820,#0d1218);border:1px solid var(--line);border-radius:16px;padding:20px}.tool-card h3{margin:0;font-size:1.04rem;letter-spacing:.04em}.tool-card>p{color:var(--muted);font-size:.87rem;line-height:1.5;margin:7px 0 18px}
+    .overview{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}.overview-card{padding:16px;border:1px solid var(--line);border-radius:14px;background:#0a0f14}.overview-card strong{display:block;font-size:1.3rem;margin-top:6px}.overview-card span{font-size:.72rem;letter-spacing:.12em;color:var(--muted);font-weight:900}.overview-card em{font-style:normal;color:var(--accent)}
+    .event-admin-item{margin-top:10px;padding:14px;border:1px solid var(--line);border-radius:12px;background:#0a0f14;min-height:58px}.event-admin-item strong{display:block;padding-right:90px}.event-admin-item span{color:var(--muted);font-size:.8rem;display:block;margin-top:5px}.event-admin-item button{float:right;margin-left:10px}.checkline{display:flex;align-items:center;gap:9px;margin-top:14px;color:var(--muted);font-size:.85rem}.checkline input{width:auto}.current{margin-top:20px;border-top:1px solid var(--line);padding-top:16px}.current a{color:#ff9c57;word-break:break-all}
+    .mobile-select{display:none;margin-bottom:16px}.mobile-select label{margin-top:0}
+    @media(max-width:860px){body{padding:12px}.shell{grid-template-columns:1fr}.sidebar{position:static}.nav{display:none}.sidebar-foot{display:none}.brand{border-bottom:0}.mobile-select{display:block}.overview{grid-template-columns:1fr}.content{border-radius:16px}.body{padding:18px}.head{padding:18px}.head-badge{display:none}}
+    @media(max-width:600px){.row{grid-template-columns:1fr}.actions .btn{flex:1 1 100%}.pin-inputs{gap:6px}.pin-digit{width:44px!important;height:56px;font-size:1.4rem;line-height:56px}.pin-actions .btn{min-width:0}}
+  
+    .event-modal-manager{margin-top:18px}
+    .event-modal-current{display:grid;grid-template-columns:140px 1fr;gap:16px;align-items:center;margin:16px 0;padding:14px;border:1px solid rgba(78,255,96,.14);background:#061009}
+    .event-modal-preview-wrap{position:relative;display:flex;align-items:center;justify-content:center;min-height:150px;background:#020604;border:1px solid rgba(78,255,96,.12);overflow:hidden}
+    .event-modal-preview-wrap img{display:none;width:100%;height:150px;object-fit:contain;background:#000}
+    .event-modal-preview-wrap.has-image img{display:block}
+    .event-modal-preview-wrap.has-image .event-modal-empty{display:none}
+    .event-modal-empty{padding:14px;text-align:center;color:#627168;font-size:10px;font-weight:900;letter-spacing:.12em}
+    .event-modal-current-meta{min-width:0;display:flex;flex-direction:column;gap:6px}
+    .event-modal-current-meta strong{color:#ecf4ee;font-size:14px}
+    .event-modal-current-meta span{color:#7e9084;font-size:11px;word-break:break-all}
+    #event-modal-file{padding:9px}
+    @media(max-width:620px){.event-modal-current{grid-template-columns:1fr}.event-modal-preview-wrap img{height:min(54vh,420px)}}
+
+
+    .event-modal-current{display:block}.event-modal-image-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-top:12px}
+    .event-modal-image-item{position:relative;border:1px solid rgba(78,255,96,.16);background:#020604}.event-modal-image-item img{display:block;width:100%;height:150px;object-fit:contain;background:#000}
+    .event-modal-image-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:6px}.event-modal-image-actions button{min-height:30px;border:1px solid rgba(78,255,96,.18);background:#071009;color:#b7c7bb;cursor:pointer}
+    .event-modal-image-number{position:absolute;top:6px;left:6px;padding:5px 8px;background:#020804;color:#4cff59;border:1px solid rgba(76,255,89,.45);font-size:10px;font-weight:900}
+
+    textarea{width:100%;padding:13px 14px;border-radius:11px;border:1px solid var(--line);background:#090d12;color:var(--text);outline:none;font:inherit;resize:vertical}textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(36,240,90,.08)}
+    .bracket-admin-round{margin-top:18px}.bracket-admin-round h4{margin:0 0 8px;color:var(--accent);font-size:.72rem;letter-spacing:.16em}.bracket-admin-match{display:grid;grid-template-columns:minmax(0,1fr) 68px 16px 68px auto;gap:8px;align-items:center;padding:9px;border:1px solid var(--line);border-radius:10px;background:#0a0f14;margin-top:7px}.bracket-admin-match .match-name{font-size:.8rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.bracket-admin-match input{padding:9px;text-align:center}@media(max-width:650px){.bracket-admin-match{grid-template-columns:minmax(0,1fr) 56px 12px 56px}.bracket-admin-match button{grid-column:1/-1}}
+</style>
+</head>
+<body>
+  <main class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <img src="https://media.koufuprinting.com/assets/qorvo-mark.png" alt="QORVO logo">
+        <div><h1>QORVO CONTROL</h1><p>Website Management Panel</p></div>
+      </div>
+      <nav class="nav" id="tool-nav">
+        <div class="nav-title">SELECT WHAT TO MANAGE</div>
+        <button class="nav-btn active" type="button" data-tool="featured" disabled><span class="icon">★</span><span>Featured Post</span></button>
+        <button class="nav-btn" type="button" data-tool="events" disabled><span class="icon">◫</span><span>Events & Schedule</span></button>
+        <button class="nav-btn" type="button" data-tool="tiktok" disabled><span class="icon">●</span><span>TikTok LIVE Members</span></button>
+        <button class="nav-btn" type="button" data-tool="bracket" disabled><span class="icon">⌘</span><span>Tournament Bracket</span></button>
+        <button class="nav-btn" type="button" data-tool="giveaways" disabled><span class="icon">◆</span><span>Giveaways</span></button>
+      </nav>
+      <div class="sidebar-foot"><a class="view-site" href="/">VIEW WEBSITE ↗</a></div>
+    </aside>
+
+    <section class="content">
+      <header class="head">
+        <div><h2 id="panel-title">FEATURED POST</h2><p id="panel-subtitle">Choose and manage the post pinned on the homepage.</p></div>
+        <div class="head-badge">ADMIN MODE</div>
+      </header>
+      <div class="body">
+        <section id="login-section" class="login-card">
+          <div class="pin-lock">
+            <div class="pin-lock-icon" aria-hidden="true">⌾</div>
+            <h3>QORVO ADMIN LOCK</h3>
+            <p>Enter your 6-digit administrator PIN to unlock website management.</p>
+            <div class="pin-inputs" id="pin-inputs" aria-label="6-digit administrator PIN">
+              <input class="pin-digit" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="one-time-code" aria-label="PIN digit 1">
+              <input class="pin-digit" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" aria-label="PIN digit 2">
+              <input class="pin-digit" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" aria-label="PIN digit 3">
+              <input class="pin-digit" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" aria-label="PIN digit 4">
+              <input class="pin-digit" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" aria-label="PIN digit 5">
+              <input class="pin-digit" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" aria-label="PIN digit 6">
+            </div>
+            <div class="pin-hint">Numbers only • 6 digits</div>
+            <div class="actions pin-actions"><a class="btn secondary" href="/">Back to website</a></div>
+          </div>
+        </section>
+
+        <section id="editor-section" class="hidden">
+          <div class="mobile-select">
+            <label for="mobile-tool-select">What do you want to manage?</label>
+            <select id="mobile-tool-select">
+              <option value="featured">Featured Post</option>
+              <option value="events">Events & Schedule</option>
+              <option value="tiktok">TikTok LIVE Members</option>
+              <option value="bracket">Tournament Bracket</option>
+              <option value="giveaways">Giveaways</option>
+            </select>
+          </div>
+
+          <div class="overview">
+            <div class="overview-card"><span>FEATURED POST</span><strong id="summary-featured"><em>Ready</em></strong></div>
+            <div class="overview-card"><span>EVENTS</span><strong id="summary-events">0</strong></div>
+            <div class="overview-card"><span>TIKTOK MEMBERS</span><strong id="summary-tiktok">0</strong></div>
+            <div class="overview-card"><span>BRACKET</span><strong id="summary-bracket">Not generated</strong></div>
+            <div class="overview-card"><span>GIVEAWAYS</span><strong id="summary-giveaways">0</strong></div>
+          </div>
+
+          <section class="tool-panel active" data-panel="featured">
+            <div class="tool-card">
+              <h3>Featured Facebook Post</h3>
+              <p>Change the pinned QORVO post shown in Latest Updates.</p>
+              <label for="post-url">Facebook post link</label>
+              <input id="post-url" type="url" placeholder="https://www.facebook.com/.../posts/...">
+              <div class="row">
+                <div><label for="post-label">Card label</label><input id="post-label" value="PINNED FROM QORVO" maxlength="60"></div>
+                <div><label for="post-title">Card title</label><input id="post-title" value="Featured QORVO Post" maxlength="100"></div>
+              </div>
+              <div class="actions">
+                <button class="btn primary" id="save-btn">Save Featured Post</button>
+                <button class="btn danger" id="clear-btn">Remove Featured Post</button>
+              </div>
+              <div class="current"><strong>Current:</strong> <a id="current-link" href="#" target="_blank" rel="noopener">None</a></div>
+            </div>
+          </section>
+
+          <section class="tool-panel" data-panel="events">
+            <div class="tool-card">
+              <h3>Events & Live Schedule</h3>
+              <p>Add upcoming events, live streams, giveaways or always-open activities. Dated items automatically disappear after their date passes.</p>
+              <label for="event-title">Event title</label>
+              <input id="event-title" placeholder="QORVO CFPH Game Night" maxlength="120">
+              <div class="row">
+                <div><label for="event-category">Category</label><select id="event-category"><option>COMMUNITY</option><option>EVENT</option><option>LIVE</option><option>GIVEAWAY</option><option>STREAM</option></select></div>
+                <div><label for="event-badge">Badge</label><input id="event-badge" value="CFPH" maxlength="20" placeholder="CFPH"></div>
+              </div>
+              <div class="row">
+                <div><label for="event-date">Date</label><input id="event-date" type="date"></div>
+                <div><label for="event-time">Time / note</label><input id="event-time" placeholder="8:00 PM" maxlength="30"></div>
+              </div>
+              <label for="event-url">Details / live link (optional)</label>
+              <input id="event-url" type="url" placeholder="https://www.facebook.com/...">
+              <label class="checkline"><input id="event-always" type="checkbox"> Always open (no expiration date)</label>
+              <div class="actions"><button class="btn primary" id="add-event-btn">Add Event</button><button class="btn secondary" id="save-events-btn">Save Schedule</button></div>
+              <div id="event-admin-list"></div>
+            </div>
+
+            <div class="tool-card event-modal-manager">
+              <h3>Event Announcement Modal</h3>
+              <p>Upload a poster or event photo that appears as a modal on the homepage. Replacing or removing the modal automatically cleans up the old uploaded image from GitHub.</p>
+
+              <div class="event-modal-current" id="event-modal-current">
+                <div class="event-modal-current-meta"><strong id="event-modal-current-title">No active modal</strong><span id="event-modal-current-file">Upload one or more images below.</span></div>
+                <div class="event-modal-image-list" id="event-modal-image-list"></div>
+              </div>
+
+              <label for="event-modal-title">Announcement title</label>
+              <input id="event-modal-title" maxlength="120" placeholder="QORVO Civil War 3v3">
+
+              <div class="row">
+                <div>
+                  <label for="event-modal-file">Poster / event images</label>
+                  <input id="event-modal-file" type="file" accept="image/png,image/jpeg,image/webp" multiple>
+                </div>
+                <div>
+                  <label for="event-modal-delay">Display delay (seconds)</label>
+                  <input id="event-modal-delay" type="number" min="0" max="30" step="1" value="4">
+                </div>
+              </div>
+
+              <div class="row">
+                <div>
+                  <label for="event-modal-button-label">Button text (optional)</label>
+                  <input id="event-modal-button-label" maxlength="40" placeholder="Register Here">
+                </div>
+                <div>
+                  <label for="event-modal-button-url">Button link (optional)</label>
+                  <input id="event-modal-button-url" type="url" placeholder="https://forms.gle/...">
+                </div>
+              </div>
+              <div class="note">Leave the button fields blank if you only want to show the poster. If used, the button will appear below the event image inside the modal.</div>
+
+              <div class="note">Images are optimized in your browser before upload. Only the currently active event-modal image is kept; replaced and deleted images are removed automatically.</div>
+
+              <div class="actions">
+                <button class="btn primary" id="save-event-modal-btn" type="button">Upload & Publish Modal</button>
+                <button class="btn danger" id="remove-event-modal-btn" type="button">Remove Modal & Delete Photo</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="tool-panel" data-panel="tiktok">
+            <div class="tool-card">
+              <h3>TikTok LIVE Members</h3>
+              <p>Add QORVO members whose TikTok LIVE status should be checked automatically by your self-hosted checker.</p>
+              <div class="row">
+                <div><label for="tiktok-name">Member display name</label><input id="tiktok-name" placeholder="Reed.Q" maxlength="80"></div>
+                <div><label for="tiktok-username">TikTok username</label><input id="tiktok-username" placeholder="username (without @)" maxlength="50"></div>
+              </div>
+              <div class="actions"><button class="btn primary" id="add-tiktok-btn">Add Member</button><button class="btn secondary" id="save-tiktok-btn">Save TikTok Members</button></div>
+              <div id="tiktok-admin-list"></div>
+              <div class="note" style="margin-top:14px">LIVE status is checked through your self-hosted TikTok checker. The private checker secret stays on Vercel/server-side.</div>
+            </div>
+          </section>
+          <section class="tool-panel" data-panel="bracket">
+            <div class="tool-card"><h3>Tournament Bracket</h3><p>Manage registration teams, generate the official bracket, and enter match results. <a href="/bracket.html" target="_blank" style="color:#24f05a">View public bracket ↗</a></p>
+              <div class="row"><div><label for="bracket-title">Tournament title</label><input id="bracket-title" maxlength="100" placeholder="QORVO Civil War 3v3"></div><div><label for="bracket-subtitle">Subtitle</label><input id="bracket-subtitle" maxlength="100" placeholder="In-Clan Tournament"></div></div>
+              <div class="row"><div><label for="bracket-status">Tournament status</label><select id="bracket-status"><option value="registration">Registration Open</option><option value="finalized">Teams Finalized</option><option value="ongoing">Tournament Ongoing</option><option value="completed">Completed</option></select></div><div><label>Placement match</label><label class="checkline"><input id="bracket-third" type="checkbox" checked> Include Battle for 3rd</label></div></div>
+              <div class="actions"><button class="btn primary" id="bracket-save-settings" type="button">Save Settings</button></div>
+            </div>
+            <div class="tool-card" style="margin-top:16px"><h3>Participating Teams</h3><p>Enter one team per line. You can keep editing this while registration is open.</p><label for="bracket-teams">Team list</label><textarea id="bracket-teams" rows="10" placeholder="Team A&#10;Team B&#10;Team C&#10;Team D"></textarea><div class="actions"><button class="btn primary" id="bracket-save-teams" type="button">Save Teams</button><span id="bracket-team-count" style="align-self:center;color:#94a0ad">0 teams</span></div></div>
+            <div class="tool-card" style="margin-top:16px"><h3>Generate Official Bracket</h3><p>All available teams are paired in Round 1 first. Example: 6 teams = 3 Round 1 matches. If a later round has an odd number of winners, the BYE is applied there instead. Once generated, positions remain fixed until you reset.</p><div class="actions"><button class="btn primary" id="bracket-generate-listed" type="button">Generate in Listed Order</button><button class="btn secondary" id="bracket-generate-random" type="button">Randomize & Generate</button><button class="btn danger" id="bracket-reset" type="button">Reset Bracket</button></div></div>
+            <div class="tool-card" style="margin-top:16px"><h3>Match Results</h3><p>Enter the final score for each completed match. Winners advance automatically; semifinal losers feed Battle for 3rd.</p><div id="bracket-match-admin"><div class="note">No bracket generated yet.</div></div></div>
+          </section>
+
+          <section class="tool-panel" data-panel="giveaways">
+            <div class="tool-card">
+              <h3>QORVO Giveaways</h3>
+              <p>Create and manage Supply Drops shown in QORVO Rewards.</p>
+              <div class="row">
+                <div><label for="giveaway-title">Giveaway title</label><input id="giveaway-title" placeholder="QORVO CFPH Monthly Giveaway"></div>
+                <div><label for="giveaway-prize">Prize / reward</label><input id="giveaway-prize" placeholder="Bomb Set / CCN / etc."></div>
+              </div>
+              <div class="row">
+                <div><label for="giveaway-winners">Number of winners</label><input id="giveaway-winners" type="number" min="1" placeholder="3"></div>
+                <div><label for="giveaway-status">Status</label><select id="giveaway-status"><option value="active">Active</option><option value="draft">Draft</option><option value="ended">Ended</option></select></div>
+              </div>
+              <div class="row">
+                <div><label for="giveaway-start">Start date</label><input id="giveaway-start" type="date"></div>
+                <div><label for="giveaway-end">End date</label><input id="giveaway-end" type="date"></div>
+              </div>
+              <label for="giveaway-url">Facebook / giveaway link</label><input id="giveaway-url" type="url" placeholder="https://www.facebook.com/...">
+              <label for="giveaway-description">Short description</label><textarea id="giveaway-description" rows="3" placeholder="Giveaway details"></textarea>
+              <div class="actions"><button class="btn primary" id="add-giveaway-btn">Add Giveaway</button><button class="btn secondary" id="save-giveaways-btn">Save Giveaways</button></div>
+              <div id="giveaway-admin-list"></div>
+            </div>
+          </section>
+        </section>
+        <div id="status" aria-live="polite"></div>
+      </div>
+    </section>
+  </main>
+<script>
+  const $ = (id) => document.getElementById(id);
+  let adminPin = '';
+  let pinCooldownTimer = null;
+
+  const toolMeta = {
+    featured: ['FEATURED POST', 'Choose and manage the post pinned on the homepage.'],
+    events: ['EVENTS & SCHEDULE', 'Create, remove and publish Events & Live entries.'],
+    tiktok: ['TIKTOK LIVE MEMBERS', 'Manage the TikTok accounts monitored for LIVE status.'],
+    bracket: ['TOURNAMENT BRACKET', 'Build, seed and manage the official tournament bracket.'],
+    giveaways: ['GIVEAWAYS', 'Create and manage QORVO Rewards and Supply Drops.']
+  };
+
+  function selectTool(tool) {
+    document.querySelectorAll('[data-panel]').forEach(p => p.classList.toggle('active', p.dataset.panel === tool));
+    document.querySelectorAll('[data-tool]').forEach(b => b.classList.toggle('active', b.dataset.tool === tool));
+    const meta = toolMeta[tool] || toolMeta.featured;
+    $('panel-title').textContent = meta[0];
+    $('panel-subtitle').textContent = meta[1];
+    const mobile = $('mobile-tool-select');
+    if (mobile) mobile.value = tool;
+  }
+
+  document.querySelectorAll('[data-tool]').forEach(btn => btn.addEventListener('click', () => {
+    if (!adminPin) return;
+    selectTool(btn.dataset.tool);
+  }));
+  $('mobile-tool-select')?.addEventListener('change', e => selectTool(e.target.value));
+
+  function status(message, type='') {
+    const el = $('status');
+    el.textContent = message;
+    el.className = type;
+  }
+
+  async function loadCurrent() {
+    try {
+      const response = await fetch('/api/featured-post', { cache: 'no-store' });
+      const payload = await response.json();
+      const post = payload.post || {};
+      $('post-url').value = post.url || '';
+      $('post-label').value = post.label || 'PINNED FROM QORVO';
+      $('post-title').value = post.title || 'Featured QORVO Post';
+      $('current-link').textContent = post.url || 'None';
+      $('current-link').href = post.url || '#';
+      $('summary-featured').innerHTML = post.url ? '<em>Active</em>' : 'None';
+    } catch { status('Could not load the current featured post.', 'err'); }
+  }
+
+  const pinDigits = Array.from(document.querySelectorAll('.pin-digit'));
+  let pinUnlocking = false;
+
+  function readPin() {
+    return pinDigits.map(input => input.value).join('');
+  }
+
+  function clearPin(focusFirst=true) {
+    pinDigits.forEach(input => { input.value=''; input.classList.remove('filled'); });
+    if (focusFirst) pinDigits[0]?.focus();
+  }
+
+  function setPinDisabled(disabled) {
+    pinDigits.forEach(input => input.disabled = disabled);
+  }
+
+  function startPinCooldown(seconds) {
+    clearInterval(pinCooldownTimer);
+    setPinDisabled(true);
+    let remaining = Math.max(1, Number(seconds) || 30);
+    status(`Too many incorrect attempts. Try again in ${remaining} seconds.`, 'err');
+    pinCooldownTimer = setInterval(() => {
+      remaining -= 1;
+      if (remaining <= 0) {
+        clearInterval(pinCooldownTimer);
+        pinCooldownTimer = null;
+        setPinDisabled(false);
+        clearPin(true);
+        status('You can try again.', '');
+        return;
+      }
+      status(`Too many incorrect attempts. Try again in ${remaining} seconds.`, 'err');
+    }, 1000);
+  }
+
+  async function attemptPinUnlock() {
+    const enteredPin = readPin();
+    if (!/^\d{6}$/.test(enteredPin) || pinUnlocking) return;
+
+    pinUnlocking = true;
+    status('Checking PIN...');
+    setPinDisabled(true);
+
+    try {
+      const response = await fetch('/api/admin-auth', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({pin:enteredPin})
+      });
+      const data = await response.json();
+
+      if (response.status === 429) {
+        pinUnlocking = false;
+        clearPin(false);
+        return startPinCooldown(data.retryAfter || Number(response.headers.get('Retry-After')) || 30);
+      }
+
+      if (!response.ok || !data.ok) throw new Error(data.error || 'Incorrect PIN');
+
+      adminPin = enteredPin;
+      clearPin(false);
+      $('login-section').classList.add('hidden');
+      $('editor-section').classList.remove('hidden');
+      document.querySelectorAll('[data-tool]').forEach(btn => btn.disabled = false);
+      await loadCurrent();
+      await loadEvents();
+      await loadEventModalAdmin();
+      await loadTournamentBracket();
+      await loadTikTokMembers();
+      await loadGiveawaysAdmin();
+      status('Admin panel unlocked.', 'ok');
+    } catch (error) {
+      pinUnlocking = false;
+      setPinDisabled(false);
+      clearPin(true);
+      $('pin-inputs').classList.remove('shake');
+      void $('pin-inputs').offsetWidth;
+      $('pin-inputs').classList.add('shake');
+      status(error.message, 'err');
+    }
+  }
+
+  pinDigits.forEach((input, index) => {
+    input.addEventListener('input', () => {
+      input.value = input.value.replace(/\D/g, '').slice(-1);
+      input.classList.toggle('filled', !!input.value);
+
+      if (input.value && index < pinDigits.length - 1) {
+        pinDigits[index + 1].focus();
+      }
+
+      // Lock-screen behavior: submit automatically as soon as digit 6 is entered.
+      if (readPin().length === 6) attemptPinUnlock();
+    });
+
+    input.addEventListener('keydown', event => {
+      if (event.key === 'Backspace' && !input.value && index > 0) {
+        pinDigits[index - 1].value = '';
+        pinDigits[index - 1].classList.remove('filled');
+        pinDigits[index - 1].focus();
+      }
+      if (event.key === 'ArrowLeft' && index > 0) pinDigits[index - 1].focus();
+      if (event.key === 'ArrowRight' && index < pinDigits.length - 1) pinDigits[index + 1].focus();
+      if (event.key === 'Enter' && readPin().length === 6) attemptPinUnlock();
+    });
+
+    input.addEventListener('paste', event => {
+      const pasted = (event.clipboardData?.getData('text') || '').replace(/\D/g, '').slice(0, 6);
+      if (!pasted) return;
+      event.preventDefault();
+
+      pinDigits.forEach((box, i) => {
+        box.value = pasted[i] || '';
+        box.classList.toggle('filled', !!box.value);
+      });
+
+      pinDigits[Math.min(pasted.length, 6) - 1]?.focus();
+      if (pasted.length === 6) attemptPinUnlock();
+    });
+  });
+
+  pinDigits[0]?.focus();
+
+  async function save(enabled) {
+    const url = $('post-url').value.trim();
+    if (enabled && !url) return status('Paste a Facebook post link first.', 'err');
+    status(enabled ? 'Saving...' : 'Removing featured post...');
+    try {
+      const response = await fetch('/api/featured-post', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({ pin:adminPin, url, label:$('post-label').value, title:$('post-title').value, enabled })
+      });
+      const data = await response.json();
+      if (!response.ok || !data.ok) throw new Error(data.error || 'Save failed');
+      await loadCurrent();
+      status(enabled ? 'Featured post saved. The homepage can use it immediately.' : 'Featured post removed.', 'ok');
+    } catch (error) { status(error.message, 'err'); }
+  }
+
+
+  let events = [];
+  function renderEventsAdmin() {
+    const box = $('event-admin-list');
+    $('summary-events').textContent = events.length;
+    if (!events.length) { box.innerHTML = '<div class="note" style="margin-top:14px">No events added yet.</div>'; return; }
+    box.innerHTML = events.map((e,i) => `<div class="event-admin-item"><button class="btn danger" type="button" data-remove-event="${i}">Remove</button><strong>${e.title}</strong><span>${e.alwaysOpen ? 'ALWAYS OPEN' : (e.date || 'TBA')} · ${e.category || 'COMMUNITY'} · ${e.badge || 'CFPH'}${e.time ? ' · '+e.time : ''}</span></div>`).join('');
+  }
+  async function loadEvents() {
+    try { const r=await fetch('/api/events',{cache:'no-store'}); const d=await r.json(); events=Array.isArray(d.events)?d.events:[]; renderEventsAdmin(); }
+    catch { status('Could not load the event schedule.', 'err'); }
+  }
+  $('add-event-btn').addEventListener('click', () => {
+    const title=$('event-title').value.trim(); if(!title) return status('Enter an event title first.','err');
+    const alwaysOpen=$('event-always').checked; const date=$('event-date').value;
+    if(!alwaysOpen && !date) return status('Choose a date or mark the event as Always open.','err');
+    events.push({id:`${Date.now()}-${Math.random().toString(36).slice(2,7)}`,title,category:$('event-category').value,badge:$('event-badge').value.trim()||'CFPH',date:alwaysOpen?'':date,time:$('event-time').value.trim(),url:$('event-url').value.trim(),alwaysOpen,enabled:true});
+    ['event-title','event-date','event-time','event-url'].forEach(id=>$(id).value=''); $('event-always').checked=false; renderEventsAdmin(); status('Event added locally. Click Save Schedule to publish it.','ok');
+  });
+  $('event-admin-list').addEventListener('click',e=>{ const b=e.target.closest('[data-remove-event]'); if(!b)return; events.splice(Number(b.dataset.removeEvent),1); renderEventsAdmin(); status('Event removed locally. Click Save Schedule to publish the change.','ok'); });
+  $('save-events-btn').addEventListener('click', async()=>{
+    status('Saving schedule...');
+    try { const r=await fetch('/api/events',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pin:adminPin,events})}); const d=await r.json(); if(!r.ok||!d.ok)throw new Error(d.error||'Save failed'); events=d.events||events; renderEventsAdmin(); status('Event schedule saved. The website will update automatically.','ok'); }
+    catch(e){status(e.message,'err');}
+  });
+
+
+  let eventModal=null,eventModalItems=[];
+  const modalImages=m=>Array.isArray(m?.images)&&m.images.length?m.images:(m?.imageUrl?[{imagePath:m.imagePath,imageUrl:m.imageUrl}]:[]);
+  function renderEventModalAdmin(){
+    const list=$('event-modal-image-list');list.innerHTML='';
+    if(!eventModalItems.length)list.innerHTML='<div class="event-modal-empty">NO EVENT MODAL IMAGES</div>';
+    eventModalItems.forEach((item,i)=>{const card=document.createElement('div');card.className='event-modal-image-item';card.innerHTML=`<span class="event-modal-image-number">${i+1}</span><img alt="Event image ${i+1}"><div class="event-modal-image-actions"><button type="button">←</button><button type="button">→</button><button type="button">×</button></div>`;card.querySelector('img').src=item.previewUrl;const b=card.querySelectorAll('button');b[0].disabled=i===0;b[1].disabled=i===eventModalItems.length-1;b[0].onclick=()=>{[eventModalItems[i-1],eventModalItems[i]]=[eventModalItems[i],eventModalItems[i-1]];renderEventModalAdmin()};b[1].onclick=()=>{[eventModalItems[i],eventModalItems[i+1]]=[eventModalItems[i+1],eventModalItems[i]];renderEventModalAdmin()};b[2].onclick=()=>{if(item.type==='new')URL.revokeObjectURL(item.previewUrl);eventModalItems.splice(i,1);renderEventModalAdmin()};list.appendChild(card)});
+    $('event-modal-current-title').textContent=eventModal?.title||'Event modal';$('event-modal-current-file').textContent=`${eventModalItems.length} image${eventModalItems.length===1?'':'s'}`;
+    $('remove-event-modal-btn').disabled=!eventModal?.imageUrl;
+    if(eventModal){$('event-modal-title').value=eventModal.title||'';$('event-modal-delay').value=eventModal.delaySeconds??4;$('event-modal-button-label').value=eventModal.buttonLabel||'';$('event-modal-button-url').value=eventModal.buttonUrl||''}
+  }
+  async function loadEventModalAdmin(){try{const r=await fetch(`/api/event-modal?t=${Date.now()}`,{cache:'no-store'}),d=await r.json();eventModal=d.modal||null;eventModalItems=modalImages(eventModal).map(x=>({type:'existing',imagePath:x.imagePath,imageUrl:x.imageUrl,previewUrl:x.imageUrl}));renderEventModalAdmin()}catch{status('Could not load event modal.','err')}}
+  function readFileAsDataUrl(b){return new Promise((r,j)=>{const x=new FileReader();x.onload=()=>r(x.result);x.onerror=j;x.readAsDataURL(b)})}
+  async function optimizeEventModalImage(file){if(!/^image\/(png|jpeg|webp)$/.test(file.type))throw new Error('Use PNG, JPG, or WebP.');const u=URL.createObjectURL(file);try{const im=new Image();await new Promise((r,j)=>{im.onload=r;im.onerror=j;im.src=u});const sc=Math.min(1,1800/Math.max(im.naturalWidth,im.naturalHeight)),c=document.createElement('canvas');c.width=Math.round(im.naturalWidth*sc);c.height=Math.round(im.naturalHeight*sc);const x=c.getContext('2d',{alpha:false});x.fillStyle='#000';x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);const b=await new Promise(r=>c.toBlob(r,'image/webp',.9));return readFileAsDataUrl(b)}finally{URL.revokeObjectURL(u)}}
+  $('event-modal-file').addEventListener('change',e=>{const fs=[...(e.target.files||[])],room=12-eventModalItems.length;fs.slice(0,room).forEach(file=>eventModalItems.push({type:'new',file,previewUrl:URL.createObjectURL(file)}));e.target.value='';renderEventModalAdmin()});
+  $('save-event-modal-btn').addEventListener('click',async()=>{if(!eventModalItems.length)return status('Choose at least one image.','err');const btn=$('save-event-modal-btn');btn.disabled=true;try{const keepImagePaths=eventModalItems.filter(x=>x.type==='existing').map(x=>x.imagePath),imageDataList=[];for(const x of eventModalItems.filter(x=>x.type==='new'))imageDataList.push(await optimizeEventModalImage(x.file));const r=await fetch('/api/event-modal',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pin:adminPin,title:$('event-modal-title').value.trim(),delaySeconds:Number($('event-modal-delay').value||4),buttonLabel:$('event-modal-button-label').value.trim(),buttonUrl:$('event-modal-button-url').value.trim(),keepImagePaths,imageDataList})}),d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||'Could not publish.');eventModal=d.modal;eventModalItems=modalImages(eventModal).map(x=>({type:'existing',imagePath:x.imagePath,imageUrl:x.imageUrl,previewUrl:x.imageUrl}));renderEventModalAdmin();status('Multi-image event modal published.','ok')}catch(e){status(e.message,'err')}finally{btn.disabled=false}});
+  $('remove-event-modal-btn').addEventListener('click',async()=>{if(!eventModal?.imageUrl||!confirm('Remove this modal and permanently delete all its photos?'))return;const r=await fetch('/api/event-modal',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({pin:adminPin})}),d=await r.json();if(!r.ok||!d.ok)return status(d.error||'Could not remove.','err');eventModal=null;eventModalItems=[];renderEventModalAdmin();status('Modal and all photos deleted.','ok')});
+
+  let tournamentBracket=null;
+  const bracketTeamName=id=>tournamentBracket?.teams?.find(t=>t.id===id)?.name||'TBD';
+  function makeBracketMatchRow(m){const row=document.createElement('div');row.className='bracket-admin-match';const n=document.createElement('span');n.className='match-name';n.textContent=`${bracketTeamName(m.teamA)} vs ${bracketTeamName(m.teamB)}`;const a=document.createElement('input');a.type='number';a.min='0';a.step='1';a.value=m.scoreA??'';const dash=document.createElement('span');dash.textContent='–';const b=document.createElement('input');b.type='number';b.min='0';b.step='1';b.value=m.scoreB??'';const save=document.createElement('button');save.type='button';save.className='btn secondary';save.textContent=m.completed?'Update Result':'Save Result';const ready=Boolean(m.teamA&&m.teamB);a.disabled=b.disabled=save.disabled=!ready;save.onclick=()=>bracketAction({action:'result',matchId:m.id,scoreA:Number(a.value),scoreB:Number(b.value)},'Saving result...');row.append(n,a,dash,b,save);return row}
+  function renderBracketAdmin(){if(!tournamentBracket)return;$('bracket-title').value=tournamentBracket.title||'';$('bracket-subtitle').value=tournamentBracket.subtitle||'';$('bracket-status').value=tournamentBracket.status||'registration';$('bracket-third').checked=tournamentBracket.thirdPlace!==false;$('bracket-teams').value=(tournamentBracket.teams||[]).map(t=>t.name).join('\n');$('bracket-team-count').textContent=`${tournamentBracket.teams?.length||0} teams`;$('summary-bracket').textContent=tournamentBracket.bracket?'Generated':'Not generated';$('bracket-teams').disabled=$('bracket-save-teams').disabled=Boolean(tournamentBracket.bracket);const box=$('bracket-match-admin');box.innerHTML='';if(!tournamentBracket.bracket){box.innerHTML='<div class="note">No bracket generated yet.</div>';return}(tournamentBracket.bracket.rounds||[]).forEach(r=>{const s=document.createElement('div');s.className='bracket-admin-round';const x=document.createElement('h4');x.textContent=r.name;s.appendChild(x);r.matches.forEach(m=>s.appendChild(makeBracketMatchRow(m)));box.appendChild(s)});if(tournamentBracket.bracket.thirdPlace){const s=document.createElement('div');s.className='bracket-admin-round';const x=document.createElement('h4');x.textContent='BATTLE FOR 3RD';s.append(x,makeBracketMatchRow(tournamentBracket.bracket.thirdPlace));box.appendChild(s)}}
+  async function loadTournamentBracket(){try{const r=await fetch(`/api/tournament-bracket?t=${Date.now()}`,{cache:'no-store'}),d=await r.json();tournamentBracket=d.tournament;renderBracketAdmin()}catch{status('Could not load tournament bracket.','err')}}
+  async function bracketAction(payload,msg){status(msg);try{const r=await fetch('/api/tournament-bracket',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pin:adminPin,...payload})}),d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||'Bracket update failed.');tournamentBracket=d.tournament;renderBracketAdmin();status('Tournament bracket updated.','ok')}catch(e){status(e.message,'err')}}
+  $('bracket-save-settings').onclick=()=>bracketAction({action:'save-settings',title:$('bracket-title').value,subtitle:$('bracket-subtitle').value,status:$('bracket-status').value,thirdPlace:$('bracket-third').checked},'Saving tournament settings...');
+  $('bracket-save-teams').onclick=()=>bracketAction({action:'save-teams',teams:$('bracket-teams').value.split(/\n+/).map(x=>x.trim()).filter(Boolean)},'Saving teams...');
+  $('bracket-generate-listed').onclick=()=>{if(confirm('Generate and lock the official bracket using the listed team order?'))bracketAction({action:'generate',randomize:false,thirdPlace:$('bracket-third').checked},'Generating bracket...')};
+  $('bracket-generate-random').onclick=()=>{if(confirm('Randomize all current teams and generate the official bracket?'))bracketAction({action:'generate',randomize:true,thirdPlace:$('bracket-third').checked},'Randomizing teams...')};
+  $('bracket-reset').onclick=()=>{if(confirm('Reset the bracket? All bracket positions and match results will be cleared, but the team list will remain.'))bracketAction({action:'reset'},'Resetting bracket...')};
+
+  let tiktokMembers = [];
+  function escHtml(v='') { return String(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c])); }
+  function renderTikTokMembers() {
+    const box=$('tiktok-admin-list');
+    $('summary-tiktok').textContent = tiktokMembers.length;
+    if(!tiktokMembers.length){ box.innerHTML='<div class="note" style="margin-top:14px">No TikTok members added yet.</div>'; return; }
+    box.innerHTML=tiktokMembers.map((m,i)=>`<div class="event-admin-item"><button class="btn danger" type="button" data-remove-tiktok="${i}">Remove</button><strong>${escHtml(m.name||m.username)}</strong><span>@${escHtml(m.username)} · LIVE MONITORING ON</span></div>`).join('');
+  }
+  async function loadTikTokMembers(){
+    try{ const r=await fetch('/api/tiktok-members',{cache:'no-store'}); const d=await r.json(); tiktokMembers=Array.isArray(d.members)?d.members:[]; renderTikTokMembers(); }
+    catch{ status('Could not load TikTok members.','err'); }
+  }
+  $('add-tiktok-btn').addEventListener('click',()=>{
+    const username=$('tiktok-username').value.trim().replace(/^@+/,'');
+    const name=$('tiktok-name').value.trim() || username;
+    if(!username) return status('Enter a TikTok username first.','err');
+    if(tiktokMembers.some(m=>String(m.username).toLowerCase()===username.toLowerCase())) return status('That TikTok username is already in the list.','err');
+    tiktokMembers.push({id:`${Date.now()}-${Math.random().toString(36).slice(2,8)}`,name,username,enabled:true});
+    $('tiktok-name').value=''; $('tiktok-username').value=''; renderTikTokMembers(); status('Member added. Click Save TikTok Members.','ok');
+  });
+  $('tiktok-admin-list').addEventListener('click',e=>{ const b=e.target.closest('[data-remove-tiktok]'); if(!b)return; tiktokMembers.splice(Number(b.dataset.removeTiktok),1); renderTikTokMembers(); });
+  $('save-tiktok-btn').addEventListener('click',async()=>{
+    status('Saving TikTok members...');
+    try{ const r=await fetch('/api/tiktok-members',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pin:adminPin,members:tiktokMembers})}); const d=await r.json(); if(!r.ok||!d.ok) throw new Error(d.error||'Save failed'); tiktokMembers=d.members||[]; renderTikTokMembers(); status('TikTok members saved. LIVE detection is active.','ok'); }
+    catch(e){ status(e.message,'err'); }
+  });
+
+
+  let giveaways=[];
+  function renderGiveawaysAdmin(){
+    const box=$('giveaway-admin-list'); $('summary-giveaways').textContent=giveaways.length;
+    if(!giveaways.length){box.innerHTML='<div class="note" style="margin-top:14px">No giveaways added yet.</div>';return;}
+    box.innerHTML=giveaways.map((g,i)=>`<div class="event-admin-item"><button class="btn danger" type="button" data-remove-giveaway="${i}">Remove</button><strong>${escHtml(g.title||'Untitled Giveaway')}</strong><span>${escHtml((g.status||'active').toUpperCase())}${g.endDate?' · ENDS '+escHtml(g.endDate):''}</span></div>`).join('');
+  }
+  async function loadGiveawaysAdmin(){try{const r=await fetch('/api/giveaways',{cache:'no-store'});const d=await r.json();giveaways=Array.isArray(d.giveaways)?d.giveaways:[];renderGiveawaysAdmin();}catch{status('Could not load giveaways.','err');}}
+  $('add-giveaway-btn').addEventListener('click',()=>{
+    const title=$('giveaway-title').value.trim();if(!title)return status('Enter a giveaway title first.','err');
+    giveaways.push({id:`${Date.now()}-${Math.random().toString(36).slice(2,7)}`,title,prize:$('giveaway-prize').value.trim(),winners:$('giveaway-winners').value.trim(),status:$('giveaway-status').value,startDate:$('giveaway-start').value,endDate:$('giveaway-end').value,url:$('giveaway-url').value.trim(),description:$('giveaway-description').value.trim(),enabled:true});
+    ['giveaway-title','giveaway-prize','giveaway-winners','giveaway-start','giveaway-end','giveaway-url','giveaway-description'].forEach(id=>$(id).value='');renderGiveawaysAdmin();status('Giveaway added locally. Click Save Giveaways to publish it.','ok');
+  });
+  $('giveaway-admin-list').addEventListener('click',e=>{const b=e.target.closest('[data-remove-giveaway]');if(!b)return;giveaways.splice(Number(b.dataset.removeGiveaway),1);renderGiveawaysAdmin();});
+  $('save-giveaways-btn').addEventListener('click',async()=>{status('Saving giveaways...');try{const r=await fetch('/api/giveaways',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pin:adminPin,giveaways})});const d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||'Save failed');giveaways=d.giveaways||giveaways;renderGiveawaysAdmin();status('Giveaways saved. QORVO Rewards will update automatically.','ok');}catch(e){status(e.message,'err');}});
+
+  $('save-btn').addEventListener('click', () => save(true));
+  $('clear-btn').addEventListener('click', () => save(false));
+</script>
+</body>
+</html>

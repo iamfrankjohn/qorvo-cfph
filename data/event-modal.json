@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "title": "𝗤𝗢𝗥𝗩𝗢 𝗖𝗙𝗣𝗛 // 𝗖𝗜𝗩𝗜𝗟 𝗪𝗔𝗥 𝟯𝘃𝟯",
+  "imagePath": "assets/event-modals/event-modal-1789303135930-1.webp",
+  "imageUrl": "/assets/event-modals/event-modal-1789303135930-1.webp",
+  "images": [
+    {
+      "imagePath": "assets/event-modals/event-modal-1789303135930-1.webp",
+      "imageUrl": "/assets/event-modals/event-modal-1789303135930-1.webp"
+    }
+  ],
+  "delaySeconds": 2,
+  "buttonLabel": "",
+  "buttonUrl": "",
+  "updatedAt": "2026-09-13T12:38:56.853Z"
+}

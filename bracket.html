@@ -1,0 +1,2114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#040805">
+<title>QORVO CFPH // Tournament Bracket</title>
+<link rel="icon" href="https://media.koufuprinting.com/assets/qorvo.ico">
+<style>
+:root{
+  --g:#4cff59;
+  --g2:#28d842;
+  --bg:#020403;
+  --panel:#071009;
+  --panel2:#0a140d;
+  --text:#eef5f0;
+  --muted:#7f9186;
+  --line:rgba(76,255,89,.30);
+  --line-soft:rgba(76,255,89,.14);
+  --gold:#d7b741;
+  --silver:#cbd4ce;
+  --bronze:#bd7938;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  min-height:100vh;
+  background:
+    radial-gradient(circle at 50% -15%,rgba(76,255,89,.14),transparent 34%),
+    linear-gradient(180deg,#050906 0%,#020403 60%,#010201 100%);
+  color:var(--text);
+  font-family:Inter,Arial,sans-serif;
+}
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  background:
+    linear-gradient(rgba(76,255,89,.016) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(76,255,89,.012) 1px,transparent 1px);
+  background-size:30px 30px;
+  mask-image:linear-gradient(to bottom,#000,transparent 86%);
+}
+a{color:inherit}
+.site-head{
+  position:sticky;
+  top:0;
+  z-index:50;
+  height:68px;
+  padding:0 clamp(16px,4vw,54px);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  border-bottom:1px solid var(--line-soft);
+  background:rgba(3,6,4,.91);
+  backdrop-filter:blur(14px);
+}
+.brand{display:flex;align-items:center;gap:11px;text-decoration:none}
+.brand img{width:38px;height:38px;object-fit:contain}
+.brand strong{display:block;font-size:14px;letter-spacing:.15em}
+.brand small{display:block;margin-top:2px;color:var(--muted);font-size:8px;letter-spacing:.14em}
+.back{
+  padding:9px 11px;
+  border:1px solid rgba(76,255,89,.18);
+  text-decoration:none;
+  color:#aebbb2;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.14em;
+}
+.back:hover{color:var(--g);border-color:var(--g)}
+.hero{
+  max-width:1500px;
+  margin:auto;
+  padding:48px clamp(16px,4vw,54px) 24px;
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:28px;
+  align-items:end;
+}
+.kicker{color:var(--g);font-size:9px;font-weight:900;letter-spacing:.22em}
+.hero h1{
+  margin:8px 0;
+  font-size:clamp(34px,5vw,70px);
+  line-height:.9;
+  text-transform:uppercase;
+  letter-spacing:-.025em;
+}
+.hero h1 span{color:var(--g)}
+.subtitle{color:#9daaa1;font-size:11px;letter-spacing:.18em;text-transform:uppercase}
+.hero-meta{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.pill{
+  padding:8px 10px;
+  border:1px solid rgba(76,255,89,.22);
+  background:rgba(7,16,9,.65);
+  color:#aebbb2;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.pill.active{color:var(--g);border-color:rgba(76,255,89,.45)}
+.main{max-width:1580px;margin:auto;padding:0 clamp(10px,3vw,38px) 66px}
+.reg-card{
+  max-width:760px;
+  margin:34px auto;
+  padding:36px;
+  border:1px solid var(--line);
+  background:linear-gradient(180deg,rgba(9,18,12,.97),rgba(4,9,6,.97));
+  text-align:center;
+}
+.reg-count{font-size:58px;font-weight:900;line-height:1;color:var(--g)}
+.reg-label{margin-top:7px;color:#afbeb4;font-size:10px;font-weight:900;letter-spacing:.18em}
+.reg-card p{max-width:570px;margin:18px auto 0;color:var(--muted);line-height:1.7;font-size:13px}
+
+/* BRACKET SHELL */
+.bracket-shell{
+  border:1px solid rgba(76,255,89,.18);
+  background:rgba(2,6,4,.84);
+  overflow:hidden;
+}
+.bracket-toolbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:14px 17px;
+  border-bottom:1px solid rgba(76,255,89,.15);
+  background:linear-gradient(90deg,#071009,#050a07);
+}
+.bracket-toolbar strong{font-size:10px;letter-spacing:.16em}
+.bracket-toolbar span{font-size:8px;color:#66746b;letter-spacing:.11em}
+.scroller{
+  overflow-x:auto;
+  overscroll-behavior-inline:contain;
+  padding:28px 24px 36px;
+  scrollbar-color:#285d31 #061009;
+}
+.bracket-stage{
+  position:relative;
+  width:max-content;
+  min-width:100%;
+}
+.bracket{
+  position:relative;
+  z-index:2;
+  display:flex;
+  gap:78px;
+  align-items:stretch;
+  width:max-content;
+  min-width:100%;
+}
+.bracket-connections{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  pointer-events:none;
+  overflow:visible;
+}
+.connector{
+  fill:none;
+  stroke:rgba(76,255,89,.54);
+  stroke-width:1.5;
+  vector-effect:non-scaling-stroke;
+  filter:drop-shadow(0 0 3px rgba(76,255,89,.18));
+}
+.connector.pending{stroke:rgba(76,255,89,.18);stroke-dasharray:4 4}
+
+/* ROUNDS */
+.round{
+  min-width:250px;
+  display:flex;
+  flex-direction:column;
+}
+.round-head{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  margin-bottom:18px;
+  min-height:30px;
+}
+.round-num{
+  width:29px;
+  height:29px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(76,255,89,.38);
+  background:#061009;
+  color:var(--g);
+  font-size:9px;
+  font-weight:900;
+}
+.round-name{font-size:10px;font-weight:900;letter-spacing:.17em}
+.round-count{margin-left:auto;color:#617067;font-size:8px;letter-spacing:.09em}
+.matches{
+  display:flex;
+  flex-direction:column;
+  justify-content:space-around;
+  gap:24px;
+  flex:1;
+  min-height:260px;
+  padding-block:6px;
+}
+.match{
+  position:relative;
+  width:250px;
+  border:1px solid rgba(76,255,89,.22);
+  background:linear-gradient(180deg,#0a150d,#050906);
+  box-shadow:inset 3px 0 0 rgba(76,255,89,.48),0 10px 28px rgba(0,0,0,.16);
+}
+.match::before,
+.match::after{
+  content:"";
+  position:absolute;
+  top:50%;
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#071009;
+  border:1px solid rgba(76,255,89,.48);
+  transform:translateY(-50%);
+  z-index:3;
+}
+.match::before{left:-5px}
+.match::after{right:-5px}
+.first-round .match::before{display:none}
+.final-round .match::after{display:none}
+.match-label{
+  padding:7px 10px;
+  border-bottom:1px solid rgba(255,255,255,.05);
+  color:#627168;
+  font-size:8px;
+  letter-spacing:.13em;
+}
+.team{
+  height:44px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 11px;
+  gap:12px;
+}
+.team+.team{border-top:1px solid rgba(255,255,255,.06)}
+.team-name{
+  max-width:190px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:12px;
+  font-weight:900;
+}
+.score{min-width:18px;text-align:right;font-size:13px;font-weight:900}
+.team.winner{
+  color:var(--g);
+  background:linear-gradient(90deg,rgba(76,255,89,.10),transparent);
+}
+.team.tbd{color:#56645b}
+
+/* FINAL STANDINGS */
+.podium-round{
+  min-width:310px;
+  display:flex;
+  flex-direction:column;
+}
+.podium-stack{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:12px;
+  flex:1;
+  min-height:260px;
+}
+.podium-card{
+  padding:17px 17px 16px;
+  border:1px solid rgba(255,255,255,.1);
+  background:linear-gradient(180deg,#0b110d,#050806);
+}
+.podium-card small{display:block;margin-bottom:7px;font-size:8px;font-weight:900;letter-spacing:.17em}
+.podium-card strong{display:block;font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.podium-card.champion{border-color:rgba(215,183,65,.5);box-shadow:inset 3px 0 0 var(--gold)}
+.podium-card.champion small{color:var(--gold)}
+.podium-card.second{border-color:rgba(203,212,206,.28);box-shadow:inset 3px 0 0 var(--silver)}
+.podium-card.second small{color:var(--silver)}
+.podium-card.third{border-color:rgba(189,121,56,.4);box-shadow:inset 3px 0 0 var(--bronze)}
+.podium-card.third small{color:var(--bronze)}
+.podium-card.pending strong{color:#56645b}
+
+/* THIRD PLACE */
+.third-match{
+  display:flex;
+  justify-content:center;
+  margin-top:22px;
+}
+.third-block{
+  width:min(100%,620px);
+  padding:18px;
+  border:1px solid rgba(189,121,56,.20);
+  background:linear-gradient(180deg,rgba(45,25,10,.20),rgba(6,8,6,.7));
+}
+.third-title{
+  text-align:center;
+  color:var(--bronze);
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.18em;
+  margin-bottom:11px;
+}
+.third-block .match{width:100%;box-shadow:inset 3px 0 0 rgba(189,121,56,.55)}
+.third-block .match::before,.third-block .match::after{display:none}
+
+.updated{text-align:center;margin-top:22px;color:#536057;font-size:8px;letter-spacing:.12em}
+
+@media(max-width:760px){
+  .site-head{height:60px}
+  .brand span{display:none}
+  .hero{grid-template-columns:1fr;padding-top:34px}
+  .hero-meta{justify-content:flex-start}
+  .scroller{padding:22px 14px 30px}
+  .bracket{gap:62px}
+  .round{min-width:220px}
+  .match{width:220px}
+  .team-name{max-width:160px}
+  .podium-round{min-width:270px}
+  .bracket-toolbar span{display:none}
+}
+</style>
+
+<style>
+/* WEB v7.6 — podium-style Final Standings */
+.podium-round{
+  min-width:760px !important;
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:center !important;
+}
+
+.podium-round .round-head{
+  justify-content:center !important;
+  margin-bottom:26px !important;
+}
+
+.podium-round .round-num{
+  display:none !important;
+}
+
+.podium-round .round-name{
+  color:#dbe5de !important;
+  font-size:11px !important;
+  letter-spacing:.20em !important;
+}
+
+.podium-stack{
+  display:grid !important;
+  grid-template-columns:repeat(3,minmax(210px,1fr)) !important;
+  gap:18px !important;
+  align-items:stretch !important;
+  min-height:0 !important;
+}
+
+.podium-card{
+  position:relative !important;
+  min-height:190px !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:52px 20px 22px !important;
+  text-align:center !important;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.008)),
+    #050806 !important;
+  clip-path:polygon(12px 0,calc(100% - 12px) 0,100% 12px,100% calc(100% - 12px),calc(100% - 12px) 100%,12px 100%,0 calc(100% - 12px),0 12px) !important;
+  box-shadow:none !important;
+}
+
+.podium-card::before{
+  content:"♛";
+  position:absolute;
+  top:-26px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:3;
+  font-family:Georgia,serif;
+  font-size:64px;
+  line-height:1;
+  text-shadow:0 4px 18px rgba(0,0,0,.65);
+}
+
+.podium-card::after{
+  content:"";
+  position:absolute;
+  inset:7px;
+  pointer-events:none;
+  clip-path:inherit;
+  border:1px solid currentColor;
+  opacity:.45;
+}
+
+.podium-card small{
+  margin:0 0 14px !important;
+  font-size:16px !important;
+  line-height:1.05 !important;
+  font-weight:900 !important;
+  letter-spacing:.08em !important;
+  font-style:italic !important;
+  text-transform:uppercase !important;
+}
+
+.podium-card strong{
+  width:100% !important;
+  font-size:25px !important;
+  line-height:1.05 !important;
+  font-weight:950 !important;
+  letter-spacing:.02em !important;
+  white-space:normal !important;
+  overflow:visible !important;
+  text-overflow:clip !important;
+  text-transform:uppercase !important;
+}
+
+.podium-card.champion{
+  color:#e6c126 !important;
+  border:2px solid #c5a51c !important;
+  background:
+    radial-gradient(circle at 50% 0,rgba(230,193,38,.16),transparent 42%),
+    linear-gradient(180deg,#171503,#060702 72%) !important;
+}
+
+.podium-card.champion::before{color:#ffd72f !important}
+.podium-card.champion small{color:#f0d652 !important}
+.podium-card.champion strong{color:#fff7cf !important}
+
+.podium-card.second{
+  color:#cfd6d2 !important;
+  border:2px solid #9ea9a3 !important;
+  background:
+    radial-gradient(circle at 50% 0,rgba(207,214,210,.13),transparent 42%),
+    linear-gradient(180deg,#151918,#070908 72%) !important;
+}
+
+.podium-card.second::before{color:#e8eeeb !important}
+.podium-card.second small{color:#e0e6e2 !important}
+.podium-card.second strong{color:#f4f6f5 !important}
+
+.podium-card.third{
+  color:#d27625 !important;
+  border:2px solid #a85a18 !important;
+  background:
+    radial-gradient(circle at 50% 0,rgba(210,118,37,.14),transparent 42%),
+    linear-gradient(180deg,#1a0d04,#080503 72%) !important;
+}
+
+.podium-card.third::before{color:#f28a26 !important}
+.podium-card.third small{color:#e39654 !important}
+.podium-card.third strong{color:#ffe3cc !important}
+
+.podium-card.pending strong{
+  color:#68746c !important;
+}
+
+@media(max-width:900px){
+  .podium-round{min-width:680px !important}
+  .podium-stack{grid-template-columns:repeat(3,minmax(190px,1fr)) !important}
+  .podium-card{min-height:170px !important;padding:46px 14px 18px !important}
+  .podium-card::before{font-size:54px !important;top:-22px !important}
+  .podium-card small{font-size:13px !important}
+  .podium-card strong{font-size:20px !important}
+}
+</style>
+
+
+<style>
+/* WEB v7.7 — compact Final Standings + compact Battle for 3rd */
+.podium-round{min-width:600px !important}
+.podium-round .round-head{margin-bottom:20px !important}
+.podium-round .round-name{font-size:10px !important;letter-spacing:.18em !important}
+.podium-stack{grid-template-columns:repeat(3,minmax(170px,1fr)) !important;gap:12px !important}
+.podium-card{min-height:150px !important;padding:40px 14px 16px !important}
+.podium-card::before{top:-18px !important;font-size:48px !important}
+.podium-card::after{inset:6px !important}
+.podium-card small{margin-bottom:10px !important;font-size:12px !important;letter-spacing:.07em !important}
+.podium-card strong{font-size:19px !important}
+
+.third-match{margin-top:18px !important}
+.third-block{width:min(100%,480px) !important;padding:12px !important}
+.third-title{margin-bottom:8px !important;font-size:8px !important;letter-spacing:.16em !important}
+.third-block .match{width:100% !important}
+.third-block .match-label{padding:6px 9px !important;font-size:7px !important}
+.third-block .team{height:38px !important;padding:0 10px !important}
+.third-block .team-name{font-size:11px !important}
+.third-block .score{font-size:12px !important}
+
+@media(max-width:900px){
+  .podium-round{min-width:560px !important}
+  .podium-stack{grid-template-columns:repeat(3,minmax(160px,1fr)) !important}
+  .podium-card{min-height:140px !important;padding:36px 12px 14px !important}
+  .podium-card::before{font-size:42px !important;top:-16px !important}
+  .podium-card small{font-size:11px !important}
+  .podium-card strong{font-size:17px !important}
+  .third-block{width:min(100%,440px) !important}
+}
+</style>
+
+
+<style>
+/* WEB v7.8 — shorter Final Standings + narrower Battle for 3rd */
+.podium-round{
+  align-self:center !important;
+  min-width:560px !important;
+  flex:0 0 auto !important;
+}
+
+.podium-stack{
+  flex:none !important;
+  min-height:0 !important;
+  align-items:stretch !important;
+}
+
+.podium-card{
+  min-height:118px !important;
+  padding:30px 12px 12px !important;
+}
+
+.podium-card::before{
+  top:-14px !important;
+  font-size:38px !important;
+}
+
+.podium-card small{
+  margin-bottom:7px !important;
+  font-size:10px !important;
+}
+
+.podium-card strong{
+  font-size:16px !important;
+}
+
+.third-block{
+  width:min(100%,380px) !important;
+  padding:10px !important;
+}
+
+.third-block .match-label{
+  padding:5px 8px !important;
+}
+
+.third-block .team{
+  height:34px !important;
+  padding:0 9px !important;
+}
+
+.third-block .team-name{
+  font-size:10px !important;
+}
+
+.third-block .score{
+  font-size:11px !important;
+}
+
+@media(max-width:900px){
+  .podium-round{min-width:520px !important}
+  .podium-card{min-height:110px !important;padding:28px 10px 11px !important}
+  .podium-card::before{font-size:34px !important;top:-12px !important}
+  .podium-card small{font-size:9px !important}
+  .podium-card strong{font-size:15px !important}
+  .third-block{width:min(100%,340px) !important}
+}
+</style>
+
+
+<style>
+/* WEB v7.9 — vertical Final Standings + standard-size Battle for 3rd */
+
+/* FINAL STANDINGS: stack Champion / 1st Runner-Up / 2nd Runner-Up vertically */
+.podium-round{
+  min-width:250px !important;
+  width:250px !important;
+  align-self:stretch !important;
+  flex:0 0 250px !important;
+}
+
+.podium-round .round-head{
+  justify-content:flex-start !important;
+  margin-bottom:18px !important;
+}
+
+.podium-stack{
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:center !important;
+  gap:14px !important;
+  min-height:260px !important;
+  width:100% !important;
+}
+
+.podium-card{
+  width:250px !important;
+  min-height:112px !important;
+  padding:30px 14px 14px !important;
+}
+
+.podium-card::before{
+  top:-14px !important;
+  font-size:38px !important;
+}
+
+.podium-card::after{
+  inset:6px !important;
+}
+
+.podium-card small{
+  margin-bottom:7px !important;
+  font-size:10px !important;
+  letter-spacing:.07em !important;
+}
+
+.podium-card strong{
+  font-size:16px !important;
+}
+
+/* BATTLE FOR 3RD: exact same proportions as normal match cards */
+.third-match{
+  margin-top:22px !important;
+  justify-content:center !important;
+}
+
+.third-block{
+  width:250px !important;
+  padding:0 !important;
+  border:0 !important;
+  background:transparent !important;
+}
+
+.third-title{
+  margin:0 0 10px !important;
+  color:var(--bronze) !important;
+  font-size:9px !important;
+  font-weight:900 !important;
+  letter-spacing:.17em !important;
+  text-align:center !important;
+}
+
+.third-block .match{
+  width:250px !important;
+  border:1px solid rgba(189,121,56,.38) !important;
+  background:linear-gradient(180deg,#151008,#070604) !important;
+  box-shadow:inset 3px 0 0 rgba(189,121,56,.68),0 10px 28px rgba(0,0,0,.16) !important;
+}
+
+.third-block .match-label{
+  padding:7px 10px !important;
+  border-bottom:1px solid rgba(189,121,56,.16) !important;
+  color:var(--bronze) !important;
+  font-size:8px !important;
+  letter-spacing:.13em !important;
+}
+
+.third-block .team{
+  height:44px !important;
+  padding:0 11px !important;
+}
+
+.third-block .team-name{
+  max-width:190px !important;
+  font-size:12px !important;
+  font-weight:900 !important;
+}
+
+.third-block .score{
+  min-width:18px !important;
+  font-size:13px !important;
+  font-weight:900 !important;
+}
+
+@media(max-width:760px){
+  .podium-round{
+    min-width:220px !important;
+    width:220px !important;
+    flex-basis:220px !important;
+  }
+
+  .podium-card{
+    width:220px !important;
+    min-height:104px !important;
+    padding:28px 12px 12px !important;
+  }
+
+  .podium-card::before{
+    font-size:34px !important;
+    top:-12px !important;
+  }
+
+  .podium-card small{
+    font-size:9px !important;
+  }
+
+  .podium-card strong{
+    font-size:15px !important;
+  }
+
+  .third-block,
+  .third-block .match{
+    width:220px !important;
+  }
+
+  .third-block .team-name{
+    max-width:160px !important;
+  }
+}
+</style>
+
+
+<style>
+/* WEB v7.11 — bracket alignment/spacing only */
+
+/* Vertically center the complete Final Standings block in its bracket column. */
+.podium-round{
+  align-self:stretch !important;
+  justify-content:center !important;
+}
+
+.podium-round .round-head{
+  flex:0 0 auto !important;
+}
+
+.podium-stack{
+  flex:0 0 auto !important;
+  justify-content:center !important;
+}
+
+/* Keep each round's match count close to its title instead of pushing it away. */
+.round-head{
+  justify-content:flex-start !important;
+  gap:10px !important;
+}
+
+.round-head .match-count,
+.round-head .round-count,
+.round-head > span:last-child{
+  margin-left:6px !important;
+  margin-right:0 !important;
+}
+</style>
+
+
+<style>
+/* WEB v7.12 — true vertical centering for Final Standings only */
+.podium-round{
+  position:relative !important;
+  align-self:stretch !important;
+  justify-content:initial !important;
+}
+
+.podium-inner{
+  position:absolute !important;
+  top:50% !important;
+  left:0 !important;
+  width:100% !important;
+  transform:translateY(-50%) !important;
+}
+
+.podium-inner .round-head{
+  margin-top:0 !important;
+}
+
+.podium-inner .podium-stack{
+  min-height:0 !important;
+}
+</style>
+
+
+<style>
+/* WEB v7.13 — center Final Standings against the bracket MATCH AREA.
+   The round headers occupy the top of each column, so the visual center of
+   the matches sits slightly below 50% of the whole column. */
+.podium-round{
+  position:relative !important;
+  align-self:stretch !important;
+}
+
+.podium-inner{
+  position:absolute !important;
+  left:0 !important;
+  top:calc(50% + 28px) !important;
+  width:100% !important;
+  transform:translateY(-50%) !important;
+}
+
+.podium-inner .round-head{
+  margin-top:0 !important;
+}
+</style>
+
+
+<style>
+/* WEB v7.14 — exact Final Standings alignment with the Final match */
+.podium-round{
+  position:relative !important;
+  align-self:stretch !important;
+}
+
+.podium-inner{
+  position:absolute !important;
+  left:0 !important;
+  top:50% !important; /* safe fallback until JS measures the Final match */
+  width:100% !important;
+  transform:translateY(-50%) !important;
+}
+</style>
+
+
+<style>
+/* WEB v7.15 — standalone centered esports podium */
+.standings-section{
+  width:100%;
+  box-sizing:border-box;
+  display:flex;
+  justify-content:center;
+  padding:58px 24px 38px;
+}
+.standings-section .podium-round{
+  position:static !important;
+  width:min(100%,860px) !important;
+  min-width:0 !important;
+  flex:none !important;
+  align-self:auto !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+}
+.standings-section .podium-inner{
+  position:static !important;
+  inset:auto !important;
+  width:100% !important;
+  transform:none !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+}
+.standings-section .round-head{
+  width:100% !important;
+  justify-content:center !important;
+  margin:0 0 40px !important;
+  text-align:center !important;
+}
+.standings-section .podium-stack{
+  width:100% !important;
+  min-height:0 !important;
+  display:flex !important;
+  flex-direction:row !important;
+  justify-content:center !important;
+  align-items:flex-end !important;
+  gap:28px !important;
+}
+.standings-section .podium-card.second{order:1}
+.standings-section .podium-card.champion{order:2}
+.standings-section .podium-card.third{order:3}
+.standings-section .podium-card{
+  position:relative !important;
+  width:220px !important;
+  height:220px !important;
+  min-height:220px !important;
+  box-sizing:border-box !important;
+  flex:none !important;
+  padding:48px 20px 24px !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  text-align:center !important;
+}
+.standings-section .podium-card.champion{
+  width:240px !important;
+  height:240px !important;
+  min-height:240px !important;
+  transform:translateY(-24px) !important;
+  box-shadow:0 0 28px rgba(255,214,0,.11),inset 0 0 24px rgba(255,214,0,.035) !important;
+}
+.standings-section .podium-card.second{
+  box-shadow:0 0 24px rgba(225,235,235,.08),inset 0 0 22px rgba(225,235,235,.025) !important;
+}
+.standings-section .podium-card.third{
+  box-shadow:0 0 24px rgba(214,116,18,.10),inset 0 0 22px rgba(214,116,18,.03) !important;
+}
+.standings-section .podium-card::before{
+  top:16px !important;
+  left:50% !important;
+  transform:translateX(-50%) !important;
+  font-size:42px !important;
+  line-height:1 !important;
+}
+.standings-section .podium-card.champion::before{font-size:48px !important}
+.standings-section .podium-card::after{inset:8px !important}
+.standings-section .podium-card small{
+  margin:0 0 12px !important;
+  font-size:11px !important;
+  letter-spacing:.09em !important;
+  text-align:center !important;
+}
+.standings-section .podium-card strong{
+  font-size:22px !important;
+  line-height:1.15 !important;
+  text-align:center !important;
+  max-width:100% !important;
+  overflow-wrap:anywhere !important;
+}
+.standings-section .podium-card.champion strong{font-size:25px !important}
+
+@media(max-width:760px){
+  .standings-section{padding:44px 18px 30px}
+  .standings-section .round-head{margin-bottom:30px !important}
+  .standings-section .podium-stack{
+    flex-direction:column !important;
+    align-items:center !important;
+    gap:22px !important;
+  }
+  .standings-section .podium-card,
+  .standings-section .podium-card.champion{
+    width:220px !important;
+    height:220px !important;
+    min-height:220px !important;
+    transform:none !important;
+  }
+  .standings-section .podium-card.champion{order:1}
+  .standings-section .podium-card.second{order:2}
+  .standings-section .podium-card.third{order:3}
+}
+</style>
+
+
+<style>
+/* WEB v7.16 — Final Standings + Battle for 3rd inside bracket-shell */
+.bracket-lower{
+  width:100%;
+  box-sizing:border-box;
+  margin-top:18px;
+  padding:34px 24px 36px;
+  border-top:1px solid rgba(76,255,89,.16);
+  background:linear-gradient(180deg,rgba(76,255,89,.012),rgba(0,0,0,0));
+}
+
+.bracket-lower .standings-section{
+  width:100%;
+  padding:18px 0 30px !important;
+  display:flex;
+  justify-content:center;
+  box-sizing:border-box;
+}
+
+.bracket-lower .third-match{
+  width:100%;
+  margin:16px 0 0 !important;
+  display:flex !important;
+  justify-content:center !important;
+}
+
+.bracket-lower .third-block{
+  margin-left:auto !important;
+  margin-right:auto !important;
+}
+
+@media(max-width:760px){
+  .bracket-lower{
+    margin-top:12px;
+    padding:28px 16px 30px;
+  }
+  .bracket-lower .standings-section{
+    padding:12px 0 24px !important;
+  }
+  .bracket-lower .third-match{
+    margin-top:12px !important;
+  }
+}
+</style>
+
+
+<style>
+/* WEB v7.17 — Final Standings beside Final match */
+
+.final-standings-side{
+  min-width:760px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  align-self:stretch;
+  padding-left:10px;
+  box-sizing:border-box;
+}
+
+/* Reuse the existing square podium cards without changing their visual design. */
+.final-standings-side .podium-round{
+  position:static !important;
+  width:100% !important;
+  min-width:0 !important;
+  flex:none !important;
+  align-self:auto !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+
+.final-standings-side .podium-inner{
+  position:static !important;
+  inset:auto !important;
+  width:100% !important;
+  transform:none !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+}
+
+.final-standings-side .round-head{
+  width:100% !important;
+  justify-content:center !important;
+  margin:0 0 34px !important;
+  text-align:center !important;
+}
+
+.final-standings-side .podium-stack{
+  width:100% !important;
+  min-height:0 !important;
+  display:flex !important;
+  flex-direction:row !important;
+  justify-content:center !important;
+  align-items:flex-end !important;
+  gap:22px !important;
+}
+
+/* Desktop order: 1st Runner-Up | Champion | 2nd Runner-Up */
+.final-standings-side .podium-card.second{order:1}
+.final-standings-side .podium-card.champion{order:2}
+.final-standings-side .podium-card.third{order:3}
+
+/* Keep the exact square sizes/styles from v7.15/v7.16 */
+.final-standings-side .podium-card{
+  width:220px !important;
+  height:220px !important;
+  min-height:220px !important;
+  flex:none !important;
+}
+
+.final-standings-side .podium-card.champion{
+  width:240px !important;
+  height:240px !important;
+  min-height:240px !important;
+  transform:translateY(-24px) !important;
+}
+
+/* Lower section now contains Battle for 3rd only. */
+.bracket-lower{
+  margin-top:18px;
+  padding-top:30px;
+  padding-bottom:34px;
+}
+
+.bracket-lower .third-match{
+  width:100%;
+  margin:0 !important;
+  justify-content:center !important;
+}
+
+/* Smaller screens: standings move below the Final match within the same bracket flow,
+   then Battle for 3rd remains below the whole flow. */
+@media(max-width:980px){
+  .final-standings-side{
+    min-width:520px;
+    padding-left:0;
+  }
+
+  .final-standings-side .podium-stack{
+    flex-direction:column !important;
+    align-items:center !important;
+    gap:20px !important;
+  }
+
+  .final-standings-side .podium-card,
+  .final-standings-side .podium-card.champion{
+    order:initial;
+    width:220px !important;
+    height:220px !important;
+    min-height:220px !important;
+    transform:none !important;
+  }
+
+  .final-standings-side .podium-card.champion{order:1}
+  .final-standings-side .podium-card.second{order:2}
+  .final-standings-side .podium-card.third{order:3}
+}
+
+@media(max-width:760px){
+  .final-standings-side{
+    min-width:220px;
+    width:220px;
+  }
+
+  .final-standings-side .round-head{
+    margin-bottom:28px !important;
+  }
+
+  .final-standings-side .podium-stack{
+    gap:18px !important;
+  }
+}
+</style>
+
+
+<style>
+/* WEB v7.18 — Battle for 3rd above Final Standings */
+
+/* Lower area remains inside the same Official Match Bracket shell. */
+.bracket-lower{
+  width:100%;
+  box-sizing:border-box;
+  margin-top:18px;
+  padding:30px 24px 38px;
+  border-top:1px solid rgba(76,255,89,.16);
+}
+
+/* Battle for 3rd comes first and sits toward the Semifinal/Final side on desktop. */
+.bracket-lower .third-match{
+  width:100%;
+  box-sizing:border-box;
+  display:flex !important;
+  justify-content:center !important;
+  margin:0 0 42px !important;
+}
+
+.bracket-lower .third-block{
+  margin-left:auto !important;
+  margin-right:auto !important;
+}
+
+/* Final Standings is the final element in the container, full-width and centered. */
+.bracket-lower .standings-section{
+  width:100%;
+  box-sizing:border-box;
+  display:flex !important;
+  justify-content:center !important;
+  padding:34px 0 8px !important;
+  border-top:1px solid rgba(76,255,89,.10);
+}
+
+/* Restore the v7.15/v7.16 centered square podium layout. */
+.bracket-lower .standings-section .podium-round{
+  position:static !important;
+  width:min(100%,860px) !important;
+  min-width:0 !important;
+  flex:none !important;
+  align-self:auto !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+}
+
+.bracket-lower .standings-section .podium-inner{
+  position:static !important;
+  inset:auto !important;
+  width:100% !important;
+  transform:none !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+}
+
+.bracket-lower .standings-section .round-head{
+  width:100% !important;
+  justify-content:center !important;
+  margin:0 0 40px !important;
+  text-align:center !important;
+}
+
+.bracket-lower .standings-section .podium-stack{
+  width:100% !important;
+  min-height:0 !important;
+  display:flex !important;
+  flex-direction:row !important;
+  justify-content:center !important;
+  align-items:flex-end !important;
+  gap:28px !important;
+}
+
+.bracket-lower .standings-section .podium-card.second{order:1}
+.bracket-lower .standings-section .podium-card.champion{order:2}
+.bracket-lower .standings-section .podium-card.third{order:3}
+
+.bracket-lower .standings-section .podium-card{
+  width:220px !important;
+  height:220px !important;
+  min-height:220px !important;
+  flex:none !important;
+}
+
+.bracket-lower .standings-section .podium-card.champion{
+  width:240px !important;
+  height:240px !important;
+  min-height:240px !important;
+  transform:translateY(-24px) !important;
+}
+
+/* Mobile/tablet order: bracket flow → Battle for 3rd → Final Standings. */
+@media(max-width:760px){
+  .bracket-lower{
+    margin-top:12px;
+    padding:26px 16px 30px;
+  }
+
+  .bracket-lower .third-match{
+    margin-bottom:30px !important;
+    justify-content:center !important;
+  }
+
+  .bracket-lower .standings-section{
+    padding:28px 0 4px !important;
+  }
+
+  .bracket-lower .standings-section .round-head{
+    margin-bottom:30px !important;
+  }
+
+  .bracket-lower .standings-section .podium-stack{
+    flex-direction:column !important;
+    align-items:center !important;
+    gap:22px !important;
+  }
+
+  .bracket-lower .standings-section .podium-card,
+  .bracket-lower .standings-section .podium-card.champion{
+    width:220px !important;
+    height:220px !important;
+    min-height:220px !important;
+    transform:none !important;
+  }
+
+  .bracket-lower .standings-section .podium-card.champion{order:1}
+  .bracket-lower .standings-section .podium-card.second{order:2}
+  .bracket-lower .standings-section .podium-card.third{order:3}
+}
+</style>
+
+
+<style>
+/* WEB v7.19 — Battle for 3rd beside Final match */
+
+/* Occupy the open column immediately to the right of Final. */
+.third-place-side{
+  min-width:250px;
+  width:250px;
+  flex:0 0 250px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-self:stretch;
+  box-sizing:border-box;
+}
+
+/* Match the visual vertical center of the Final round's match area.
+   Header spacer mirrors the normal round header footprint without displaying
+   an extra round header. */
+.third-side-inner{
+  width:250px;
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  justify-content:center;
+}
+
+.third-place-side .third-title{
+  margin:0 0 10px !important;
+  color:var(--bronze) !important;
+  font-size:9px !important;
+  font-weight:900 !important;
+  letter-spacing:.17em !important;
+  text-align:center !important;
+}
+
+/* Preserve the existing Battle for 3rd card appearance and proportions. */
+.third-place-side .match{
+  width:250px !important;
+  border:1px solid rgba(189,121,56,.38) !important;
+  background:linear-gradient(180deg,#151008,#070604) !important;
+  box-shadow:inset 3px 0 0 rgba(189,121,56,.68),0 10px 28px rgba(0,0,0,.16) !important;
+}
+
+.third-place-side .match-label{
+  padding:7px 10px !important;
+  border-bottom:1px solid rgba(189,121,56,.16) !important;
+  color:var(--bronze) !important;
+  font-size:8px !important;
+  letter-spacing:.13em !important;
+}
+
+.third-place-side .team{
+  height:44px !important;
+  padding:0 11px !important;
+}
+
+.third-place-side .team-name{
+  max-width:190px !important;
+  font-size:12px !important;
+  font-weight:900 !important;
+}
+
+.third-place-side .score{
+  min-width:18px !important;
+  font-size:13px !important;
+  font-weight:900 !important;
+}
+
+/* Final Standings remains the only bottom section. */
+.bracket-lower{
+  margin-top:18px;
+}
+
+.bracket-lower .standings-section{
+  padding-top:34px !important;
+}
+
+/* On narrower screens the bracket remains horizontally scrollable; when the
+   available layout collapses, the 3rd-place column stays after Final and
+   before the bottom Final Standings section. */
+@media(max-width:760px){
+  .third-place-side{
+    min-width:220px;
+    width:220px;
+    flex-basis:220px;
+  }
+
+  .third-side-inner,
+  .third-place-side .match{
+    width:220px !important;
+  }
+
+  .third-place-side .team-name{
+    max-width:160px !important;
+  }
+}
+</style>
+
+
+<style>
+/* WEB v7.20 — Battle for 3rd in the open space directly BELOW Final */
+
+/* The lower area spans the bracket shell, but the third-place match is
+   positioned on the same horizontal centerline as the Final column. */
+.bracket-lower{
+  position:relative;
+  width:100%;
+  box-sizing:border-box;
+}
+
+/* On desktop, align the 250px third-place box directly under the 250px Final
+   column shown above. The bracket's desktop geometry is:
+   shell padding/scroll origin + Round1(250) + gap(78) + Semi(250) + gap(78),
+   so the Final column begins at 656px from the bracket content origin. */
+.bracket-lower .final-under-third{
+  width:250px !important;
+  margin:0 0 44px 656px !important;
+  display:flex !important;
+  justify-content:center !important;
+}
+
+.bracket-lower .final-under-third .third-block{
+  width:250px !important;
+  margin:0 !important;
+}
+
+/* Final Standings stays below, centered, unchanged. */
+.bracket-lower .standings-section{
+  width:100%;
+  margin:0 !important;
+}
+
+/* At narrower widths, stop forcing the desktop column offset.
+   Battle for 3rd stacks after the bracket flow and before Final Standings. */
+@media(max-width:980px){
+  .bracket-lower .final-under-third{
+    width:100% !important;
+    margin:0 0 36px !important;
+    justify-content:center !important;
+  }
+}
+
+@media(max-width:760px){
+  .bracket-lower .final-under-third{
+    margin-bottom:30px !important;
+  }
+}
+</style>
+
+
+<style>
+/* WEB v7.21 — Battle for 3rd inside the upper bracket area, below Final */
+
+.bracket-stage{
+  padding-bottom:170px !important;
+}
+
+/* Position the third-place box inside the same bracket-stage as Round 1,
+   Semifinals and Final, directly below the Final column. */
+.third-in-bracket{
+  position:absolute;
+  z-index:3;
+  left:656px;
+  top:430px;
+  width:250px;
+  display:flex;
+  justify-content:center;
+  box-sizing:border-box;
+}
+
+.third-in-bracket .third-block{
+  width:250px !important;
+  margin:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  background:transparent !important;
+}
+
+.third-in-bracket .third-title{
+  margin:0 0 10px !important;
+  color:var(--bronze) !important;
+  font-size:9px !important;
+  font-weight:900 !important;
+  letter-spacing:.17em !important;
+  text-align:center !important;
+}
+
+/* Preserve the existing third-place match styling exactly. */
+.third-in-bracket .match{
+  width:250px !important;
+}
+
+/* Final Standings remains below the bracket flow, unchanged. */
+.bracket-lower{
+  margin-top:0 !important;
+}
+
+/* On smaller screens, keep Battle for 3rd after the Final inside the scrollable
+   bracket stage, above Final Standings. */
+@media(max-width:980px){
+  .bracket-stage{
+    padding-bottom:170px !important;
+  }
+
+  .third-in-bracket{
+    left:656px;
+    top:430px;
+  }
+}
+
+@media(max-width:760px){
+  .third-in-bracket{
+    width:220px;
+  }
+
+  .third-in-bracket .third-block,
+  .third-in-bracket .match{
+    width:220px !important;
+  }
+}
+</style>
+
+
+<style>
+/* WEB v7.22 — Mobile spacing fix for Battle for 3rd */
+
+@media(max-width:760px){
+  /* The previous absolute top:430px + 170px reserved bottom space created
+     an oversized vertical gap on phones. Pull the card upward and tighten
+     the stage height while keeping it inside the upper bracket area. */
+  .bracket-stage{
+    padding-bottom:95px !important;
+  }
+
+  .third-in-bracket{
+    top:345px !important;
+    left:656px !important;
+    width:220px !important;
+  }
+
+  .third-in-bracket .third-block,
+  .third-in-bracket .match{
+    width:220px !important;
+  }
+
+  /* Keep Final Standings closer to the bracket section on mobile. */
+  .bracket-lower{
+    margin-top:0 !important;
+    padding-top:22px !important;
+  }
+
+  .bracket-lower .standings-section{
+    padding-top:24px !important;
+  }
+}
+</style>
+
+
+<style>
+/* WEB v7.23 — responsive Battle for 3rd spacing fix
+   Desktop remains unchanged. Mobile removes the oversized fixed vertical gap. */
+
+@media(max-width:768px){
+  /*
+    BEFORE:
+      .third-in-bracket used a fixed top offset (345px on mobile)
+      while .bracket-stage reserved extra bottom padding.
+    On narrow screens this made the third-place card feel detached from Final.
+
+    AFTER:
+      Keep the card in the same Final-column x-position, but use a compact
+      top offset tied to the actual final-card region and reduce reserved space.
+  */
+
+  .bracket-stage{
+    padding-bottom:72px !important;
+  }
+
+  .third-in-bracket{
+    top:305px !important;
+    left:656px !important;
+    margin-top:0 !important;
+    transform:none !important;
+  }
+
+  .third-in-bracket .third-title{
+    margin-bottom:8px !important;
+  }
+
+  .bracket-lower{
+    padding-top:16px !important;
+  }
+
+  .bracket-lower .standings-section{
+    padding-top:18px !important;
+  }
+}
+
+/* Extra-tight phones */
+@media(max-width:480px){
+  .bracket-stage{
+    padding-bottom:58px !important;
+  }
+
+  .third-in-bracket{
+    top:292px !important;
+  }
+
+  .bracket-lower{
+    padding-top:12px !important;
+  }
+
+  .bracket-lower .standings-section{
+    padding-top:14px !important;
+  }
+}
+</style>
+
+
+<style>
+/* WEB v7.24 — mobile Battle for 3rd dynamically follows Final */
+@media(max-width:768px){
+  .third-in-bracket{
+    left:656px !important;
+    margin-top:0 !important;
+    transform:none !important;
+  }
+  .third-in-bracket .third-title{
+    margin-bottom:8px !important;
+  }
+  .bracket-lower{
+    margin-top:0 !important;
+    padding-top:14px !important;
+  }
+  .bracket-lower .standings-section{
+    padding-top:16px !important;
+  }
+}
+</style>
+
+
+<style>
+/* WEB v7.25 — Battle for 3rd is part of the Final column, not absolutely positioned */
+
+.final-round{
+  position:relative;
+}
+
+/* Keep the Final match where it already is, then place Battle for 3rd naturally below it. */
+.final-round .third-in-final-column{
+  width:250px;
+  margin:72px auto 0;
+  display:flex;
+  justify-content:center;
+  box-sizing:border-box;
+}
+
+.final-round .third-in-final-column .third-block{
+  width:250px !important;
+  margin:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  background:transparent !important;
+}
+
+.final-round .third-in-final-column .third-title{
+  margin:0 0 10px !important;
+  color:var(--bronze) !important;
+  font-size:9px !important;
+  font-weight:900 !important;
+  letter-spacing:.17em !important;
+  text-align:center !important;
+}
+
+/* Preserve the existing third-place match card styling and proportions. */
+.final-round .third-in-final-column .match{
+  width:250px !important;
+}
+
+/* Remove the old extra stage space used only by absolute positioning. */
+.bracket-stage{
+  padding-bottom:0 !important;
+}
+
+/* MOBILE: compact stack under Final; no fixed top/left, no overlap. */
+@media(max-width:768px){
+  .final-round .third-in-final-column{
+    width:220px;
+    margin:28px auto 0 !important;
+  }
+
+  .final-round .third-in-final-column .third-block,
+  .final-round .third-in-final-column .match{
+    width:220px !important;
+  }
+
+  .bracket-lower{
+    margin-top:0 !important;
+    padding-top:16px !important;
+  }
+
+  .bracket-lower .standings-section{
+    padding-top:18px !important;
+  }
+}
+
+/* Very small phones: tighten slightly more. */
+@media(max-width:480px){
+  .final-round .third-in-final-column{
+    margin-top:22px !important;
+  }
+}
+</style>
+
+
+<style>
+/* WEB v7.26 — desktop full-width bracket + consistent winner highlighting */
+@media(min-width:1024px){
+  /* Let the bracket use the complete desktop viewport instead of the old
+     1580px page cap. */
+  .main{
+    width:100% !important;
+    max-width:none !important;
+    box-sizing:border-box;
+    padding-left:clamp(18px,2.25vw,44px) !important;
+    padding-right:clamp(18px,2.25vw,44px) !important;
+  }
+
+  .bracket-shell{
+    width:100%;
+    box-sizing:border-box;
+  }
+
+  /* Desktop should not require horizontal scrolling. */
+  .scroller{
+    overflow-x:visible !important;
+    padding-left:24px;
+    padding-right:24px;
+  }
+
+  .bracket-stage{
+    width:100% !important;
+    min-width:0 !important;
+  }
+
+  .bracket{
+    width:100% !important;
+    min-width:0 !important;
+    justify-content:space-between;
+    gap:clamp(36px,5vw,96px) !important;
+  }
+
+  .round{
+    flex:0 0 250px;
+    min-width:250px;
+  }
+}
+
+/* Tablet/phone retain horizontal scrolling when the full bracket no longer fits. */
+@media(max-width:1023px){
+  .scroller{
+    overflow-x:auto;
+  }
+  .bracket-stage{
+    width:max-content;
+    min-width:100%;
+  }
+  .bracket{
+    width:max-content;
+    min-width:100%;
+  }
+}
+</style>
+
+
+<style>
+/* WEB v7.27 — compact centered desktop bracket */
+@media(min-width:1024px){
+  /* Outer page can remain full width, while the bracket itself stays compact. */
+  .bracket-shell{
+    width:100% !important;
+    max-width:none !important;
+  }
+
+  .scroller{
+    overflow-x:visible !important;
+    padding-left:24px !important;
+    padding-right:24px !important;
+  }
+
+  .bracket-stage{
+    width:100% !important;
+    max-width:1180px !important;
+    min-width:0 !important;
+    margin-left:auto !important;
+    margin-right:auto !important;
+  }
+
+  .bracket{
+    width:max-content !important;
+    min-width:0 !important;
+    margin-left:auto !important;
+    margin-right:auto !important;
+    justify-content:flex-start !important;
+    gap:78px !important;
+  }
+
+  .round{
+    flex:0 0 250px !important;
+    min-width:250px !important;
+  }
+}
+
+/* Tablet/mobile keep the original horizontal scrolling behavior. */
+@media(max-width:1023px){
+  .scroller{
+    overflow-x:auto !important;
+  }
+
+  .bracket-stage,
+  .bracket{
+    width:max-content !important;
+    max-width:none !important;
+    min-width:100% !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+  }
+}
+</style>
+
+
+<style>
+/* WEB v7.38 — Final match midpoint alignment */
+.final-round > .matches > .match{
+  will-change:transform;
+}
+
+/* Battle for 3rd intentionally remains untouched. */
+</style>
+
+
+<style>
+/* WEB v7.38 — hide Round 1 bye matches without collapsing bracket geometry */
+.match.match-ghost{
+  visibility:hidden !important;
+  pointer-events:none !important;
+  border-color:transparent !important;
+  background:transparent !important;
+  box-shadow:none !important;
+}
+</style>
+
+</head>
+<body>
+<header class="site-head">
+  <a class="brand" href="/">
+    <img src="https://media.koufuprinting.com/assets/qorvo-mark.png" alt="QORVO">
+    <span><strong>QORVO CFPH</strong><small>CROSSFIRE COMMUNITY</small></span>
+  </a>
+  <a class="back" href="/">← BACK TO HOME</a>
+</header>
+
+<section class="hero">
+  <div>
+    <div class="kicker">QORVO CFPH // TOURNAMENT</div>
+    <h1 id="title">TOURNAMENT <span>BRACKET</span></h1>
+    <div class="subtitle" id="subtitle">IN-CLAN TOURNAMENT</div>
+  </div>
+  <div class="hero-meta">
+    <div class="pill active" id="status">LOADING</div>
+    <div class="pill" id="team-pill">0 TEAMS</div>
+  </div>
+</section>
+
+<main class="main">
+  <div id="content"><div class="reg-card"><p>Loading tournament data…</p></div></div>
+  <div class="updated" id="updated"></div>
+</main>
+
+<script>
+(()=>{
+  const $=id=>document.getElementById(id);
+  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  // Resolve team IDs consistently even if older/saved bracket data contains
+  // string-vs-number ID differences.
+  const sameId=(a,b)=>a!=null&&b!=null&&String(a)===String(b);
+  const teamName=(id,teams)=>{
+    if(id==null)return 'TBD';
+    const found=teams.find(t=>sameId(t.id,id)||String(t.name)===String(id));
+    return found?.name||String(id);
+  };
+
+  // Determine a winner from the saved winner field first, then scores, then BYE.
+  // This is used for display hydration only; it does NOT modify persisted data.
+  function effectiveWinner(m){
+    if(!m)return null;
+    if(m.winner!=null)return m.winner;
+    const a=Number(m.scoreA),b=Number(m.scoreB);
+    if(m.teamA&&m.teamB&&Number.isFinite(a)&&Number.isFinite(b)&&a!==b){
+      return a>b?m.teamA:m.teamB;
+    }
+    if(m.completed&&((m.teamA&&!m.teamB)||(!m.teamA&&m.teamB))){
+      return m.teamA||m.teamB;
+    }
+    return null;
+  }
+
+  // Rebuild only MISSING downstream team references for display from the
+  // completed upstream results. Existing team IDs, scores and winners are
+  // preserved. This protects finalized brackets from appearing as TBD/TBD
+  // when a downstream slot was omitted/stale in stored JSON.
+  function hydrateBracketForDisplay(source){
+    if(!source)return source;
+    const br=typeof structuredClone==='function'
+      ? structuredClone(source)
+      : JSON.parse(JSON.stringify(source));
+
+    const rs=br.rounds||[];
+    for(let r=0;r<rs.length-1;r++){
+      const winners=(rs[r].matches||[]).map(effectiveWinner);
+      const next=rs[r+1]?.matches||[];
+      winners.forEach((winner,i)=>{
+        // Preserve the original upstream match index. A pending match must
+        // leave its downstream feeder slot empty instead of shifting later
+        // winners into an earlier match.
+        if(winner==null)return;
+        const target=next[Math.floor(i/2)];
+        if(!target)return;
+        if(i%2===0){
+          if(target.teamA==null)target.teamA=winner;
+        }else{
+          if(target.teamB==null)target.teamB=winner;
+        }
+      });
+    }
+
+    if(br.thirdPlace&&rs.length>=3){
+      const semis=rs[rs.length-2]?.matches||[];
+      const loser=m=>{
+        const w=effectiveWinner(m);
+        if(!m||w==null||m.teamA==null||m.teamB==null)return null;
+        return sameId(w,m.teamA)?m.teamB:m.teamA;
+      };
+      if(br.thirdPlace.teamA==null)br.thirdPlace.teamA=loser(semis[0]);
+      if(br.thirdPlace.teamB==null)br.thirdPlace.teamB=loser(semis[1]);
+    }
+
+    return br;
+  }
+
+  function teamRow(id,score,winner,teams){
+    return `<div class="team ${winner?'winner':''} ${!id?'tbd':''}">
+      <span class="team-name">${esc(id?teamName(id,teams):'TBD')}</span>
+      <span class="score">${score??''}</span>
+    </div>`;
+  }
+
+  function isByeMatch(m){
+    return !!(m&&m.completed&&m.winner&&((m.teamA&&!m.teamB)||(!m.teamA&&m.teamB)));
+  }
+
+  function byeGhostHTML(m,roundIndex,matchIndex){
+    // Preserve the exact Round 1 match slot in layout without displaying
+    // a fake game. Keeping the .match element preserves index-based pairing.
+    return `<div class="match match-ghost" data-round="${roundIndex}" data-match="${matchIndex}" data-completed="1" data-bye="1" aria-hidden="true">
+      <div class="match-label">&nbsp;</div>
+      <div class="team"></div>
+      <div class="team"></div>
+    </div>`;
+  }
+
+  function matchHTML(m,teams,label='',roundIndex=0,matchIndex=0,lastRound=false){
+    const bye=isByeMatch(m);
+
+    // Use the saved winner when available, but also fall back to score comparison.
+    // Normalizing IDs prevents a string-vs-number mismatch from breaking the
+    // winner highlight in the Final match.
+    const savedWinner=m.winner!=null?String(m.winner):null;
+    const scoreA=Number(m.scoreA);
+    const scoreB=Number(m.scoreB);
+    const hasScores=m.teamA&&m.teamB&&Number.isFinite(scoreA)&&Number.isFinite(scoreB)&&scoreA!==scoreB;
+    const derivedWinner=hasScores?(scoreA>scoreB?String(m.teamA):String(m.teamB)):null;
+    const winnerId=savedWinner||derivedWinner;
+    const isWinner=id=>id!=null&&winnerId!=null&&sameId(id,winnerId);
+
+    return `<div class="match" data-round="${roundIndex}" data-match="${matchIndex}" data-completed="${m.completed?'1':'0'}">
+      <div class="match-label">${label||esc(m.id.toUpperCase())}${bye?' · BYE':''}</div>
+      ${teamRow(m.teamA,m.scoreA,isWinner(m.teamA),teams)}
+      ${teamRow(m.teamB,m.scoreB,isWinner(m.teamB),teams)}
+    </div>`;
+  }
+
+  
+
+
+
+
+function alignFinalMatchToSemifinals(){
+  const rounds=[...document.querySelectorAll('.round')];
+  if(rounds.length<2)return;
+
+  const finalRound=rounds[rounds.length-1];
+  const semifinalRound=rounds[rounds.length-2];
+
+  // IMPORTANT: select only the real Final match, not the nested 3rd-place match.
+  const finalMatch=finalRound.querySelector(':scope > .matches > .match');
+  const semifinalMatches=[...semifinalRound.querySelectorAll(':scope > .matches > .match')];
+
+  if(!finalMatch||semifinalMatches.length<2)return;
+
+  // Reset only the Final match visual offset before re-measuring.
+  finalMatch.style.transform='';
+
+  const first=semifinalMatches[0].getBoundingClientRect();
+  const last=semifinalMatches[semifinalMatches.length-1].getBoundingClientRect();
+  const finalRect=finalMatch.getBoundingClientRect();
+
+  const semifinalMidpoint=((first.top+first.height/2)+(last.top+last.height/2))/2;
+  const finalCenter=finalRect.top+finalRect.height/2;
+  const delta=semifinalMidpoint-finalCenter;
+
+  // Transform changes only the Final card's painted position, so the
+  // Battle for 3rd block keeps its existing layout position unchanged.
+  finalMatch.style.transform=`translateY(${delta}px)`;
+}
+
+function drawConnections(){
+    const stage=document.getElementById('bracket-stage');
+    const svg=document.getElementById('bracket-connections');
+    const rounds=[...document.querySelectorAll('.round')];
+    if(!stage||!svg||rounds.length<2)return;
+
+    const stageRect=stage.getBoundingClientRect();
+    const width=stage.scrollWidth;
+    const height=stage.scrollHeight;
+    svg.setAttribute('width',width);
+    svg.setAttribute('height',height);
+    svg.setAttribute('viewBox',`0 0 ${width} ${height}`);
+    svg.innerHTML='';
+
+    for(let r=0;r<rounds.length-1;r++){
+      const current=[...rounds[r].querySelectorAll(':scope > .matches > .match')];
+      const nextRound=[...rounds[r+1].querySelectorAll(':scope > .matches > .match')];
+
+      current.forEach((match,mi)=>{
+        // A Round 1 bye keeps its DOM slot for pairing math, but represents
+        // no played match, so it must not have a visible connector.
+        if(match.dataset.bye==='1')return;
+        const target=nextRound[Math.floor(mi/2)];
+        if(!target)return;
+
+        const a=match.getBoundingClientRect();
+        const b=target.getBoundingClientRect();
+
+        const x1=a.right-stageRect.left;
+        const y1=a.top+a.height/2-stageRect.top;
+        const x2=b.left-stageRect.left;
+        const y2=b.top+b.height/2-stageRect.top;
+        const mid=x1+(x2-x1)*.5;
+
+        const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+        path.setAttribute('d',`M ${x1} ${y1} H ${mid} V ${y2} H ${x2}`);
+        path.setAttribute('class',`connector ${match.dataset.completed==='1'?'':'pending'}`);
+        svg.appendChild(path);
+      });
+    }
+  }
+
+  async function load(){
+    try{
+      const response=await fetch(`/api/tournament-bracket?t=${Date.now()}`,{cache:'no-store'});
+      const data=await response.json();
+      const t=data.tournament;
+      if(!t)return;
+
+      $('title').innerHTML=`${esc(t.title||'TOURNAMENT')} <span>BRACKET</span>`;
+      $('subtitle').textContent=t.subtitle||'';
+      $('status').textContent=String(t.status||'registration').replace(/-/g,' ').toUpperCase();
+      $('team-pill').textContent=`${t.teams?.length||0} TEAM${t.teams?.length===1?'':'S'}`;
+
+      if(!t.bracket){
+        $('content').innerHTML=`<div class="reg-card">
+          <div class="reg-count">${t.teams?.length||0}</div>
+          <div class="reg-label">REGISTERED TEAM${t.teams?.length===1?'':'S'}</div>
+          <p>${t.status==='registration'
+            ?'Registration is currently open. The official bracket will appear here after the participating teams are finalized.'
+            :'The official bracket has not been generated yet.'}</p>
+        </div>`;
+      }else{
+        const displayBracket=hydrateBracketForDisplay(t.bracket);
+        const rounds=displayBracket.rounds||[];
+        const final=rounds.at(-1)?.matches?.[0];
+        const champion=final?.completed?teamName(final.winner,t.teams):'TBD';
+        const second=final?.completed?teamName(final.winner===final.teamA?final.teamB:final.teamA,t.teams):'TBD';
+        const third=displayBracket.thirdPlace?.completed?teamName(displayBracket.thirdPlace.winner,t.teams):'TBD';
+
+        const podium=`<section class="podium-round">
+          <div class="podium-inner">
+            <div class="round-head">
+              <span class="round-num">★</span>
+              <span class="round-name">FINAL STANDINGS</span>
+            </div>
+            <div class="podium-stack">
+              <div class="podium-card champion ${champion==='TBD'?'pending':''}">
+                <small>CHAMPION</small><strong>${esc(champion)}</strong>
+              </div>
+              <div class="podium-card second ${second==='TBD'?'pending':''}">
+                <small>1ST RUNNER-UP</small><strong>${esc(second)}</strong>
+              </div>
+              <div class="podium-card third ${third==='TBD'?'pending':''}">
+                <small>2ND RUNNER-UP</small><strong>${esc(third)}</strong>
+              </div>
+            </div>
+          </div>
+        </section>`;
+
+        let html=`<div class="bracket-shell">
+          <div class="bracket-toolbar">
+            <strong>OFFICIAL MATCH BRACKET</strong>
+            <span>CONNECTED MATCH FLOW // SWIPE OR SCROLL TO VIEW ALL ROUNDS</span>
+          </div>
+          <div class="scroller">
+            <div class="bracket-stage" id="bracket-stage">
+              <svg class="bracket-connections" id="bracket-connections" aria-hidden="true"></svg>
+              <div class="bracket">
+                ${rounds.map((round,ri)=>`<section class="round ${ri===0?'first-round':''} ${ri===rounds.length-1?'final-round':''}" data-round="${ri}">
+                  <div class="round-head">
+                    <span class="round-num">${ri+1}</span>
+                    <span class="round-name">${esc(round.name)}</span>
+                    <span class="round-count">${round.matches.length} MATCH${round.matches.length===1?'':'ES'}</span>
+                  </div>
+                  <div class="matches">
+                    ${round.matches.map((m,mi)=>ri===0&&isByeMatch(m)?byeGhostHTML(m,ri,mi):matchHTML(m,t.teams,`MATCH ${mi+1}`,ri,mi,ri===rounds.length-1)).join('')}
+                  </div>
+                  ${ri===rounds.length-1 && displayBracket.thirdPlace ? `<div class="third-in-final-column">
+                    <div class="third-block">
+                      <div class="third-title">BATTLE FOR 3RD</div>
+                      ${matchHTML(displayBracket.thirdPlace,t.teams,'3RD PLACE MATCH',rounds.length,0,true)}
+                    </div>
+                  </div>` : ''}
+                </section>`).join('')}
+              </div>
+            </div>
+          </div>
+          <div class="bracket-lower">
+            <div class="standings-section">${podium}</div>
+          </div>
+        </div>`;
+
+        $('content').innerHTML=html;
+        requestAnimationFrame(()=>requestAnimationFrame(()=>{alignFinalMatchToSemifinals();drawConnections();}));
+      }
+
+      if(t.updatedAt)$('updated').textContent=`LAST UPDATED ${new Date(t.updatedAt).toLocaleString()}`;
+    }catch{
+      $('content').innerHTML='<div class="reg-card"><p>Bracket is temporarily unavailable. Please try again shortly.</p></div>';
+    }
+  }
+
+  let resizeTimer;
+  window.addEventListener('resize',()=>{
+    clearTimeout(resizeTimer);
+    resizeTimer=setTimeout(()=>{alignFinalMatchToSemifinals();drawConnections();},120);
+  });
+
+  load();
+})();
+</script>
+</body>
+</html>
